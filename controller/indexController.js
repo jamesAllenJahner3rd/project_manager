@@ -1,5 +1,5 @@
 module.exports = {
-    getapple: (req,res)=>{
+    this.getIndex: (req,res)=>{
         res.render('index.ejs')
     }
 }
