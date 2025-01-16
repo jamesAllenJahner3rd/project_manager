@@ -3,6 +3,7 @@ const app = express()
 //const connectDB = require('/config/database')
 const indexRoutes = require('./routes/indexRoutes')
 const profileRoutes = require('./routes/profileRoutes')
+const loginRoutes = require('./routes/loginRoutes')
 
 require('dotenv').config({path: './config/.env'})
 
@@ -15,6 +16,7 @@ app.use(express.json())
 
 app.use('/', indexRoutes)
 app.use('/profile', profileRoutes)
+app.use('/login', loginRoutes)
 
  
 app.listen(process.env.PORT||8000, ()=>{
