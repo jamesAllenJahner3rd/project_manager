@@ -4,5 +4,8 @@ module.exports = {
     },
     postLogin: (req,res)=>{
         res.render('profile.ejs')
+    },
+    getProfileCreation:(req,res)=>{
+        res.render('profileCreation.ejs')
     }
 }
