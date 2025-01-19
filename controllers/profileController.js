@@ -1,10 +1,25 @@
+const Profile = require('../models/Profile');
+
 module.exports = {
     getProfile: (req, res) => {
         res.render('profile.ejs');
     },
-    createProfile: (req, res) => {
-        const { username, password, passwordRepeat, name, email, timeZone } = req.body;
-        // Add logic to handle profile creation, e.g., save to database
-        res.redirect('/');
+    createProfile: async (req, res) => {
+        try {
+            const { username, password, name, email, timeZone, birthday } = req.body;
+            const newProfile = new Profile({
+                username,
+                password,
+                name,
+                email,
+                timeZone,
+                birthday
+            });
+            await newProfile.save();
+            res.redirect('/');
+        } catch (err) {
+            console.error('Error creating profile:', err);
+            res.status(500).send('Server Error');
+        }
     }
 }
