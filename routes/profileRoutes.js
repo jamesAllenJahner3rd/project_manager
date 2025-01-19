@@ -5,3 +5,4 @@ const profileController = require('../controllers/profileController')
 router.get('/', profileController.getProfile) 
 
 module.exports = router
+//
