@@ -1,29 +1,42 @@
 const express = require('express');
-const app = express();
-
-const methodOverride = require("method-override");
-
-//const connectDB = require('/config/database');
+const mongoose = require('mongoose');
+const methodOverride = require('method-override');
+const dotenv = require('dotenv');
 const indexRoutes = require('./routes/indexRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const loginRoutes = require('./routes/loginRoutes');
-const postRoutes = require("./routes/postRoutes");
-require('dotenv').config({path: './config/.env'});
+const postRoutes = require('./routes/postRoutes');
 
+dotenv.config({ path: './config/.env' });
 
+const app = express();
+const PORT = process.env.PORT || 8000;
 
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
+// Connect to MongoDB
+mongoose.connect(process.env.DB_STRING)
+    .then(() => {
+        console.log('Connected to MongoDB');
+    })
+    .catch((err) => {
+        console.error('MongoDB connection error:', err);
+    });
+
+// Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(methodOverride('_method'));
+app.use(express.static('public'));
 
+// View engine
+app.set('view engine', 'ejs');
+
+// Routes
 app.use('/', indexRoutes);
 app.use('/profile', profileRoutes);
 app.use('/login', loginRoutes);
-app.use(methodOverride("_method"));
-app.use("/post", postRoutes)
+app.use('/post', postRoutes);
 
-
-app.listen(process.env.PORT||8000, ()=>{
-    console.log('Server is running, you better catch it!')
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
