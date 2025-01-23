@@ -35,10 +35,23 @@ app.set('view engine', 'ejs');
 app.use('/', indexRoutes);
 app.use('/profile', profileRoutes);
 app.use('/login', loginRoutes);
-app.use('/post', postRoutes);
-app.use('/projects', projectRoutes);
+app.use(methodOverride("_method"));
+app.use("/post", postRoutes)
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+// Sessions
+app.use(
+    session({
+      secret: 'keyboard cat',
+      resave: false,
+      saveUninitialized: false,
+      store: new MongoStore({ mongooseConnection: mongoose.connection }),
+    })
+  )
+  
+// Passport middleware
+app.use(passport.initialize())
+app.use(passport.session())
+
+app.listen(process.env.PORT||8000, ()=>{
+    console.log('Server is running, you better catch it!')
 });
