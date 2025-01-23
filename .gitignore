@@ -1,6 +1,6 @@
 node_modules/
 config/.env
-
+package-lock.json
 # Dependencies
 node_modules/
 notes/
