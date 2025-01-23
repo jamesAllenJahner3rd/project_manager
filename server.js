@@ -25,7 +25,7 @@ mongoose.connect(process.env.DB_STRING)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
-app.use(express.static('public'));
+app.use('/public', express.static('public'));
 
 // View engine
 app.set('view engine', 'ejs');
