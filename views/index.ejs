@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- css link -->
     <link rel="stylesheet" href="public/css/reset.css" />
     <link rel="stylesheet" href="public/css/style.css" />
+    <!-- fonts link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Index Page of Project Manager</title>
   </head>
 
@@ -16,8 +22,12 @@
     <%- include('partials/header') %>
     <!-- hero section -->
     <section class="hero">
-      <h1>The Platform to manage your project</h1>
-      <img src="" alt="screen shot of our finished app">
+      <div>
+        <h1>The Platform to manage your project</h1>
+      </div>
+      <div>
+        <img src="" alt="screen shot of our finished app">
+      </div>
     </section>
     <!-- features section -->
     <section class="features">
@@ -26,12 +36,25 @@
     <!-- testimonials section -->
     <section class="testimonials">
       <h1>Testimonials</h1>
+      <div class="card">
+        <div>
+          <p>"Somebody once told me, The world is gonna roll me, I ain't the sharpest tool in the shed, She was looking kind of dumb, With her finger and her thumb, In the shape of an "L" on her forehead"</p>
+          <span>Author</span>
+        </div>
+        <div>
+          <img src="https://en.wikipedia.org/wiki/Shrek_%28character%29" alt="">
+        </div>
+      </div>
     </section>
     <!-- contact-us section -->
     <section class="contact-us">
       <h1>Contact Us</h1>
+      <p>Try our powerful project management software for free</p>
+      <form>
+        <input type="text" name="costumer" value="" placeholder="Enter your bussiness email">
+        <button type="submit">Try for free</button>
+      </form>
     </section>
-    <a href="/login"> To profile Page</a>
     <!-- footer -->
     <%- include('partials/footer') %>
   </body>
