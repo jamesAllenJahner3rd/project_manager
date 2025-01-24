@@ -1,6 +1,114 @@
-body {
-  background-color: #fff;
+/***************************/
+/********** BASE *********/
+/***************************/
+:root {
+  --white: #fff;
+  --black: #000;
+  --light-green: #EBF5F3;
+  --dark-green: #0C3245;
+  --green: #08CF65;
+  --dark-blue: #181F38;
 }
+
+body {
+  background-color: var(--white);
+  font-family: Roboto, sans-serif
+}
+
+/***************************/
+/********** HEADER *********/
+/***************************/
 header {
-  background-color: #EBF5F3;
+  background-color: var(--light-green);
+  height: 5em;
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+/*FIX: for some reason ul is not align center*/
+/*nav,*/
+nav ul {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+/***************************/
+/********** HERO *********/
+/***************************/
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  font-family: Poppins, Roboto, sans-serif;
+}
+
+.hero {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+.hero div {
+  width: 50%;
+}
+
+/***************************/
+/********** Testimonials *********/
+/***************************/
+.testimonials {
+  display: flex;
+  flex-flow: row wrap;
+  background-color: var(--light-green);
+}
+
+/*.testimonials.card {*/
+/*}*/
+
+/***************************/
+/********** Contact Us *********/
+/***************************/
+.contact-us {
+  padding: 1em;
+  background-color: var(--dark-blue);
+  color: var(--white);
+  text-align: center;
+}
+
+h1,
+p {
+  margin-bottom: 0.5em;
+}
+
+form {
+  gap: 1em;
+}
+
+.contact-us input {
+  padding: 0.4em;
+  border: 0.2em solid var(--white);
+  border-radius: 10px;
+}
+
+.contact-us button {
+  padding: 0.4em;
+  background-color: var(--green);
+  color: var(--white);
+  /*border: 0.2em solid var(--white);*/
+  border-radius: 10px;
+}
+
+/***************************/
+/********** FOOTER *********/
+/***************************/
+footer {
+  height: 5em;
+  padding: 1em;
+  border-top: 0.2em inset var(--light-green);
+  background-color: var(--dark-green);
+  color: var(--white);
+  text-align: center;
 }
