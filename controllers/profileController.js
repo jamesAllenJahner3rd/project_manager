@@ -1,27 +1,35 @@
-const Profile = require('../models/Profile');
+const Project = require('../models/Project');
 
 module.exports = {
-    getProfile: (req, res) => {
-        res.render('profile.ejs');
-    },
-    createProfile: async (req, res) => {
+    getProfile: async (req, res) => {
         try {
-            const { username, password, name, email, timeZone, birthday } = req.body;
-            const newProfile = new Profile({
-                username,
-                password,
-                name,
-                email,
-                timeZone,
-                birthday
-            });
-            await newProfile.save();
-            res.redirect('/');
+            const projects = await Project.find({ user: req.user.id });
+            res.render('profile', { projects });
         } catch (err) {
-            console.error('Error creating profile:', err);
+            console.error(err);
+            res.status(500).send('Server Error');
+        }
+    },
+    createProject: async (req, res) => {
+        try {
+            const { name, description, startDate, endDate, status } = req.body;
+            const newProject = new Project({
+                user: req.user.id,
+                name,
+                description,
+                startDate,
+                endDate,
+                status
+            });
+            await newProject.save();
+            res.redirect('/profile');
+        } catch (err) {
+            console.error(err);
             res.status(500).send('Server Error');
         }
     }
-}
-//
-//
+
+};
+
+
+

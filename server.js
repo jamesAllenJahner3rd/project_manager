@@ -6,6 +6,7 @@ const indexRoutes = require('./routes/indexRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const loginRoutes = require('./routes/loginRoutes');
 const postRoutes = require('./routes/postRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 dotenv.config({ path: './config/.env' });
 
@@ -35,6 +36,7 @@ app.use('/', indexRoutes);
 app.use('/profile', profileRoutes);
 app.use('/login', loginRoutes);
 app.use('/post', postRoutes);
+app.use('/projects', projectRoutes);
 
 // Start server
 app.listen(PORT, () => {
