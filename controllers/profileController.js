@@ -28,4 +28,8 @@ module.exports = {
             res.status(500).send('Server Error');
         }
     }
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> de99171c43413c9c19681de196c2ecd360e65a3d
