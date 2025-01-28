@@ -10,7 +10,7 @@ module.exports = {
             res.status(500).send('Server Error');
         }
     },
-    createProject: async (req, res) => {
+    createProfile: async (req, res) => {
         try {
             const { name, description, startDate, endDate, status } = req.body;
             const newProject = new Project({
@@ -30,6 +30,5 @@ module.exports = {
     }
 
 };
-
 
 
