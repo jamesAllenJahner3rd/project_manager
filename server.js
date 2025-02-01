@@ -59,14 +59,23 @@ app.use(
       secret: 'keyboard cat',
       resave: false,
       saveUninitialized: false,
-      cookie: { secure: true },
-      store: new MongoStore({ mongoUrl: process.env.DB_STRING  }),
+      //this was stoping us from being logged in as true
+      cookie: { secure: false },
+      //this was required do to an updated module
+      store: MongoStore.create({ mongoUrl: process.env.DB_STRING  }),
     })
 );
 
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+// Add this middleware before your route definitions
+//the partials weren't recieving the to isAuthenticated.
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.isAuthenticated();
+    next();
+});
+
 
 //static folder
 app.use(express.static(path.join(__dirname,"public")));
