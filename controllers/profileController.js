@@ -3,8 +3,13 @@ const Project = require('../models/Project');
 module.exports = {
     getProfile: async (req, res) => {
         try {
+            console.log("trying to get the profile");
             const projects = await Project.find({ user: req.user.id });
-            res.render('profile', { projects });
+            //all these are so the ejs have the isAuthenticated to test so log out will out if logged in.
+            res.render('profile', {
+                projects,
+                isAuthenticated: req.isAuthenticated()
+            });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');
@@ -22,7 +27,7 @@ module.exports = {
                 status
             });
             await newProject.save();
-            res.redirect('/profile');
+            res.redirect('/profile', { isAuthenticated: req.isAuthenticated() });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');

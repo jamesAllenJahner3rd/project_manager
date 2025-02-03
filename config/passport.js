@@ -24,6 +24,7 @@ module.exports = function(passport){// this was passed in from the app.js
                     let user = await User.findOne({ googleId: profile.id })
                     // return user 
                     if (user) {
+                        //done  signals the completion. null make no errors. user is what was found
                         done(null,user)
                         // or create user
                     }else{
@@ -38,7 +39,13 @@ module.exports = function(passport){// this was passed in from the app.js
     )
     passport.serializeUser((user, done) => done(null, user.id));
 
-    passport.deserializeUser((user, done) =>{
-        User.findById(id,(err,user) => done(err, user));
+    //this had to change due to mongoose not allowing call backs of findByID
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const user = await User.findById(id);
+            done(null, user);
+        } catch (err) {
+            done(err, null);
+        }
     });
 }
