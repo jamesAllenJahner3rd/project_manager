@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    
+    <!-- css link -->
+    <link rel="stylesheet" href="public/css/reset.css" />
+    <link rel="stylesheet" href="public/css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    <!-- corrected the title -->
+    <title>Login</title>
 </head>
 
 <body>
@@ -13,18 +19,13 @@
            Please login
         </nav>
     </header>
-    <form action="/login" method="post">
-        <fieldset>
-            <label for="username">Username</label>
-            <input type="text" name="username" id="username">
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password">
-            <input type="submit" value="Login">
-        </fieldset>
-        <fieldset>
-            <a href="/login/profileCreation">"Create New Account"</a>
-        </fieldset>
-    </form>
+  
+    <div class="googleAnchor">
+        <a href="/auth/google" class='googleAnchor'>
+           <button type="button" class="btn red darken-1"> <i class="fab fa-google left"></i> Log In With Google
+           </button>
+        </a>
+    </div>
     <footer>
         all thanks goes to the 100devs
     </footer>

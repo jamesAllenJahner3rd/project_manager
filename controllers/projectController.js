@@ -24,7 +24,8 @@ module.exports = {
                 status
             });
             await newProject.save();
-            res.redirect('/projects');
+             //all these are so the ejs have the isAuthenticated to test so log out will out if logged in.
+            res.redirect('/projects', { isAuthenticated: req.isAuthenticated() } );
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');
@@ -33,7 +34,7 @@ module.exports = {
     getProject: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
-            res.render('projects/show', { project });
+            res.render('projects/show', { project, isAuthenticated: req.isAuthenticated() });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');
