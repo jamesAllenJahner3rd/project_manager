@@ -7,6 +7,7 @@
       <li><a href="#">Pricing</a></li>
       <li><a href="#">Guide</a></li>
       <% if (isAuthenticated) { %>
+        <li><a href="/profile/">Profile</a></li>
         <li><a href="/auth/logout">Logout</a></li>
       <% } else { %>
         <li><a href="/login">Login</a></li>
