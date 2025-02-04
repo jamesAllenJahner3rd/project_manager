@@ -8,9 +8,10 @@ module.exports = {
     },
     postLogin: (req,res)=>{
         res.render('profile.ejs', { isAuthenticated: req.isAuthenticated() })
-    },
-    getProfileCreation:(req,res)=>{
-        res.render('profileCreation.ejs', { isAuthenticated: req.isAuthenticated() })
     }
+    // ,
+    // getProfileCreation:(req,res)=>{
+    //     res.render('profileCreation.ejs', { isAuthenticated: req.isAuthenticated() })
+    // }
 }
 //
