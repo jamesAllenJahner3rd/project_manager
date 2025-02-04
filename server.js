@@ -35,8 +35,6 @@ const PORT = process.env.PORT ||  8000;
 if (process.env.NODE_ENV ==='development'){
     app. use(morgan('dev'))
 }
-// EJS
-app.set('view engine', 'ejs');
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
