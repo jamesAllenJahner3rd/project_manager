@@ -24,7 +24,12 @@ const ProfileSchema = new mongoose.Schema({
     createdAt:{
         type: Date,
         default:Date.now()
+    },
+    username:{
+        type: String,
+        required: true
     }
+
 })
 
 const Profile = mongoose.model('Profile', ProfileSchema);

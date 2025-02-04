@@ -4,7 +4,7 @@ const projectController = require('../controllers/projectController');
 
 router.get('/', projectController.getProjects)
 router.get('/new', projectController.newProject);
-router.post('/', projectController.createProject); 
+router.post('/createProject', projectController.createProject); 
 router.get('/:id', projectController.getProject);
 router.get('/:id/edit', async (req, res) => {
     try {

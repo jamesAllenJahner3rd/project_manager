@@ -24,7 +24,7 @@
     <a href="/"> To index Page</a>
  
  <section class="hero">
-    <form  action="/createPoject" method="POST">
+    <form  action="/project/createProject" method="POST">
         <div class="form-group">
             <label for="name">Project Name</label>
         <input type="text" name="name" id="name" class="form-control" required>
@@ -51,6 +51,17 @@
         </div>
         <button type="submit" class="btn btn-primary">Create Project</button>
     </form>
+    <ul>
+        <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
+            <% for(let i = 0; i < projectList.length; i++) { %>
+                <li><%= projectList[i].name %></li>
+            <% } %>
+        <% } else { %>
+            <li>No projects found.</li>
+        <% } %>
+    </ul>
+    
+    
     <footer>
         all thanks goes to the 100devs
     </footer>

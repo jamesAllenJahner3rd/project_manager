@@ -25,6 +25,14 @@ const ProjectSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        required: false
+    },
+    adminId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        required: true
     }
 });
 
