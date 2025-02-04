@@ -1,39 +1,64 @@
-const Project = require('../models/Project');
-
+const Profile = require("../models/Profile");
+const Project = require("../models/Project");
+console.log("profileController triggered");
+const mongoose = require("mongoose");
 module.exports = {
+
+    
+
+   
     getProfile: async (req, res) => {
-        try {
-            console.log("trying to get the profile");
-            const projects = await Project.find({ user: req.user.id });
-            //all these are so the ejs have the isAuthenticated to test so log out will out if logged in.
-            res.render('profile', {
-                projects,
-                isAuthenticated: req.isAuthenticated()
-            });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send('Server Error');
+      console.log("Fetching profile...");
+    
+      try {
+        const userProfile = await Profile.findOne({ googleId: req.user.googleId });
+    
+        if (!userProfile) {
+          console.log("No profile found for this user.");
+          return res.status(404).send("Profile not found. Try logging in again.");
         }
+    
+        console.log("User Profile Found:", userProfile);
+        console.log("User Profile ID:", userProfile._id);
+    
+        // Ensure ObjectId format
+        const userId = new mongoose.Types.ObjectId(userProfile._id);
+    
+        // Fetch projects
+        const projectList = await Project.find({
+          $or: [{ adminId: userId }, { userId: userId }]
+        });
+    
+        console.log("Projects fetched from DB:", projectList);
+    
+        res.render("profile", {
+          userProfile,
+          projectList, 
+          isAuthenticated: req.isAuthenticated(),
+        });
+    
+      } catch (err) {
+        console.error("Error in getProfile:", err);
+        res.status(500).send("Server Error");
+      }
     },
-    createProfile: async (req, res) => {
-        try {
-            const { name, description, startDate, endDate, status } = req.body;
-            const newProject = new Project({
-                user: req.user.id,
-                name,
-                description,
-                startDate,
-                endDate,
-                status
-            });
-            await newProject.save();
-            res.redirect('/profile', { isAuthenticated: req.isAuthenticated() });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send('Server Error');
-        }
+
+  createProfile: async (req, res) => {
+    try {
+      const { name, description, startDate, endDate, status } = req.body;
+      const newProject = new Project({
+        user: req.user.id,
+        name,
+        description,
+        startDate,
+        endDate,
+        status,
+      });
+      await newProfile.save();
+      res.redirect("/profile", { isAuthenticated: req.isAuthenticated() });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
     }
-
+  },
 };
-
-
