@@ -19,37 +19,39 @@
 </head>
 
 <body onload="init()">
+    <!-- header -->
     <%- include('partials/header') %>
     <div id="dragparent">
         <div class="dragthing">
-            subscribe
+            <%= project.name %>
         </div>
         <div class="dragthing">
-            subscribe some more
+            <%= project.description %>
         </div>
         <div class="dragthing">
-            99% of you are not subscribed
+            <%= project.startDate %>
         </div>
         <div class="dragthing">
-            dragula
+            <%= project.endDate %>
         </div>
     </div>
     <div id="dragparent1">
         <div class="dragthing">
-            subscribe
+            <%= project.name %>
         </div>
         <div class="dragthing">
-            subscribe some more
+            <%= project.status %>
         </div>
         <div class="dragthing">
-            99% of you are not subscribed
+            <%= project.adminId %>
         </div>
         <div class="dragthing">
-            dragula
+            <%= project.createdAt %>
         </div>
     </div>
 
 
+    <!-- footer -->
     <%- include('partials/footer') %>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/$VERSION/dragula.min.js'></script>
 </body>

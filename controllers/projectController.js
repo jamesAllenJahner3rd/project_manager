@@ -1,6 +1,6 @@
 const Profile = require('../models/Profile');
 const Project = require('../models/Project');
-
+const mongoose = require('mongoose');
 module.exports = {
     getProjects: async (req, res) => {
         try {
@@ -20,7 +20,7 @@ module.exports = {
         });
             
             console.log(projectList);
-            res.render('/project_template.ejs', { projectList: projectList  });
+            res.render('project_template', { projectList: projectList  });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');
@@ -61,7 +61,8 @@ module.exports = {
     getProject: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
-            res.render('projects/show', { project, isAuthenticated: req.isAuthenticated() });
+            console.log("Project",project);
+            res.render('project_template', { project, isAuthenticated: req.isAuthenticated() });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');
