@@ -54,7 +54,7 @@
     <ul>
         <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
             <% for(let i = 0; i < projectList.length; i++) { %>
-                <li><%= projectList[i].name %></li>
+                <a href="/project/<%=projectList[i]._id %>"><li><%= projectList[i].name %></li></a>
             <% } %>
         <% } else { %>
             <li>No projects found.</li>
