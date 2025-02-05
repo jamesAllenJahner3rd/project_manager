@@ -12,7 +12,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const loginRoutes = require('./routes/loginRoutes');
 const postRoutes = require('./routes/postRoutes');
 const projectRoutes = require('./routes/projectRoutes');
-
+const { notFound, errorHandler } = require('./middleware/errorMiddleware'); 
 
 const morgan = require('morgan')
 const connectDB = require("./config/database");
@@ -75,6 +75,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// Error Handling Middleware
+app.use(notFound);
+app.use(errorHandler);
 
 //static folder
 app.use(express.static(path.join(__dirname,"public")));
