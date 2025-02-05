@@ -75,10 +75,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Error Handling Middleware
-app.use(notFound);
-app.use(errorHandler);
-
 //static folder
 app.use(express.static(path.join(__dirname,"public")));
 
@@ -90,6 +86,9 @@ app.use('/login', loginRoutes);
 app.use('/post', postRoutes);
 app.use('/project', projectRoutes);
 
+// Error Handling Middleware
+app.use(notFound);
+app.use(errorHandler);
 
 //NODE_ENV is going to let us know what stage of development we're in when booting.
 app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
