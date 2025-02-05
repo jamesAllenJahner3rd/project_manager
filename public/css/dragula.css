@@ -20,3 +20,10 @@
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
   filter: alpha(opacity=20);
 }
+.dragthing{
+  background-color: lightgray;
+  padding: 20px;
+  margin: 20px;
+  cursor: pointer;
+  width: 150px;
+}
