@@ -14,46 +14,65 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     
-    <title> Project Template</title>
-    <!-- corrected title -->
-</head>
+    <title>Project Template</title>
+    <style>
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .dragthing {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-sizing: border-box; 
+            word-wrap: break-word; 
+            margin: 0; 
+            flex: 1 0 25%; 
+        }
+    </style>
+  </head>
 
-<body onload="init()">
+  <body onload="init()">
     <!-- header -->
     <%- include('partials/header') %>
-    <div id="dragparent">
-        <div class="dragthing">
-            <%= project.name %>
-        </div>
-        <div class="dragthing">
-            <%= project.description %>
-        </div>
-        <div class="dragthing">
-            <%= project.startDate %>
-        </div>
-        <div class="dragthing">
-            <%= project.endDate %>
-        </div>
-    </div>
-    <div id="dragparent1">
-        <div class="dragthing">
-            <%= project.name %>
-        </div>
-        <div class="dragthing">
-            <%= project.status %>
-        </div>
-        <div class="dragthing">
-            <%= project.adminId %>
-        </div>
-        <div class="dragthing">
-            <%= project.createdAt %>
-        </div>
-    </div>
 
+    <!-- Form to create new boxes -->
+    <form id="createBoxForm">
+        <div class="form-group">
+            <label for="boxContent">Box Content</label>
+            <input type="text" id="boxContent" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Box</button>
+    </form>
+
+    <!-- Container for the boxes -->
+    <div id="dragparent" class="drag-container">
+        <!-- Existing boxes can be added here if needed -->
+    </div>
 
     <!-- footer -->
     <%- include('partials/footer') %>
     <script src="/js/dragula.js"></script>
     <script src="/js/main.js"></script>
-</body>
-</html>public
+    <script>
+        function init() {
+            const createBoxForm = document.getElementById('createBoxForm');
+            const dragparent = document.getElementById('dragparent');
+
+            createBoxForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const boxContent = document.getElementById('boxContent').value;
+                const newBox = document.createElement('div');
+                newBox.className = 'dragthing';
+                newBox.textContent = boxContent;
+                dragparent.appendChild(newBox);
+                document.getElementById('boxContent').value = '';
+            });
+
+            dragula([dragparent]);
+        }
+    </script>
+  </body>
+</html>
