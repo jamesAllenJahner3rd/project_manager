@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const postController = require('../controllers/postController')
+const indexController = require('../controllers/indexController')
 const { ensureAuth } = require('../middleware/auth')
 
-router.put('/profileCreation', ensureAuth, postController.profileCreation) 
+router.get('/callback',profileController.getProfile) 
 
 module.exports = router
 //
