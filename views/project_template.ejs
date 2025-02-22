@@ -46,7 +46,14 @@
         </div>
         <button type="submit" class="btn btn-primary">Create Box</button>
     </form>
+    <form id= "createDocumentForm" hidden>
+        <div class="form-group"  >
+            <label for="documentContent">Create Document</label>
+            <input type="text" id="documentContent" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
 
+    </form>
     <!-- Container for the boxes -->
     <div id="dragparent" class="drag-container">
         <!-- Existing boxes can be added here if needed -->
@@ -54,13 +61,18 @@
 
     <!-- footer -->
     <%- include('partials/footer') %>
-    <script src="/js/dragula.js"></script>
     <script src="/js/main.js"></script>
+    <script src="/js/dragula.js"></script>
+
     <script>
         function init() {
             const createBoxForm = document.getElementById('createBoxForm');
             const dragparent = document.getElementById('dragparent');
             const dragchild = document.getElementById('dragchild');
+            ///
+             const createDocumentForm = document.getElementById('createDocumentForm');
+             createDocumentForm.addEventListener('submit', ()=>createDocumentFunc(event))
+///
             createBoxForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const boxContent = document.getElementById('boxContent').value;
@@ -69,13 +81,21 @@
                 newBox.className = 'dragthing';
                 newBox.id = `column-${boxContent.toLowerCase().replace(/ /g, '')}`;
                 newBox.textContent = boxContent;
-                addDocumentButton.className = "btn btn-primary"
-                addDocumentButton.id = `button-${boxContent.toLowerCase().replace(/ /g, '')}`;
-                addDocumentButton.textContent = 'Add a Document'
-                newBox.appendChild(addDocumentButton)
+
                 dragparent.appendChild(newBox);
                 document.getElementById('boxContent').value = '';
+                if (document.querySelector('.dragthing')){
+                    document.getElementById('createDocumentForm').removeAttribute("hidden")
+                }else{
+                    document.getElementById('createDocumentForm').setAttribute("hidden")
+                }
             });
+            function createDocumentFunc(event){
+                event.preventDefault();
+                console.log('helo')
+                // const documentContent = document.getElementById('documentContent').value;
+                // const newDocument = document.createElement('div');
+            }
             dragula([dragparent]);
         }
     </script>
