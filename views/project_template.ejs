@@ -38,13 +38,13 @@
     <!-- header -->
     <%- include('partials/header') %>
 
-    <!-- Form to create new boxes -->
-    <form id="createBoxForm">
+    <!-- Form to create new columns -->
+    <form id="createColumnForm">
         <div class="form-group">
-            <label for="boxContent">Box Content</label>
-            <input type="text" id="boxContent" class="form-control" required>
+            <label for="columnContent">Column Content</label>
+            <input type="text" id="columnContent" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-primary">Create Box</button>
+        <button type="submit" class="btn btn-primary">Create Column</button>
     </form>
     <form id= "createDocumentForm" hidden>
         <h2> Create Document</h2>
@@ -63,9 +63,9 @@
         <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
 
     </form>
-    <!-- Container for the boxes -->
+    <!-- Container for the columns -->
     <div id="dragparent" class="drag-container">
-        <!-- Existing boxes can be added here if needed -->
+        <!-- Existing columns can be added here if needed -->
     </div>
 
     <!-- footer -->
@@ -75,24 +75,23 @@
 
     <script>
         function init() {
-            const createBoxForm = document.getElementById('createBoxForm');
+            const createColumnForm = document.getElementById('createColumnForm');
             const dragparent = document.getElementById('dragparent');
             const dragchild = document.getElementById('dragchild');
             ///
              const createDocumentForm = document.getElementById('createDocumentForm');
              createDocumentForm.addEventListener('submit', createDocumentFunc)
 ///
-            createBoxForm.addEventListener('submit', function(event) {
+            createColumnForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                const boxContent = document.getElementById('boxContent').value;
-                const newBox = document.createElement('ul');
+                const columnContent = document.getElementById('columnContent').value;
+                const newColumn = document.createElement('ul');
                 const addDocumentButton = document.createElement('button');
-                newBox.className = 'dragthing';
-                newBox.id = `column-${boxContent.toLowerCase().replace(/ /g, '')}`;
-                newBox.textContent = boxContent;
-
-                dragparent.appendChild(newBox);
-                createBoxForm.reset();
+                newColumn.className = 'dragthing';
+                newColumn.id = `column-${columnContent.toLowerCase().replace(/ /g, '')}`;
+                newColumn.textContent = columnContent;
+                dragparent.appendChild(newColumn);
+                createColumnForm.reset();
                 if (document.querySelector('.dragthing')){
                     document.getElementById('createDocumentForm').removeAttribute("hidden")
                 }else{
