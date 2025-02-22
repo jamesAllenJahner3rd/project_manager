@@ -28,6 +28,22 @@ h2 {
 }
 
 /***************************/
+/********** LAYOUT *********/
+/***************************/
+.drag-container {
+  height: 100%;
+  overflow:scroll;
+ 
+}
+/* the horizantal scroll bar was at the bottom. to decrease the touches i moved it to the top. */
+#dragparent, .dragthing{
+  transform: rotate(180deg);
+}
+/* dragparent::-webkit-scrollbar {
+  Set the css for the horizontal scrollbar
+} */
+
+/***************************/
 /********** HEADER *********/
 /***************************/
 header {
