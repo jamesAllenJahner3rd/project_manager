@@ -80,7 +80,7 @@
             const dragchild = document.getElementById('dragchild');
             ///
              const createDocumentForm = document.getElementById('createDocumentForm');
-             createDocumentForm.addEventListener('submit', ()=>createDocumentFunc(event))
+             createDocumentForm.addEventListener('submit', createDocumentFunc)
 ///
             createBoxForm.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -92,12 +92,13 @@
                 newBox.textContent = boxContent;
 
                 dragparent.appendChild(newBox);
-                document.getElementById('boxContent').value = '';
+                createBoxForm.reset();
                 if (document.querySelector('.dragthing')){
                     document.getElementById('createDocumentForm').removeAttribute("hidden")
                 }else{
                     document.getElementById('createDocumentForm').setAttribute("hidden")
                 }
+                
             });
             function createDocumentFunc(event){
                 event.preventDefault();
@@ -106,14 +107,14 @@
                 const addDocumentButton = document.createElement('button');
                 
 // test parent element.     `
-                parentColumn = document.querySelector('#dragparent ul:first-child')
+                const parentColumn = document.querySelector('#dragparent ul:first-child')
                 documentLineItem.className = 'dragDocument';
                 documentLineItem.textContent = documentContent
               //  console.log(parentColumn.id)
                 //documentLineItem.id = `column-${parentColumn.id.toLowerCase().replace(/ /g, '')}-${documentLineItem.textContent.toLowerCase().replace(/ /g, '')}`;
                 
                 parentColumn.appendChild(documentLineItem);
-                
+                createDocumentForm.reset();
             }
             dragula([dragparent]);
         }
