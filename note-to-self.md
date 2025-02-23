@@ -1,0 +1,3 @@
+- to test with [email only](https://buddy.works/tutorials/testing-with-jest-password-authentication-in-mongoose-model)
+- when you have to make a [test mock](https://codestax.medium.com/jest-mocking-for-unit-testing-33d16289df06) (as in you have to force some part of the code to have fixed value in order to test the other code part that involved the mocked part)
+- example of [auth implementations](https://github.com/labrocadabro/communitytaught)
