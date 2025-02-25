@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- css link -->
+    <!-- Without reset.css: inconsistent element styling across browsers -->
     <link rel="stylesheet" href="/css/reset.css" />
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/dragula.css"/>
-    <!-- fonts link -->
+    <!-- Without font preconnect: slow font loading and page render -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
@@ -22,57 +22,151 @@
             height: 100vh;
             overflow-y: auto;
         }
-        .dragthing {
+        .dragColumn {
             border: 1px solid #ccc;
             padding: 10px;
             background-color: #f9f9f9;
             box-sizing: border-box; 
             word-wrap: break-word; 
-            margin: 0; 
+            margin: 10px ;
             flex: 1 0 25%; 
+        }
+        .handle, .bar{
+            border:  1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: block;
+            text-align: center;
+            background-color: #9F9F9F;
+            border-radius: 22%;
         }
     </style>
   </head>
 
   <body onload="init()">
-    <!-- header -->
+    <!-- Without header: navigation missing -->
     <%- include('partials/header') %>
 
-    <!-- Form to create new boxes -->
-    <form id="createBoxForm">
+    <!-- Without this form: no way to create new columns -->
+    <form id="createColumnForm">
         <div class="form-group">
-            <label for="boxContent">Box Content</label>
-            <input type="text" id="boxContent" class="form-control" required>
+            <label for="columnContent">Column Content</label>
+            <input type="text" id="columnContent" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-primary">Create Box</button>
+        <button type="submit" class="btn btn-primary">Create Column</button>
     </form>
 
-    <!-- Container for the boxes -->
-    <div id="dragparent" class="drag-container">
-        <!-- Existing boxes can be added here if needed -->
-    </div>
+    <!-- Without hidden attribute: form shows before any columns exist -->
+    <form id="createDocumentForm" hidden>
+        <h2>Create Document</h2>
+        <div class="form-group">
+            <label for="documentTitle">Document Title</label>
+            <input type="text" id="documentTitle" class="form-control" required>
+            <input type="button" id="documentColumn" class="form-control" value="Column">
+            <label for="documentDescription">Document Description</label>
+            <input type="textbox" id="documentDescription" class="form-control">
+            
+            <input type="button" id="documentAssignee" class="form-control" value="Assignee">
+            <input type="button" id="documentLabel" class="form-control" value="Label">
+            <input type="button" id="documentProject" class="form-control" value="Assign to Project">
+            <input type="button" id="MileStone" class="form-control" value="MileStone">
+        </div>
+        <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+    </form>
 
-    <!-- footer -->
+    <!-- Without this container: nowhere to place dragable columns -->
+    <div id="dragparent" class="drag-container"></div>
+
+    <!-- Without footer: missing page closure and contact info -->
     <%- include('partials/footer') %>
-    <script src="/js/dragula.js"></script>
+    
+    <!-- Without main.js: core application features missing -->
     <script src="/js/main.js"></script>
+    <!-- Without dragula.js: no drag-and-drop functionality -->
+    <script src="/js/dragula.js"></script>
+
     <script>
+        // Without this array: unable to track columns for dragula integration
+        let listOfColumn = [];
+
         function init() {
-            const createBoxForm = document.getElementById('createBoxForm');
+            const createColumnForm = document.getElementById('createColumnForm');
+            const createDocumentForm = document.getElementById('createDocumentForm');
             const dragparent = document.getElementById('dragparent');
 
-            createBoxForm.addEventListener('submit', function(event) {
+            // Without this event listener: document form submission not handled
+            createDocumentForm.addEventListener('submit', createDocumentFunc);
+
+            // Without this event listener: columns can't be created
+            createColumnForm.addEventListener('submit', function(event) {
                 event.preventDefault();
-                const boxContent = document.getElementById('boxContent').value;
-                const newBox = document.createElement('div');
-                newBox.className = 'dragthing';
-                newBox.textContent = boxContent;
-                dragparent.appendChild(newBox);
-                document.getElementById('boxContent').value = '';
+                const columnContent = document.getElementById('columnContent').value;
+                
+                const newColumn = document.createElement('ul');
+                newColumn.className = 'dragColumn';
+                newColumn.id = `column-${columnContent.toLowerCase().replace(/ /g, '')}`;
+                
+                // Without handle: column can't be dragged
+                const handleBar = document.createElement('span');
+                handleBar.className = "handle";
+                handleBar.textContent = '+';
+                newColumn.appendChild(handleBar);
+                
+                const title = document.createElement('h1');
+                title.textContent = columnContent;
+                newColumn.appendChild(title);
+                
+                dragparent.appendChild(newColumn);
+                listOfColumn.push(newColumn);
+                createColumnForm.reset();
+                
+                // Without this check: document form might appear with no columns
+                if (document.querySelector('.dragColumn')) {
+                    document.getElementById('createDocumentForm').removeAttribute("hidden");
+                    
+                    // Without dragula initialization: items within columns not draggable
+                    dragula(listOfColumn, {
+                        moves: function (el, container, handle) {
+                            return handle.classList.contains('bar');
+                        }
+                    });
+                } else {
+                    document.getElementById('createDocumentForm').setAttribute("hidden");
+                }
             });
 
-            dragula([dragparent]);
+            function createDocumentFunc(event) {
+                event.preventDefault();
+                
+                const documentLineItem = document.createElement('li');
+                documentLineItem.className = 'dragDocument';
+                
+                // Without bar class: document item not draggable
+                const handleBar = document.createElement('span');
+                handleBar.className = "bar";
+                handleBar.textContent = '+';
+                documentLineItem.appendChild(handleBar);
+                
+                const docTitle = document.createElement('h2');
+                const documentTitle = document.getElementById('documentTitle').value;
+                docTitle.textContent = documentTitle;
+                documentLineItem.appendChild(docTitle);
+                
+                // Without this selector: document not attached to DOM
+                const parentColumn = document.querySelector('#dragparent ul:first-child');
+                parentColumn.appendChild(documentLineItem);
+                createDocumentForm.reset();
+            }
         }
+
+        // Without this initialization: columns not draggable
+        dragula([dragparent], {
+            moves: function (el, container, handle) {
+                return handle.classList.contains('handle');
+            }
+        });
     </script>
   </body>
 </html>
