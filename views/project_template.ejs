@@ -19,7 +19,7 @@
         .drag-container {
             display: flex;
             flex-wrap: wrap;
-            height: 100vh;
+            height: fit-content;
             overflow-y: auto;
         }
         .dragColumn {
@@ -29,7 +29,11 @@
             box-sizing: border-box; 
             word-wrap: break-word; 
             margin: 10px ;
-            flex: 1 0 25%; 
+            flex: 1 0 25%;
+        }
+        .gu-mirror{
+ 
+            transform: rotate(0deg);
         }
         .handle, .bar{
             border:  1px solid #ccc;
@@ -37,10 +41,18 @@
             width: 3vh;
             height: 3vh;
             padding: 0.1vh 0 0 0;
-            display: block;
+            display: inline-block;
             text-align: center;
             background-color: #9F9F9F;
             border-radius: 22%;
+        }
+        body{
+            position: relative;
+            height: 100vh;
+        }
+        footer{
+            position: sticky;
+            top: 100vh;
         }
     </style>
   </head>
@@ -115,6 +127,7 @@
                 newColumn.appendChild(handleBar);
                 
                 const title = document.createElement('h1');
+                title.className ='title';
                 title.textContent = columnContent;
                 newColumn.appendChild(title);
                 
@@ -129,8 +142,13 @@
                     // Without dragula initialization: items within columns not draggable
                     dragula(listOfColumn, {
                         moves: function (el, container, handle) {
-                            return handle.classList.contains('bar');
-                        }
+                            return handle.classList.contains('bar')
+                        },
+                        accepts: function(el, target, source, sibling){
+                           return !sibling || (!sibling.classList.contains('title')&& !sibling.classList.contains('handle'));
+                        },
+                        slideFactorX: 1000, 
+                        direction: 'vertical',
                     });
                 } else {
                     document.getElementById('createDocumentForm').setAttribute("hidden");
@@ -139,21 +157,22 @@
 
             function createDocumentFunc(event) {
                 event.preventDefault();
-                
+
                 const documentLineItem = document.createElement('li');
                 documentLineItem.className = 'dragDocument';
-                
+
                 // Without bar class: document item not draggable
                 const handleBar = document.createElement('span');
                 handleBar.className = "bar";
                 handleBar.textContent = '+';
                 documentLineItem.appendChild(handleBar);
-                
+
                 const docTitle = document.createElement('h2');
+
                 const documentTitle = document.getElementById('documentTitle').value;
                 docTitle.textContent = documentTitle;
                 documentLineItem.appendChild(docTitle);
-                
+
                 // Without this selector: document not attached to DOM
                 const parentColumn = document.querySelector('#dragparent ul:first-child');
                 parentColumn.appendChild(documentLineItem);
