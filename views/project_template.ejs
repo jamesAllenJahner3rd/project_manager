@@ -26,13 +26,19 @@
             border: 1px solid #ccc;
             padding: 10px;
             background-color: #f9f9f9;
-            box-sizing: border-box; 
-            word-wrap: break-word; 
-            margin: 10px ;
-            flex: 1 0 25%;
+            box-sizing: border-box;
+            word-wrap: break-word;
+            margin: 10px;
+            flex: 1 0 10%;
+            position: relative;
+           display: flex;
+           position: relative;
+           flex-flow: column nowrap;
+           align-items: inherit;
+           justify-content: flex-start;
         }
         .gu-mirror{
- 
+            /*this was required to flip right-side -up the dragged objects.  */
             transform: rotate(0deg);
         }
         .handle, .bar{
@@ -43,8 +49,43 @@
             padding: 0.1vh 0 0 0;
             display: inline-block;
             text-align: center;
-            background-color: #9F9F9F;
+            background-image: url(/images/Icons2.webp);
+            background-color: goldenrod;
+            background-size: 313px;
+            background-position: 54px 208px;
             border-radius: 22%;
+        }
+        .dragDocument {
+           border: 1px, solid, black;
+           background-color: #08CF65;
+           z-index: 1;
+           position: relative;
+           display: flex;
+           position: relative;
+           flex-flow: column nowrap;
+           align-items: flex-start;
+           justify-content: flex-start;
+        }
+        .deleteButton {
+            border: 1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: flex;
+            text-align: center;
+            background-image: url(/images/Icons1.webp);
+            background-color: lightgrey;
+            background-size: 386px;
+            background-position: 160px 255px;
+            border-radius: 22%;
+            position: absolute;
+            /* bottom: 7%; */
+            /* left: 95%; */
+            margin: 1% 1%;
+            justify-self: flex-end;
+            flex-direction: row;
+            align-self: flex-end;
         }
         body{
             position: relative;
@@ -123,31 +164,39 @@
                 // Without handle: column can't be dragged
                 const handleBar = document.createElement('span');
                 handleBar.className = "handle";
-                handleBar.textContent = '+';
+                // handleBar.textContent = '+';
                 newColumn.appendChild(handleBar);
                 
                 const title = document.createElement('h1');
                 title.className ='title';
                 title.textContent = columnContent;
                 newColumn.appendChild(title);
-                
+                //the D in CRUD
+                const deleteMe = document.createElement("button")
+                deleteMe.className = 'deleteButton'
+                deleteMe.dataset.column = newColumn.id
+                deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.column))
+                newColumn.appendChild(deleteMe)
+
                 dragparent.appendChild(newColumn);
                 listOfColumn.push(newColumn);
                 createColumnForm.reset();
-                
+
                 // Without this check: document form might appear with no columns
                 if (document.querySelector('.dragColumn')) {
                     document.getElementById('createDocumentForm').removeAttribute("hidden");
-                    
+
                     // Without dragula initialization: items within columns not draggable
                     dragula(listOfColumn, {
+                        //with out the handl the column will try to move with the documents
                         moves: function (el, container, handle) {
                             return handle.classList.contains('bar')
                         },
+                        //this must be here to keep the document from above the title.
                         accepts: function(el, target, source, sibling){
                            return !sibling || (!sibling.classList.contains('title')&& !sibling.classList.contains('handle'));
                         },
-                        slideFactorX: 1000, 
+                        //this is important to how the dragula detects the drag.
                         direction: 'vertical',
                     });
                 } else {
@@ -160,11 +209,12 @@
 
                 const documentLineItem = document.createElement('li');
                 documentLineItem.className = 'dragDocument';
+                documentLineItem.id = `id-${Math.random()}`
 
                 // Without bar class: document item not draggable
                 const handleBar = document.createElement('span');
                 handleBar.className = "bar";
-                handleBar.textContent = '+';
+                // handleBar.textContent = '+';
                 documentLineItem.appendChild(handleBar);
 
                 const docTitle = document.createElement('h2');
@@ -172,7 +222,12 @@
                 const documentTitle = document.getElementById('documentTitle').value;
                 docTitle.textContent = documentTitle;
                 documentLineItem.appendChild(docTitle);
-
+                //the D in CRUD
+                const deleteMe = document.createElement("button")
+                deleteMe.className = 'deleteButton'
+                deleteMe.dataset.document = documentLineItem.id
+                deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.document))
+                documentLineItem.appendChild(deleteMe)
                 // Without this selector: document not attached to DOM
                 const parentColumn = document.querySelector('#dragparent ul:first-child');
                 parentColumn.appendChild(documentLineItem);
@@ -186,6 +241,12 @@
                 return handle.classList.contains('handle');
             }
         });
+        function deleteDocument(docID){
+            theDoomedDocument = document.getElementById(docID)
+            if(theDoomedDocument){
+                theDoomedDocument.parentNode.removeChild(theDoomedDocument)
+            }
+        }
     </script>
   </body>
 </html>
