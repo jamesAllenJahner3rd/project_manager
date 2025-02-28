@@ -219,10 +219,18 @@
                 documentLineItem.appendChild(handleBar);
 
                 const docTitle = document.createElement('h2');
-
                 const documentTitle = document.getElementById('documentTitle').value;
                 docTitle.textContent = documentTitle;
+                docTitle.addEventListener("dblclick",()=> edit(docTitle))
                 documentLineItem.appendChild(docTitle);
+                
+                const docDescription = document.createElement('p');
+                const documentDescription = document.getElementById('documentDescription').value;
+                docDescription.textContent = documentTitle;
+                docDescription.addEventListener("dblclick",()=> edit(docDescription))
+                documentLineItem.appendChild(docDescription);
+                
+                const docColumnList = document.qudocumentColumn
                 //the D in CRUD
                 const deleteMe = document.createElement("button")
                 deleteMe.className = 'deleteButton'
@@ -267,6 +275,10 @@
                     element.textContent = text;
                     rewrite.remove(); // Properly remove the input element from the DOM
                 }
+            })
+            rewrite.addEventListener("blur",  function(event) {
+                element.textContent = text;
+                rewrite.remove(); // Properly remove the input element from the DOM
             })
             element.appendChild(rewrite).focus();
         }
