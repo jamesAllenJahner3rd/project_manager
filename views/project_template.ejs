@@ -256,15 +256,16 @@
             rewrite.id = "editInput";
             rewrite.type ="textbox";
             rewrite.placeholder = text
-            rewrite.addEventListener("keypress", function(event) {
+            rewrite.addEventListener("keydown", function(event) {
                 if (event.key === "Enter") {
                   event.preventDefault(); // the page would reload otherwise.
                   console.log(rewrite.value||"it's empty")
                   element.textContent = rewrite.value||rewrite.placeholder
                   delete rewrite
-                }if(event.key === "Escape"){
-                    element.textContent = text
-                    delete rewrite
+                }if (event.key === "Escape") {
+                    console.log('escape')
+                    element.textContent = text;
+                    rewrite.remove(); // Properly remove the input element from the DOM
                 }
             })
             element.appendChild(rewrite).focus();
