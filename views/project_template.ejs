@@ -170,6 +170,7 @@
                 const title = document.createElement('h1');
                 title.className ='title';
                 title.textContent = columnContent;
+                title.addEventListener("dblclick",()=> edit(title))
                 newColumn.appendChild(title);
                 //the D in CRUD
                 const deleteMe = document.createElement("button")
@@ -246,6 +247,27 @@
             if(theDoomedDocument){
                 theDoomedDocument.parentNode.removeChild(theDoomedDocument)
             }
+        }
+        function edit(element){
+            let text = element.textContent
+            element.textContent = ''
+            const rewrite =document.createElement('input');
+            rewrite.classList.add('form-control');
+            rewrite.id = "editInput";
+            rewrite.type ="textbox";
+            rewrite.placeholder = text
+            rewrite.addEventListener("keypress", function(event) {
+                if (event.key === "Enter") {
+                  event.preventDefault(); // the page would reload otherwise.
+                  console.log(rewrite.value||"it's empty")
+                  element.textContent = rewrite.value||rewrite.placeholder
+                  delete rewrite
+                }if(event.key === "Escape"){
+                    element.textContent = text
+                    delete rewrite
+                }
+            })
+            element.appendChild(rewrite).focus();
         }
     </script>
   </body>
