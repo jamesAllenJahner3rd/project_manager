@@ -170,6 +170,7 @@
                 const title = document.createElement('h1');
                 title.className ='title';
                 title.textContent = columnContent;
+                title.addEventListener("dblclick",()=> edit(title))
                 newColumn.appendChild(title);
                 //the D in CRUD
                 const deleteMe = document.createElement("button")
@@ -218,10 +219,18 @@
                 documentLineItem.appendChild(handleBar);
 
                 const docTitle = document.createElement('h2');
-
                 const documentTitle = document.getElementById('documentTitle').value;
                 docTitle.textContent = documentTitle;
+                docTitle.addEventListener("dblclick",()=> edit(docTitle))
                 documentLineItem.appendChild(docTitle);
+                
+                const docDescription = document.createElement('p');
+                const documentDescription = document.getElementById('documentDescription').value;
+                docDescription.textContent = documentTitle;
+                docDescription.addEventListener("dblclick",()=> edit(docDescription))
+                documentLineItem.appendChild(docDescription);
+                
+                const docColumnList = document.qudocumentColumn
                 //the D in CRUD
                 const deleteMe = document.createElement("button")
                 deleteMe.className = 'deleteButton'
@@ -246,6 +255,32 @@
             if(theDoomedDocument){
                 theDoomedDocument.parentNode.removeChild(theDoomedDocument)
             }
+        }
+        function edit(element){
+            let text = element.textContent
+            element.textContent = ''
+            const rewrite =document.createElement('input');
+            rewrite.classList.add('form-control');
+            rewrite.id = "editInput";
+            rewrite.type ="textbox";
+            rewrite.placeholder = text
+            rewrite.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                  event.preventDefault(); // the page would reload otherwise.
+                  console.log(rewrite.value||"it's empty")
+                  element.textContent = rewrite.value||rewrite.placeholder
+                  delete rewrite
+                }if (event.key === "Escape") {
+                    console.log('escape')
+                    element.textContent = text;
+                    rewrite.remove(); // Properly remove the input element from the DOM
+                }
+            })
+            rewrite.addEventListener("blur",  function(event) {
+                element.textContent = text;
+                rewrite.remove(); // Properly remove the input element from the DOM
+            })
+            element.appendChild(rewrite).focus();
         }
     </script>
   </body>
