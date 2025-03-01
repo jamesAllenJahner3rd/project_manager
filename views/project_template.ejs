@@ -51,8 +51,8 @@
             text-align: center;
             background-image: url(/images/Icons2.webp);
             background-color: goldenrod;
-            background-size: 313px;
-            background-position: 54px 208px;
+            background-size: 1155%;
+            background-position: 90.5% 37%;
             border-radius: 22%;
         }
         .dragDocument {
@@ -76,16 +76,44 @@
             text-align: center;
             background-image: url(/images/Icons1.webp);
             background-color: lightgrey;
-            background-size: 386px;
-            background-position: 160px 255px;
+            background-size: 1300%;
+            background-position: 63% 37%;
             border-radius: 22%;
-            position: absolute;
+            position: relative;
             /* bottom: 7%; */
             /* left: 95%; */
             margin: 1% 1%;
-            justify-self: flex-end;
-            flex-direction: row;
+            /* justify-self: flex-end; */
+            /* flex-direction: row; */
+            /* align-self: flex-end; */
+        }
+        .dragDocument .deleteButton{
             align-self: flex-end;
+        }
+        .newDocPopupButton {
+            border: 1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vw;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: flex
+;       
+            text-align: center;
+            background-image: url(/images/Icons1.webp);
+            background-color: lightgrey;
+            background-size: 1000%;
+            background-position: 36% 63%;
+            border-radius: 22%;
+            position: relative;
+            margin: 1% 1%;
+            
+        }
+         nav.columnNav{
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            position: relative;
+            align-items: baseline;
         }
         body{
             position: relative;
@@ -158,27 +186,35 @@
                 const columnContent = document.getElementById('columnContent').value;
                 
                 const newColumn = document.createElement('ul');
+                const columnNav = document.createElement('nav')
+                
                 newColumn.className = 'dragColumn';
                 newColumn.id = `column-${columnContent.toLowerCase().replace(/ /g, '')}`;
                 
                 // Without handle: column can't be dragged
                 const handleBar = document.createElement('span');
                 handleBar.className = "handle";
-                // handleBar.textContent = '+';
-                newColumn.appendChild(handleBar);
-                
+                columnNav.appendChild(handleBar);
+                const newDocPopup = document.createElement("button")
+                newDocPopup.className = 'newDocPopupButton'
+                newDocPopup.dataset.column = newColumn.id
+                newDocPopup.addEventListener("click",()=>createDocumentFunc(newDocPopup.dataset.column))
+                columnNav.appendChild(newDocPopup)
+                columnNav.classList.add("columnNav")
+
                 const title = document.createElement('h1');
                 title.className ='title';
                 title.textContent = columnContent;
                 title.addEventListener("dblclick",()=> edit(title))
-                newColumn.appendChild(title);
+                columnNav.appendChild(title);
                 //the D in CRUD
                 const deleteMe = document.createElement("button")
                 deleteMe.className = 'deleteButton'
                 deleteMe.dataset.column = newColumn.id
                 deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.column))
-                newColumn.appendChild(deleteMe)
-
+                columnNav.appendChild(deleteMe)
+                
+                newColumn.appendChild(columnNav)
                 dragparent.appendChild(newColumn);
                 listOfColumn.push(newColumn);
                 createColumnForm.reset();
