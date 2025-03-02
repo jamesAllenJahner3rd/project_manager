@@ -33,6 +33,7 @@
             position: relative;
            display: flex;
            position: relative;
+
            flex-flow: column nowrap;
            align-items: inherit;
            justify-content: flex-start;
@@ -115,6 +116,15 @@
             position: relative;
             align-items: baseline;
         }
+        #createDocumentForm{
+            border: 1px solid black;
+            position : fixed;
+            width: 30%;
+            z-index: 2;
+            background-color: white;
+            top:auto;
+            left:auto;
+        }
         body{
             position: relative;
             height: 100vh;
@@ -181,16 +191,18 @@
             createDocumentForm.addEventListener('submit', createDocumentFunc);
 
             // Without this event listener: columns can't be created
-            createColumnForm.addEventListener('submit', function(event) {
+            createColumnForm.addEventListener('submit',createColumnFunc )
+
+            function createColumnFunc (event) {
                 event.preventDefault();
                 const columnContent = document.getElementById('columnContent').value;
-                
+
                 const newColumn = document.createElement('ul');
                 const columnNav = document.createElement('nav')
-                
+
                 newColumn.className = 'dragColumn';
                 newColumn.id = `column-${columnContent.toLowerCase().replace(/ /g, '')}`;
-                
+
                 // Without handle: column can't be dragged
                 const handleBar = document.createElement('span');
                 handleBar.className = "handle";
@@ -198,7 +210,7 @@
                 const newDocPopup = document.createElement("button")
                 newDocPopup.className = 'newDocPopupButton'
                 newDocPopup.dataset.column = newColumn.id
-                newDocPopup.addEventListener("click",()=>createDocumentFunc(newDocPopup.dataset.column))
+                newDocPopup.addEventListener("click",()=>createDocumentPopup(newDocPopup.dataset.column))
                 columnNav.appendChild(newDocPopup)
                 columnNav.classList.add("columnNav")
 
@@ -220,8 +232,7 @@
                 createColumnForm.reset();
 
                 // Without this check: document form might appear with no columns
-                if (document.querySelector('.dragColumn')) {
-                    document.getElementById('createDocumentForm').removeAttribute("hidden");
+               
 
                     // Without dragula initialization: items within columns not draggable
                     dragula(listOfColumn, {
@@ -234,12 +245,20 @@
                            return !sibling || (!sibling.classList.contains('title')&& !sibling.classList.contains('handle'));
                         },
                         //this is important to how the dragula detects the drag.
-                        direction: 'vertical',
-                    });
-                } else {
-                    document.getElementById('createDocumentForm').setAttribute("hidden");
-                }
-            });
+                        direction: 'vertical'
+                    })
+                //      if (document.querySelector('.dragColumn')) {
+                //     document.getElementById('createDocumentForm').removeAttribute("hidden");});
+                // } else {
+                //     document.getElementById('createDocumentForm').setAttribute("hidden");
+                // }
+            };
+
+            function createDocumentPopup(columnData){
+                const theDocPopupForm =document.getElementById('createDocumentForm')
+                 theDocPopupForm.toggleAttribute("hidden");
+            }
+
 
             function createDocumentFunc(event) {
                 event.preventDefault();
