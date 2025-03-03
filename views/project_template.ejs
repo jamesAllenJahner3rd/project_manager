@@ -164,7 +164,7 @@
             <input type="button" id="documentProject" class="form-control" value="Assign to Project">
             <input type="button" id="MileStone" class="form-control" value="MileStone">
         </div>
-        <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+        <button type="submit" class="btn btn-primary" id='createDoc' data-id="<%- %>"">Create Document</button>
     </form>
 
     <!-- Without this container: nowhere to place dragable columns -->
@@ -201,7 +201,7 @@
                 const columnNav = document.createElement('nav')
 
                 newColumn.className = 'dragColumn';
-                newColumn.id = `column-${columnContent.toLowerCase().replace(/ /g, '')}`;
+                newColumn.id = `column-${Math.random()}`;
 
                 // Without handle: column can't be dragged
                 const handleBar = document.createElement('span');
@@ -255,14 +255,18 @@
             };
 
             function createDocumentPopup(columnData){
+                console.log(columnData)
                 const theDocPopupForm =document.getElementById('createDocumentForm')
                  theDocPopupForm.toggleAttribute("hidden");
+                 const popupButton = document.getElementById('createDoc');
+                 popupButton.setAttribute('data-id', columnData);
+
             }
 
 
             function createDocumentFunc(event) {
                 event.preventDefault();
-
+                const columnID =document.getElementById("createDoc").dataset.id
                 const documentLineItem = document.createElement('li');
                 documentLineItem.className = 'dragDocument';
                 documentLineItem.id = `id-${Math.random()}`
@@ -293,9 +297,10 @@
                 deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.document))
                 documentLineItem.appendChild(deleteMe)
                 // Without this selector: document not attached to DOM
-                const parentColumn = document.querySelector('#dragparent ul:first-child');
+                const parentColumn = document.getElementById(`${columnID}`);
                 parentColumn.appendChild(documentLineItem);
                 createDocumentForm.reset();
+                createDocumentPopup(null)
             }
         }
 
