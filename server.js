@@ -12,6 +12,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const loginRoutes = require('./routes/loginRoutes');
 const postRoutes = require('./routes/postRoutes');
 const projectRoutes = require('./routes/projectRoutes');
+const columnRoutes = require('./routes/columnRoutes')
 const { notFound, errorHandler } = require('./middleware/errorMiddleware'); 
 
 const morgan = require('morgan')
@@ -85,6 +86,7 @@ app.use('/profile', profileRoutes);
 app.use('/login', loginRoutes);
 app.use('/post', postRoutes);
 app.use('/project', projectRoutes);
+app.use('/columns', columnRoutes)
 
 // Error Handling Middleware
 app.use(notFound);

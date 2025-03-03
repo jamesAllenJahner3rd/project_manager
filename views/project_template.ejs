@@ -97,8 +97,7 @@
             width: 3vw;
             height: 3vh;
             padding: 0.1vh 0 0 0;
-            display: flex
-;       
+            display: flex;       
             text-align: center;
             background-image: url(/images/Icons1.webp);
             background-color: lightgrey;
@@ -141,10 +140,10 @@
     <%- include('partials/header') %>
 
     <!-- Without this form: no way to create new columns -->
-    <form id="createColumnForm">
+    <form id="createColumnForm" action="/columns/createColumn/<%=project._id%>" method="POST">
         <div class="form-group">
             <label for="columnContent">Column Content</label>
-            <input type="text" id="columnContent" class="form-control" required>
+            <input type="text" id="columnContent" class="form-control" name="column" required>
         </div>
         <button type="submit" class="btn btn-primary">Create Column</button>
     </form>
@@ -303,6 +302,7 @@
                 createDocumentPopup(null)
             }
         }
+
 
         // Without this initialization: columns not draggable
         dragula([dragparent], {
