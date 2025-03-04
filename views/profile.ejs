@@ -58,6 +58,9 @@
               <button class="delete-btn" data-id="<%= projectList[i]._id %>">
                 <i class="fas fa-trash-alt"></i> 
               </button>
+              <a href="/profile/project/<%= projectList[i]._id %>/edit" class="edit-btn">
+                <i class="fas fa-edit"></i>
+              </a>
             </li>
           <% } %>
         <% } else { %>
