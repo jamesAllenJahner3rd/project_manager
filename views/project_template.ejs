@@ -192,9 +192,10 @@
             // Without this event listener: columns can't be created
             createColumnForm.addEventListener('submit',createColumnFunc )
 
-            function createColumnFunc (event) {
-                event.preventDefault();
-                const columnContent = document.getElementById('columnContent').value;
+            function createColumnFunc () {
+                // The line below prevents the create column post request
+                // event.preventDefault();
+                const columnContent = document.getElementById('columnContent').value;  
 
                 const newColumn = document.createElement('ul');
                 const columnNav = document.createElement('nav')
@@ -218,6 +219,7 @@
                 title.textContent = columnContent;
                 title.addEventListener("dblclick",()=> edit(title))
                 columnNav.appendChild(title);
+
                 //the D in CRUD
                 const deleteMe = document.createElement("button")
                 deleteMe.className = 'deleteButton'
@@ -261,7 +263,6 @@
                  popupButton.setAttribute('data-id', columnData);
 
             }
-
 
             function createDocumentFunc(event) {
                 event.preventDefault();
