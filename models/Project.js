@@ -33,6 +33,18 @@ const ProjectSchema = new mongoose.Schema({
     adminId: {
         type: mongoose.Schema.Types.ObjectId, 
         required: true
+    }, 
+    kanbanId: {
+        type: String,
+        required: false
+    },
+    timelineID:{
+        type: String,
+        required: false
+    },
+    GanttID:{
+        type: String,
+        required: false
     }
 });
 
