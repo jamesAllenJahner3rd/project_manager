@@ -20,14 +20,14 @@ module.exports = {
         });
             
             console.log(projectList);
-            res.render('project_template', { projectList: projectList  });
+            res.render('Kanban_template', { projectList: projectList  });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');
         }
     },
     newProject: (req, res) => {
-        res.render('project_template.ejs');
+        res.render('kanban_template.ejs');
     },
     createProject: async (req, res) => {
         try {
@@ -58,11 +58,11 @@ module.exports = {
             res.status(500).send('Server Error');
         }
     },
-    getProject: async (req, res) => {
+    getKanban: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
             console.log("Project",project);
-            res.render('project_template', { project, isAuthenticated: req.isAuthenticated() });
+            res.render('kanban_template', { project, isAuthenticated: req.isAuthenticated() });
         } catch (err) {
             console.error(err);
             res.status(500).send('Server Error');

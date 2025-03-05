@@ -1,7 +1,11 @@
 const mongoose = require('mongoose')
 
 const ColumnSchema = new mongoose.Schema({
-  name: {
+  title: {
+    type: String, 
+    required: true
+  }, 
+  columnID: {
     type: String, 
     required: true
   }, 
@@ -10,11 +14,13 @@ const ColumnSchema = new mongoose.Schema({
     type: Date, 
     default: Date.now
   },
-  projectId: {
+  kanbanID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project', 
     required: true
-  }
+  },
+  
+  // documents: [Document.schema], 
 });
 
 const Column = mongoose.model('Column', ColumnSchema);

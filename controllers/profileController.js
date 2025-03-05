@@ -8,7 +8,7 @@ module.exports = {
 
         try {
             const userProfile = await Profile.findOne({ googleId: req.user.googleId });
-
+            // use this sheild condition to alert of a missing profile. 
             if (!userProfile) {
                 console.log("No profile found for this user.");
                 return res.status(404).send("Profile not found. Try logging in again.");
