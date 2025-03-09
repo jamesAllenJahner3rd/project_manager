@@ -10,6 +10,14 @@ router.post('/project', ensureAuth, profileController.createProfile);
 router.get('/project/:id/edit', ensureAuth, profileController.editProject);
 router.put('/project/:id', ensureAuth, profileController.updateProject);
 router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);
-router.get('/project/:id/data', ensureAuth, profileController.getProjectData);
-
+// Example route in Express
+app.post('/profile/project/:id', async (req, res) => {
+    try {
+      const projectId = req.params.id;
+      const updatedProject = await Project.findByIdAndUpdate(projectId, req.body, { new: true });
+      res.json({ success: true, project: updatedProject });
+    } catch (error) {
+      res.json({ success: false, error: error.message });
+    }
+  });
 module.exports = router;
