@@ -1,0 +1,22 @@
+{
+    "sourceFile": "models/Project.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741546556335,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741547118777,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,22 +18,23 @@\n         required: true\n     },\n     status: {\n         type: String,\n-        required: true,\n-        enum: ['Not Started', 'In Progress', 'Completed']\n+        enum: ['Not Started', 'In Progress', 'Completed'],\n+        default: 'Not Started'\n     },\n+    createdAt: {\n+        type: Date,\n+        default: Date.now\n+    },\n     userId: {\n-        type: mongoose.Schema.Types.ObjectId,\n-        ref: 'User',\n-        required: true\n+        type: mongoose.Schema.Types.ObjectId, \n+        required: false\n     },\n     adminId: {\n         type: mongoose.Schema.Types.ObjectId, \n         required: true\n     }\n-}, {\n-    timestamps: true\n });\n \n const Project = mongoose.model('Project', ProjectSchema);\n \n"
+                }
+            ],
+            "date": 1741546556335,
+            "name": "Commit-0",
+            "content": "const mongoose = require('mongoose');\n\nconst ProjectSchema = new mongoose.Schema({\n    name: {\n        type: String,\n        required: true\n    },\n    description: {\n        type: String,\n        required: true\n    },\n    startDate: {\n        type: Date,\n        required: true\n    },\n    endDate: {\n        type: Date,\n        required: true\n    },\n    status: {\n        type: String,\n        required: true,\n        enum: ['Not Started', 'In Progress', 'Completed']\n    },\n    userId: {\n        type: mongoose.Schema.Types.ObjectId,\n        ref: 'User',\n        required: true\n    },\n    adminId: {\n        type: mongoose.Schema.Types.ObjectId, \n        required: true\n    }\n}, {\n    timestamps: true\n});\n\nconst Project = mongoose.model('Project', ProjectSchema);\n\nmodule.exports = Project;"
+        }
+    ]
+}
