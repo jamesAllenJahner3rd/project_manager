@@ -106,12 +106,6 @@
     </footer>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('editModal');
-        const span = document.getElementsByClassName('close')[0];
-        const editProjectForm = document.getElementById('editProjectForm');
-        let currentProjectId = null;
-
-        // Delete project functionality
         const deleteButtons = document.querySelectorAll('.delete-btn');
         deleteButtons.forEach(button => {
           button.addEventListener('click', function(event) {
@@ -128,74 +122,6 @@
               }
             });
           });
-        });
-
-        // Edit project functionality
-        const editButtons = document.querySelectorAll('.edit-btn');
-        editButtons.forEach(button => {
-          button.addEventListener('click', async function(event) {
-            event.preventDefault();
-            const projectId = this.getAttribute('href').split('/edit')[0].split('project/')[1];
-            currentProjectId = projectId;
-            
-            // Fetch project data
-            const response = await fetch(`/profile/project/${projectId}/data`);
-            const project = await response.json();
-            
-            // Populate form
-            document.getElementById('editName').value = project.name;
-            document.getElementById('editDescription').value = project.description;
-            document.getElementById('editStartDate').value = project.startDate.split('T')[0];
-            document.getElementById('editEndDate').value = project.endDate.split('T')[0];
-            document.getElementById('editStatus').value = project.status;
-            
-            // Show modal
-            modal.style.display = 'block';
-          });
-        });
-
-        // Close modal when clicking (x)
-        span.onclick = function() {
-          modal.style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-          if (event.target == modal) {
-            modal.style.display = 'none';
-          }
-        }
-
-        // Handle form submission
-        editProjectForm.addEventListener('submit', async function(event) {
-          event.preventDefault();
-          
-          const formData = {
-            name: document.getElementById('editName').value,
-            description: document.getElementById('editDescription').value,
-            startDate: document.getElementById('editStartDate').value,
-            endDate: document.getElementById('editEndDate').value,
-            status: document.getElementById('editStatus').value
-          };
-
-          try {
-            const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formData)
-            });
-
-            if (response.ok) {
-              window.location.reload();
-            } else {
-              alert('Failed to update project');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to update project');
-          }
         });
       });
     </script>

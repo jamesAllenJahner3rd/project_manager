@@ -286,7 +286,6 @@ footer nav ul {
   z-index: 1;
   position:relative;
 }
-/*Code for popup modal*/
 .modal {
   display: none;
   position: fixed;

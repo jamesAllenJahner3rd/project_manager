@@ -98,17 +98,5 @@ module.exports = {
             console.error(err);
             res.status(500).json({ success: false, message: 'Server Error' });
         }
-    },
-
-    getProjectData: async (req, res) => {
-        try {
-            const project = await Project.findById(req.params.id);
-            if (!project) {
-                return res.status(404).json({ error: 'Project not found' });
-            }
-            res.json(project);
-        } catch (error) {
-            res.status(500).json({ error: 'Server error' });
-        }
     }
 };

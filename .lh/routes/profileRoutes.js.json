@@ -1,0 +1,78 @@
+{
+    "sourceFile": "routes/profileRoutes.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 15,
+            "patches": [
+                {
+                    "date": 1740876641142,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1740876731116,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,9 @@\n const express = require('express');\n const router = express.Router();\n-const profileController = require('../controllers/profileController'); // Ensure this path is correct\n-const { ensureAuth } = require('../middleware/auth')\n+const profileController = require('../controllers/profileController');\n+const { ensureAuth } = require('../middleware/auth');\n \n-// Route to the profile of the authenticated user\n-router.get('/', ensureAuth, profileController.getProfile) \n-\n-// Route to create a new profile\n-router.post('/profileCreation', ensureAuth, profileController.createProfile);\n-\n-// Route to delete a project\n+router.get('/', ensureAuth, profileController.getProfile);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1740965009294,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,6 +4,8 @@\n const { ensureAuth } = require('../middleware/auth');\n \n router.get('/', ensureAuth, profileController.getProfile);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n+router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n+router.put('/project/:id/update',ensureAuth, profileController.updateProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1740966933279,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,7 +5,7 @@\n \n router.get('/', ensureAuth, profileController.getProfile);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n-router.put('/project/:id/update',ensureAuth, profileController.updateProject);\n+router.put('/project/:id/',ensureAuth, profileController.updateProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1740967530887,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,7 +5,7 @@\n \n router.get('/', ensureAuth, profileController.getProfile);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n-router.put('/project/:id/',ensureAuth, profileController.updateProject);\n+router.put('/project/:id', projectController.updateProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1740967657804,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,7 +5,9 @@\n \n router.get('/', ensureAuth, profileController.getProfile);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n-router.put('/project/:id', projectController.updateProject);\n-\n+router.put('/project/:id', (req, res) => {\n+    console.log(`PUT request received for project ID: ${req.params.id}`);\n+    res.send('PUT request successful');\n+});\n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1740968260847,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,11 +3,12 @@\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n router.get('/', ensureAuth, profileController.getProfile);\n-router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n+router.post('/project', ensureAuth, profileController.createProject);\n+router.get('/project/new', ensureAuth, profileController.newProject);\n+router.get('/project/:id', ensureAuth, profileController.getProject);\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n-router.put('/project/:id', (req, res) => {\n-    console.log(`PUT request received for project ID: ${req.params.id}`);\n-    res.send('PUT request successful');\n-});\n+router.put('/project/:id', ensureAuth, profileController.updateProject);\n+router.delete('/project/:id', ensureAuth, profileController.deleteProject);\n+\n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741021195619,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,12 +3,9 @@\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n router.get('/', ensureAuth, profileController.getProfile);\n-router.post('/project', ensureAuth, profileController.createProject);\n-router.get('/project/new', ensureAuth, profileController.newProject);\n-router.get('/project/:id', ensureAuth, profileController.getProject);\n-router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n-router.put('/project/:id', ensureAuth, profileController.updateProject);\n-router.delete('/project/:id', ensureAuth, profileController.deleteProject);\n+router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n+router.put('/project/:id/update', ensureAuth, profileController.updateProject);\n+router.post('/create', ensureAuth, profileController.createProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741021891131,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,10 @@\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n router.get('/', ensureAuth, profileController.getProfile);\n-router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n-router.put('/project/:id/update', ensureAuth, profileController.updateProject);\n-router.post('/create', ensureAuth, profileController.createProject);\n+router.post('/project', ensureAuth, profileController.createProject);\n+router.get('/project/:id/edit', ensureAuth, profileController.editProject);router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n+router.put('/project/:id', ensureAuth, profileController.updateProject);', ensureAuth, profileController.updateProject);\n+router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741022185726,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,9 +4,9 @@\n const { ensureAuth } = require('../middleware/auth');\n \n router.get('/', ensureAuth, profileController.getProfile);\n router.post('/project', ensureAuth, profileController.createProject);\n-router.get('/project/:id/edit', ensureAuth, profileController.editProject);router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n-router.put('/project/:id', ensureAuth, profileController.updateProject);', ensureAuth, profileController.updateProject);\n-router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n+router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n+router.put('/project/:id', ensureAuth, profileController.updateProject);\n+router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741022294140,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,9 @@\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n router.get('/', ensureAuth, profileController.getProfile);\n-router.post('/project', ensureAuth, profileController.createProject);\n+router.post('/project', ensureAuth, profileController.createProfile);\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n \n"
+                },
+                {
+                    "date": 1741022533699,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,10 +2,12 @@\n const router = express.Router();\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n+// routes for logged in user creating new project\n router.get('/', ensureAuth, profileController.getProfile);\n router.post('/project', ensureAuth, profileController.createProfile);\n+// routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n \n"
+                },
+                {
+                    "date": 1741457551424,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,6 +9,15 @@\n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n-\n+// Example route in Express\n+app.post('/profile/project/:id', async (req, res) => {\n+    try {\n+      const projectId = req.params.id;\n+      const updatedProject = await Project.findByIdAndUpdate(projectId, req.body, { new: true });\n+      res.json({ success: true, project: updatedProject });\n+    } catch (error) {\n+      res.json({ success: false, error: error.message });\n+    }\n+  });\n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741457649159,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,15 +9,15 @@\n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n-// Example route in Express\n-app.post('/profile/project/:id', async (req, res) => {\n+router.post('/profile/project/:id', async (req, res) => {\n     try {\n       const projectId = req.params.id;\n       const updatedProject = await Project.findByIdAndUpdate(projectId, req.body, { new: true });\n       res.json({ success: true, project: updatedProject });\n     } catch (error) {\n       res.json({ success: false, error: error.message });\n     }\n   });\n+  \n module.exports = router;\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741457688823,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,9 @@\n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n-router.post('/profile/project/:id', async (req, res) => {\n+router.post('/project/:id', async (req, res) => {\n     try {\n       const projectId = req.params.id;\n       const updatedProject = await Project.findByIdAndUpdate(projectId, req.body, { new: true });\n       res.json({ success: true, project: updatedProject });\n"
+                },
+                {
+                    "date": 1741540801581,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,15 +9,7 @@\n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n-router.post('/project/:id', async (req, res) => {\n-    try {\n-      const projectId = req.params.id;\n-      const updatedProject = await Project.findByIdAndUpdate(projectId, req.body, { new: true });\n-      res.json({ success: true, project: updatedProject });\n-    } catch (error) {\n-      res.json({ success: false, error: error.message });\n-    }\n-  });\n-  \n+router.get('/project/:id/data', ensureAuth, profileController.getProjectData);\n+\n module.exports = router;\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1740876641142,
+            "name": "Commit-0",
+            "content": "const express = require('express');\nconst router = express.Router();\nconst profileController = require('../controllers/profileController'); // Ensure this path is correct\nconst { ensureAuth } = require('../middleware/auth')\n\n// Route to the profile of the authenticated user\nrouter.get('/', ensureAuth, profileController.getProfile) \n\n// Route to create a new profile\nrouter.post('/profileCreation', ensureAuth, profileController.createProfile);\n\n// Route to delete a project\nrouter.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n\nmodule.exports = router;"
+        }
+    ]
+}
