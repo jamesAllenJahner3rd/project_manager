@@ -228,12 +228,15 @@
                 createDocumentForm.setAttribute('hidden', '');
             });
 
-            function createColumnFunc (event) {
+            // Move dragula initialization outside of createColumnFunc
+            let columnDrake;
+
+            function createColumnFunc(event) {
                 event.preventDefault();
                 const columnContent = document.getElementById('columnContent').value;
 
                 const newColumn = document.createElement('ul');
-                const columnNav = document.createElement('nav')
+                const columnNav = document.createElement('nav');
 
                 newColumn.className = 'dragColumn';
                 newColumn.id = `column-${Math.random()}`;
@@ -266,28 +269,22 @@
                 listOfColumn.push(newColumn);
                 createColumnForm.reset();
 
-                // Without this check: document form might appear with no columns
-               
+                // Destroy existing dragula instance if it exists
+                if (columnDrake) {
+                    columnDrake.destroy();
+                }
 
-                    // Without dragula initialization: items within columns not draggable
-                    dragula(listOfColumn, {
-                        //with out the handl the column will try to move with the documents
-                        moves: function (el, container, handle) {
-                            return handle.classList.contains('bar')
-                        },
-                        //this must be here to keep the document from above the title.
-                        accepts: function(el, target, source, sibling){
-                           return !sibling || (!sibling.classList.contains('title')&& !sibling.classList.contains('handle'));
-                        },
-                        //this is important to how the dragula detects the drag.
-                        direction: 'vertical'
-                    })
-                //      if (document.querySelector('.dragColumn')) {
-                //     document.getElementById('createDocumentForm').removeAttribute("hidden");});
-                // } else {
-                //     document.getElementById('createDocumentForm').setAttribute("hidden");
-                // }
-            };
+                // Create new dragula instance with all columns
+                columnDrake = dragula(listOfColumn, {
+                    moves: function (el, container, handle) {
+                        return handle.classList.contains('bar');
+                    },
+                    accepts: function(el, target, source, sibling) {
+                        return !sibling || (!sibling.classList.contains('title') && !sibling.classList.contains('handle'));
+                    },
+                    direction: 'vertical'
+                });
+            }
 
             function createDocumentPopup(columnData){
                 console.log(columnData)
