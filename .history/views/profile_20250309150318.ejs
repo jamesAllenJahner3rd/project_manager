@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- css link -->
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <!-- fonts link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- Font Awesome link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>User Profile</title>
+    <title>User Profile</title>
+  </head>
+  <body>
+    <!-- header -->
+    <%- include('partials/header') %>
+    <h1>Adjust your profile here</h1>
+    <a href="/">To index Page</a>
+    <section class="hero">
+      <div class="content-wrapper">
+        <!-- Project Creation Form -->
+        <div class="form-container">
+          <form action="/profile/project" method="POST">
+            <div class="form-group">
+              <label for="name">Project Name</label>
+              <input type="text" name="name" id="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea name="description" id="description" class="form-control" required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="startDate">Start Date</label>
+              <input type="date" name="startDate" id="startDate" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="endDate">End Date</label>
+              <input type="date" name="endDate" id="endDate" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select name="status" id="status" class="form-control">
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Project</button>
+          </form>
+        </div>
+
+        <!-- Project List -->
+        <div class="project-list-container">
+          <ul class="project-list">
+            <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
+              <% for(let i = 0; i < projectList.length; i++) { %>
+                <li class="project-item">
+                  <div class="project-header">
+                    <div class="project-title">
+                      <h3><%= projectList[i].name %></h3>
+                    </div>
+                    <div class="project-actions">
+                      <button class="edit-btn" data-id="<%= projectList[i]._id %>">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="delete-btn" data-id="<%= projectList[i]._id %>">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="project-documents">
+                    <div class="document-column" data-project-id="<%= projectList[i]._id %>">
+                      <h3>Documents</h3>
+                      <div class="document-list" id="documentList-<%= projectList[i]._id %>">
+                        <!-- Documents will be loaded here dynamically -->
+                      </div>
+                      <button class="add-document-btn" onclick="showAddDocumentModal('<%= projectList[i]._id %>')">
+                        Add Document
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              <% } %>
+            <% } else { %>
+              <li>No projects found.</li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    </section>
+    <!-- Add Modal HTML -->
+    <div id="editProjectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h1>Edit Project</h1>
+            <form id="editProjectForm" method="POST">
+                <div class="form-group">
+                    <label for="name">Project Name</label>
+                    <input type="text" name="name" id="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea name="description" id="description" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Project</button>
+            </form>
+        </div>
+    </div>
+    <!-- Add Document Modal -->
+    <div id="addDocumentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Add New Document</h2>
+            <form id="addDocumentForm">
+                <div class="form-group">
+                    <label for="documentTitle">Title</label>
+                    <input type="text" id="documentTitle" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentContent">Content</label>
+                    <textarea id="documentContent" name="content" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Document</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+      all thanks goes to the 100devs
+    </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Modal elements
+        const editModal = document.getElementById('editProjectModal');
+        const addDocumentModal = document.getElementById('addDocumentModal');
+        const closeButtons = document.getElementsByClassName('close');
+        const closeModalButtons = document.getElementsByClassName('close-modal');
+        let currentProjectId = null; // Single declaration for both edit and document functions
+
+        // Delete project functionality
+        initializeDeleteButtons();
+
+        // Edit project functionality
+        initializeEditButtons();
+        
+        // Document functionality
+        initializeDocumentFunctionality();
+
+        function initializeDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', handleDelete);
+            });
+        }
+
+        function initializeEditButtons() {
+            const editButtons = document.querySelectorAll('.edit-btn');
+            editButtons.forEach(button => {
+                button.addEventListener('click', handleEdit);
+            });
+        }
+
+        function initializeDocumentFunctionality() {
+            // Document form submission
+            const addDocumentForm = document.getElementById('addDocumentForm');
+            addDocumentForm.addEventListener('submit', handleDocumentSubmit);
+
+            // Load initial documents
+            const projects = document.querySelectorAll('[data-project-id]');
+            projects.forEach(project => {
+                loadDocuments(project.dataset.projectId);
+            });
+        }
+
+        // Close modal handlers
+        Array.from(closeButtons).concat(Array.from(closeModalButtons)).forEach(button => {
+            button.addEventListener('click', () => {
+                editModal.style.display = 'none';
+                addDocumentModal.style.display = 'none';
+            });
+        });
+
+        // Window click handler for modals
+        window.onclick = function(event) {
+            if (event.target === editModal || event.target === addDocumentModal) {
+                editModal.style.display = 'none';
+                addDocumentModal.style.display = 'none';
+            }
+        };
+
+        // ... rest of your functions ...
+      });
+    </script>
+  </body>
+</html> 

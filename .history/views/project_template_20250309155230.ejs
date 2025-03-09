@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Without reset.css: inconsistent element styling across browsers -->
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/dragula.css"/>
+    <!-- Without font preconnect: slow font loading and page render -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <title>Project Template</title>
+    <style>
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            height: fit-content;
+            overflow-y: auto;
+        }
+        .dragColumn {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+            word-wrap: break-word;
+            margin: 10px;
+            flex: 1 0 10%;
+            position: relative;
+           display: flex;
+           position: relative;
+
+           flex-flow: column nowrap;
+           align-items: inherit;
+           justify-content: flex-start;
+        }
+        .gu-mirror{
+            /*this was required to flip right-side -up the dragged objects.  */
+            transform: rotate(0deg);
+        }
+        .handle, .bar{
+            border:  1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: inline-block;
+            text-align: center;
+            background-image: url(/images/Icons2.webp);
+            background-color: goldenrod;
+            background-size: 1155%;
+            background-position: 90.5% 37%;
+            border-radius: 22%;
+        }
+        .dragDocument {
+           border: 1px, solid, black;
+           background-color: #08CF65;
+           z-index: 1;
+           position: relative;
+           display: flex;
+           position: relative;
+           flex-flow: column nowrap;
+           align-items: flex-start;
+           justify-content: flex-start;
+        }
+        .deleteButton {
+            border: 1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: flex;
+            text-align: center;
+            background-image: url(/images/Icons1.webp);
+            background-color: lightgrey;
+            background-size: 1300%;
+            background-position: 63% 37%;
+            border-radius: 22%;
+            position: relative;
+            /* bottom: 7%; */
+            /* left: 95%; */
+            margin: 1% 1%;
+            /* justify-self: flex-end; */
+            /* flex-direction: row; */
+            /* align-self: flex-end; */
+        }
+        .dragDocument .deleteButton{
+            align-self: flex-end;
+        }
+        .newDocPopupButton {
+            border: 1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vw;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: flex
+;       
+            text-align: center;
+            background-image: url(/images/Icons1.webp);
+            background-color: lightgrey;
+            background-size: 1000%;
+            background-position: 36% 63%;
+            border-radius: 22%;
+            position: relative;
+            margin: 1% 1%;
+            
+        }
+         nav.columnNav{
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            position: relative;
+            align-items: baseline;
+        }
+        #createDocumentForm{
+            border: 1px solid black;
+            position : fixed;
+            width: 30%;
+            z-index: 2;
+            background-color: white;
+            top:auto;
+            left:auto;
+        }
+        body{
+            position: relative;
+            height: 100vh;
+        }
+        footer{
+            position: sticky;
+            top: 100vh;
+        }
+    </style>
+  </head>
+
+  <body onload="init()">
+    <!-- Move the form here, right after body opens -->
+    <div id="createDocumentForm" style="display: none;">
+        <h2>Create Document</h2>
+        <div class="form-group">
+            <label for="documentTitle">Document Title</label>
+            <input type="text" id="documentTitle" class="form-control" required>
+            
+            <label for="documentDescription">Document Description</label>
+            <input type="textbox" id="documentDescription" class="form-control">
+            
+            <input type="button" id="documentColumn" class="form-control" value="Column">
+            <input type="button" id="documentAssignee" class="form-control" value="Assignee">
+            <input type="button" id="documentLabel" class="form-control" value="Label">
+            <input type="button" id="documentProject" class="form-control" value="Assign to Project">
+            <input type="button" id="MileStone" class="form-control" value="MileStone">
+        </div>
+        <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+        <button type="button" class="btn btn-secondary" onclick="closeDocumentForm()">Cancel</button>
+    </div>
+    <!-- Without header: navigation missing -->
+    <%- include('partials/header') %>
+
+    <!-- Without this form: no way to c
+     new columns -->
+    <form id="createColumnForm">
+        <div class="form-group">
+            <label for="columnContent">Column Content</label>
+            <input type="text" id="columnContent" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Column</button>
+    </form>
+
+    <!-- Without hidden attribute: form shows before any columns exist -->
+    <form id="createDocumentForm" hidden>
+        <h2>Create Document</h2>
+        <div class="form-group">
+            <label for="documentTitle">Document Title</label>
+            <input type="text" id="documentTitle" class="form-control" required>
+            <input type="button" id="documentColumn" class="form-control" value="Column">
+            <label for="documentDescription">Document Description</label>
+            <input type="textbox" id="documentDescription" class="form-control">
+            
+            <input type="button" id="documentAssignee" class="form-control" value="Assignee">
+            <input type="button" id="documentLabel" class="form-control" value="Label">
+            <input type="button" id="documentProject" class="form-control" value="Assign to Project">
+            <input type="button" id="MileStone" class="form-control" value="MileStone">
+        </div>
+        <button type="submit" class="btn btn-primary" id='createDoc' data-id="<%- %>"">Create Document</button>
+    </form>
+
+    <!-- Without this container: nowhere to place dragable columns -->
+    <div id="dragparent" class="drag-container"></div>
+
+    <!-- Without footer: missing page closure and contact info -->
+    <%- include('partials/footer') %>
+    
+    <!-- Without main.js: core application features missing -->
+    <script src="/js/main.js"></script>
+    <!-- Without dragula.js: no drag-and-drop functionality -->
+    <script src="/js/dragula.js"></script>
+
+    <script>
+        // Without this array: unable to track columns for dragula integration
+        let listOfColumn = [];
+
+        function init() {
+            const createColumnForm = document.getElementById('createColumnForm');
+            const createDocumentForm = document.getElementById('createDocumentForm');
+            const dragparent = document.getElementById('dragparent');
+
+            // Without this event listener: document form submission not handled
+            createDocumentForm.addEventListener('submit', createDocumentFunc);
+
+            // Without this event listener: columns can't be created
+            createColumnForm.addEventListener('submit',createColumnFunc )
+
+            function createColumnFunc (event) {
+                event.preventDefault();
+                const columnContent = document.getElementById('columnContent').value;
+
+                const newColumn = document.createElement('ul');
+                const columnNav = document.createElement('nav')
+
+                newColumn.className = 'dragColumn';
+                newColumn.id = `column-${Math.random()}`;
+
+                // Without handle: column can't be dragged
+                const handleBar = document.createElement('span');
+                handleBar.className = "handle";
+                columnNav.appendChild(handleBar);
+                const newDocPopup = document.createElement("button")
+                newDocPopup.className = 'newDocPopupButton'
+                newDocPopup.dataset.column = newColumn.id
+                newDocPopup.addEventListener("click",()=>createDocumentPopup(newDocPopup.dataset.column))
+                columnNav.appendChild(newDocPopup)
+                columnNav.classList.add("columnNav")
+
+                const title = document.createElement('h1');
+                title.className ='title';
+                title.textContent = columnContent;
+                title.addEventListener("dblclick",()=> edit(title))
+                columnNav.appendChild(title);
+                //the D in CRUD
+                const deleteMe = document.createElement("button")
+                deleteMe.className = 'deleteButton'
+                deleteMe.dataset.column = newColumn.id
+                deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.column))
+                columnNav.appendChild(deleteMe)
+                
+                newColumn.appendChild(columnNav)
+                dragparent.appendChild(newColumn);
+                listOfColumn.push(newColumn);
+                createColumnForm.reset();
+
+                // Without this check: document form might appear with no columns
+               
+
+                    // Without dragula initialization: items within columns not draggable
+                    dragula(listOfColumn, {
+                        //with out the handl the column will try to move with the documents
+                        moves: function (el, container, handle) {
+                            return handle.classList.contains('bar')
+                        },
+                        //this must be here to keep the document from above the title.
+                        accepts: function(el, target, source, sibling){
+                           return !sibling || (!sibling.classList.contains('title')&& !sibling.classList.contains('handle'));
+                        },
+                        //this is important to how the dragula detects the drag.
+                        direction: 'vertical'
+                    })
+                //      if (document.querySelector('.dragColumn')) {
+                //     document.getElementById('createDocumentForm').removeAttribute("hidden");});
+                // } else {
+                //     document.getElementById('createDocumentForm').setAttribute("hidden");
+                // }
+            };
+
+            function createDocumentPopup(columnData){
+                console.log(columnData)
+                const theDocPopupForm =document.getElementById('createDocumentForm')
+                 theDocPopupForm.toggleAttribute("hidden");
+                 const popupButton = document.getElementById('createDoc');
+                 popupButton.setAttribute('data-id', columnData);
+
+            }
+
+
+            function createDocumentFunc(event) {
+                event.preventDefault();
+                const columnID =document.getElementById("createDoc").dataset.id
+                const documentLineItem = document.createElement('li');
+                documentLineItem.className = 'dragDocument';
+                documentLineItem.id = `id-${Math.random()}`
+
+                // Without bar class: document item not draggable
+                const handleBar = document.createElement('span');
+                handleBar.className = "bar";
+                // handleBar.textContent = '+';
+                documentLineItem.appendChild(handleBar);
+
+                const docTitle = document.createElement('h2');
+                const documentTitle = document.getElementById('documentTitle').value;
+                docTitle.textContent = documentTitle;
+                docTitle.addEventListener("dblclick",()=> edit(docTitle))
+                documentLineItem.appendChild(docTitle);
+                
+                const docDescription = document.createElement('p');
+                const documentDescription = document.getElementById('documentDescription').value;
+                docDescription.textContent = documentTitle;
+                docDescription.addEventListener("dblclick",()=> edit(docDescription))
+                documentLineItem.appendChild(docDescription);
+                
+                const docColumnList = document.qudocumentColumn
+                //the D in CRUD
+                const deleteMe = document.createElement("button")
+                deleteMe.className = 'deleteButton'
+                deleteMe.dataset.document = documentLineItem.id
+                deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.document))
+                documentLineItem.appendChild(deleteMe)
+                // Without this selector: document not attached to DOM
+                const parentColumn = document.getElementById(`${columnID}`);
+                parentColumn.appendChild(documentLineItem);
+                createDocumentForm.reset();
+                createDocumentPopup(null)
+            }
+        }
+
+        // Without this initialization: columns not draggable
+        dragula([dragparent], {
+            moves: function (el, container, handle) {
+                return handle.classList.contains('handle');
+            }
+        });
+        function deleteDocument(docID){
+            theDoomedDocument = document.getElementById(docID)
+            if(theDoomedDocument){
+                theDoomedDocument.parentNode.removeChild(theDoomedDocument)
+            }
+        }
+        function edit(element){
+            let text = element.textContent
+            element.textContent = ''
+            const rewrite =document.createElement('input');
+            rewrite.classList.add('form-control');
+            rewrite.id = "editInput";
+            rewrite.type ="textbox";
+            rewrite.placeholder = text
+            rewrite.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                  event.preventDefault(); // the page would reload otherwise.
+                  console.log(rewrite.value||"it's empty")
+                  element.textContent = rewrite.value||rewrite.placeholder
+                  delete rewrite
+                }if (event.key === "Escape") {
+                    console.log('escape')
+                    element.textContent = text;
+                    rewrite.remove(); // Properly remove the input element from the DOM
+                }
+            })
+            rewrite.addEventListener("blur",  function(event) {
+                element.textContent = text;
+                rewrite.remove(); // Properly remove the input element from the DOM
+            })
+            element.appendChild(rewrite).focus();
+        }
+    </script>
+  </body>
+</html>
