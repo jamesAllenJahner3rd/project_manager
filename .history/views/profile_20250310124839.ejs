@@ -1,0 +1,125 @@
+                    }
+                    
+                    document.addEventListener('mousemove', moveElement);
+                    document.addEventListener('mouseup', stopMoving);
+                });
+            }
+            
+            // Make both container and dragparent draggable
+            makeDraggable(container);
+            makeDraggable(dragParent);
+            
+            // Existing document drag handlers
+            documents.forEach(doc => {
+                doc.addEventListener('dragstart', handleDragStart);
+                doc.addEventListener('dragend', handleDragEnd);
+            });
+            
+            columns.forEach(column => {
+                column.addEventListener('dragover', handleDragOver);
+                column.addEventListener('drop', handleDrop);
+            });
+        }
+
+        // Add document form submission
+        document.getElementById('addDocumentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('documentTitle').value;
+            const content = document.getElementById('documentContent').value;
+            
+            try {
+                const response = await fetch(`/profile/project/${currentColumnId}/document`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, content, columnId: currentColumnId })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('addDocumentModal').style.display = 'none';
+                    loadDocuments(currentColumnId);
+                }
+            } catch (error) {
+                console.error('Error adding document:', error);
+            }
+        });
+
+        // Load documents for all projects on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const projects = document.querySelectorAll('[data-project-id]');
+            projects.forEach(project => {
+                loadDocuments(project.dataset.projectId);
+            });
+        });
+
+        // Get the add document modal
+        const addDocumentModal = document.getElementById('addDocumentModal');
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === addDocumentModal) {
+                addDocumentModal.style.display = 'none';
+                // Clear form fields
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && addDocumentModal.style.display === 'block') {
+                addDocumentModal.style.display = 'none';
+                // Clear form fields
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
+            }
+        });
+
+        // Make sure the close button (×) works
+        const closeBtn = addDocumentModal.querySelector('.close');
+        closeBtn.addEventListener('click', function() {
+            addDocumentModal.style.display = 'none';
+            // Clear form fields
+            document.getElementById('documentTitle').value = '';
+            document.getElementById('documentContent').value = '';
+        });
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+    /* ... existing styles ... */
+    
+    .drag-container, #dragparent {
+        display: flex;
+        flex-wrap: wrap;
+        height: fit-content;
+        overflow-y: auto;
+        cursor: move;
+        user-select: none;
+        position: relative;
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px;
+        z-index: 1;
+    }
+
+    .drag-container.dragging, #dragparent.dragging {
+        opacity: 0.8;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .document-card.dragging {
+        opacity: 0.5;
+        border: 2px dashed #666;
+    }
+
+    .document-column.drag-over {
+        background-color: #e9ecef;
+        border: 2px dashed #666;
+    }
+</style> 

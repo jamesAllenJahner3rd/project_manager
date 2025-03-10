@@ -57,50 +57,38 @@
             border-radius: 22%;
         }
         .dragDocument {
-            padding: 12px 45px 12px 12px; /* Add padding on the right for icons */
-            margin: 8px 0;
-            border-radius: 4px;
-            background-color: #08CF65;
-            position: relative;
-            cursor: move;
-        }
-        .document-container {
-            position: relative;
-            width: 100%;
-        }
-        /* Create a container for the icons */
-        .document-icons {
-            position: absolute;
-            top: 50%;
-            right: -35px; /* Adjust based on padding */
-            transform: translateY(-50%);
-            display: flex;
-            gap: 8px;
-            align-items: center;
+           border: 1px, solid, black;
+           background-color: #08CF65;
+           z-index: 1;
+           position: relative;
+           display: flex;
+           position: relative;
+           flex-flow: column nowrap;
+           align-items: flex-start;
+           justify-content: flex-start;
+           cursor: move;
+           transition: transform 0.2s ease;
         }
         .deleteButton {
             border: 1px solid #ccc;
-            width: 24px;
-            height: 24px;
-            padding: 0;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
             background-image: url(/images/Icons1.webp);
-            background-color: transparent;
+            background-color: lightgrey;
             background-size: 1300%;
             background-position: 63% 37%;
-            border-radius: 4px;
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .deleteButton:hover {
-            background-color: #ff4444;
-            border-color: #ff0000;
-            background-image: url(/images/Icons1.webp);
+            border-radius: 22%;
+            position: relative;
+            /* bottom: 7%; */
+            /* left: 95%; */
+            margin: 1% 1%;
+            /* justify-self: flex-end; */
+            /* flex-direction: row; */
+            /* align-self: flex-end; */
         }
         .dragDocument .deleteButton{
             align-self: flex-end;
@@ -238,13 +226,13 @@
             background-color: #f0f0f0;
         }
 
-        .document-color-picker {
-            width: 24px;
-            height: 24px;
-            padding: 0;
-            border: 1px solid #ccc;
+        .dragDocument {
+            padding: 12px;
+            margin: 8px 0;
             border-radius: 4px;
-            cursor: pointer;
+            background-color: #08CF65;
+            position: relative;
+            cursor: move;
         }
 
         .document-content {

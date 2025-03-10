@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 4,
             "patches": [
                 {
                     "date": 1741546556335,
@@ -12,6 +12,18 @@
                 {
                     "date": 1741547118777,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,22 +18,23 @@\n         required: true\n     },\n     status: {\n         type: String,\n-        required: true,\n-        enum: ['Not Started', 'In Progress', 'Completed']\n+        enum: ['Not Started', 'In Progress', 'Completed'],\n+        default: 'Not Started'\n     },\n+    createdAt: {\n+        type: Date,\n+        default: Date.now\n+    },\n     userId: {\n-        type: mongoose.Schema.Types.ObjectId,\n-        ref: 'User',\n-        required: true\n+        type: mongoose.Schema.Types.ObjectId, \n+        required: false\n     },\n     adminId: {\n         type: mongoose.Schema.Types.ObjectId, \n         required: true\n     }\n-}, {\n-    timestamps: true\n });\n \n const Project = mongoose.model('Project', ProjectSchema);\n \n"
+                },
+                {
+                    "date": 1741627245716,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,9 +32,13 @@\n     },\n     adminId: {\n         type: mongoose.Schema.Types.ObjectId, \n         required: true\n-    }\n+    },\n+    columns: [{\n+        type: mongoose.Schema.Types.ObjectId,\n+        ref: 'Column'\n+    }]\n });\n \n const Project = mongoose.model('Project', ProjectSchema);\n \n"
+                },
+                {
+                    "date": 1741627508152,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,13 +32,9 @@\n     },\n     adminId: {\n         type: mongoose.Schema.Types.ObjectId, \n         required: true\n-    },\n-    columns: [{\n-        type: mongoose.Schema.Types.ObjectId,\n-        ref: 'Column'\n-    }]\n+    }\n });\n \n const Project = mongoose.model('Project', ProjectSchema);\n \n"
+                },
+                {
+                    "date": 1741627635152,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -21,8 +21,12 @@\n         type: String,\n         enum: ['Not Started', 'In Progress', 'Completed'],\n         default: 'Not Started'\n     },\n+    columns: [{\n+        type: mongoose.Schema.Types.ObjectId,\n+        ref: 'Column'\n+    }],\n     createdAt: {\n         type: Date,\n         default: Date.now\n     },\n@@ -35,7 +39,5 @@\n         required: true\n     }\n });\n \n-const Project = mongoose.model('Project', ProjectSchema);\n-\n-module.exports = Project;\n\\ No newline at end of file\n+module.exports = mongoose.model('Project', ProjectSchema);\n\\ No newline at end of file\n"
                 }
             ],
             "date": 1741546556335,

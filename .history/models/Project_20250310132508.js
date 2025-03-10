@@ -22,10 +22,6 @@ const ProjectSchema = new mongoose.Schema({
         enum: ['Not Started', 'In Progress', 'Completed'],
         default: 'Not Started'
     },
-    columns: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Column'
-    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -40,4 +36,6 @@ const ProjectSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Project', ProjectSchema);
+const Project = mongoose.model('Project', ProjectSchema);
+
+module.exports = Project;

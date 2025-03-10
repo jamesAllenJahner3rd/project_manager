@@ -57,50 +57,38 @@
             border-radius: 22%;
         }
         .dragDocument {
-            padding: 12px 45px 12px 12px; /* Add padding on the right for icons */
-            margin: 8px 0;
-            border-radius: 4px;
-            background-color: #08CF65;
-            position: relative;
-            cursor: move;
-        }
-        .document-container {
-            position: relative;
-            width: 100%;
-        }
-        /* Create a container for the icons */
-        .document-icons {
-            position: absolute;
-            top: 50%;
-            right: -35px; /* Adjust based on padding */
-            transform: translateY(-50%);
-            display: flex;
-            gap: 8px;
-            align-items: center;
+           border: 1px, solid, black;
+           background-color: #08CF65;
+           z-index: 1;
+           position: relative;
+           display: flex;
+           position: relative;
+           flex-flow: column nowrap;
+           align-items: flex-start;
+           justify-content: flex-start;
+           cursor: move;
+           transition: transform 0.2s ease;
         }
         .deleteButton {
             border: 1px solid #ccc;
-            width: 24px;
-            height: 24px;
-            padding: 0;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
             background-image: url(/images/Icons1.webp);
-            background-color: transparent;
+            background-color: lightgrey;
             background-size: 1300%;
             background-position: 63% 37%;
-            border-radius: 4px;
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .deleteButton:hover {
-            background-color: #ff4444;
-            border-color: #ff0000;
-            background-image: url(/images/Icons1.webp);
+            border-radius: 22%;
+            position: relative;
+            /* bottom: 7%; */
+            /* left: 95%; */
+            margin: 1% 1%;
+            /* justify-self: flex-end; */
+            /* flex-direction: row; */
+            /* align-self: flex-end; */
         }
         .dragDocument .deleteButton{
             align-self: flex-end;
@@ -169,38 +157,23 @@
             margin-bottom: 15px;
         }
 
-        .column-color-picker,
-        .document-color-picker {
-            width: 25px;
-            height: 25px;
+        .column-color-picker {
+            width: 30px;
+            height: 30px;
             padding: 0;
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
-            background-color: transparent;
-            transition: transform 0.2s ease;
+            margin-left: 5px;
         }
 
-        .column-color-picker:hover,
-        .document-color-picker:hover {
-            transform: scale(1.1);
-        }
-
-        .column-color-picker::-webkit-color-swatch-wrapper,
-        .document-color-picker::-webkit-color-swatch-wrapper {
+        .column-color-picker::-webkit-color-swatch-wrapper {
             padding: 0;
         }
 
-        .column-color-picker::-webkit-color-swatch,
-        .document-color-picker::-webkit-color-swatch {
+        .column-color-picker::-webkit-color-swatch {
             border: none;
-            border-radius: 3px;
-        }
-
-        .column-color-picker::-moz-color-swatch,
-        .document-color-picker::-moz-color-swatch {
-            border: none;
-            border-radius: 3px;
+            border-radius: 4px;
         }
 
         .dragColumn {
@@ -225,6 +198,22 @@
             margin-bottom: 10px;
         }
 
+        .column-color-picker {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: transparent;
+        }
+
+        nav.columnNav {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-
+
         .dragDocument:hover {
             transform: translateY(-2px);
         }
@@ -238,46 +227,18 @@
             background-color: #f0f0f0;
         }
 
-        .document-color-picker {
-            width: 24px;
-            height: 24px;
-            padding: 0;
-            border: 1px solid #ccc;
+        .dragDocument {
+            cursor: grab;
+            margin: 8px 0;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .document-content {
-            margin-right: 30px; /* Space for delete button */
-        }
-
-        .document-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .document-header h2 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            flex-grow: 1;
-        }
-
-        .dragDocument p {
-            margin: 5px 0 0 0;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .deleteButton {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 24px;
-            height: 24px;
+        .dragDocument:hover {
+            transform: translateY(-2px);
         }
     </style>
   </head>
@@ -438,60 +399,41 @@
 
             function createDocumentFunc(event) {
                 event.preventDefault();
-                const columnID = document.getElementById("createDoc").dataset.id;
+                const columnID =document.getElementById("createDoc").dataset.id
                 const documentLineItem = document.createElement('li');
                 documentLineItem.className = 'dragDocument';
-                documentLineItem.id = `doc-${Math.random()}`;
+                documentLineItem.id = `id-${Math.random()}`
 
-                // Create document container
-                const docContainer = document.createElement('div');
-                docContainer.className = 'document-container';
+                // Without bar class: document item not draggable
+                const handleBar = document.createElement('span');
+                handleBar.className = "bar";
+                // handleBar.textContent = '+';
+                documentLineItem.appendChild(handleBar);
 
-                // Add title
                 const docTitle = document.createElement('h2');
                 const documentTitle = document.getElementById('documentTitle').value;
                 docTitle.textContent = documentTitle;
-                docTitle.style.fontWeight = 'bold';
-                docTitle.addEventListener("dblclick", () => edit(docTitle));
-                docContainer.appendChild(docTitle);
+                docTitle.addEventListener("dblclick",()=> edit(docTitle))
+                documentLineItem.appendChild(docTitle);
                 
-                // Add description
                 const docDescription = document.createElement('p');
                 const documentDescription = document.getElementById('documentDescription').value;
-                docDescription.textContent = documentDescription; // Use description value, not title
-                docDescription.addEventListener("dblclick", () => edit(docDescription));
-                docContainer.appendChild(docDescription);
-
-                // Add color picker
-                const colorPicker = document.createElement('input');
-                colorPicker.type = 'color';
-                colorPicker.className = 'document-color-picker';
-                colorPicker.value = '#08CF65'; // Default green color
-                colorPicker.style.position = 'absolute';
-                colorPicker.style.right = '40px';
-                colorPicker.style.top = '10px';
-                colorPicker.addEventListener('input', (e) => {
-                    documentLineItem.style.backgroundColor = e.target.value;
-                });
-                docContainer.appendChild(colorPicker);
+                docDescription.textContent = documentTitle;
+                docDescription.addEventListener("dblclick",()=> edit(docDescription))
+                documentLineItem.appendChild(docDescription);
                 
-                // Add delete button
-                const deleteMe = document.createElement("button");
-                deleteMe.className = 'deleteButton';
-                deleteMe.dataset.document = documentLineItem.id;
-                deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.document));
-                docContainer.appendChild(deleteMe);
-
-                // Add container to document
-                documentLineItem.appendChild(docContainer);
-
-                // Add to column
+                const docColumnList = document.qudocumentColumn
+                //the D in CRUD
+                const deleteMe = document.createElement("button")
+                deleteMe.className = 'deleteButton'
+                deleteMe.dataset.document = documentLineItem.id
+                deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.document))
+                documentLineItem.appendChild(deleteMe)
+                // Without this selector: document not attached to DOM
                 const parentColumn = document.getElementById(`${columnID}`);
                 parentColumn.appendChild(documentLineItem);
-
-                // Reset and close form
                 createDocumentForm.reset();
-                createDocumentPopup(null);
+                createDocumentPopup(null)
             }
 
             // Load saved project data
@@ -641,6 +583,46 @@
             } catch (error) {
                 console.error('Error saving column color:', error);
             }
+        }
+    </script>
+  </body>
+</html>
+                element.textContent = text;
+                rewrite.remove(); // Properly remove the input element from the DOM
+            })
+            element.appendChild(rewrite).focus();
+        }
+
+        async function saveColumnColor(columnId, color) {
+            try {
+                await fetch(`/projects/columns/${columnId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ backgroundColor: color })
+                });
+            } catch (error) {
+                console.error('Error saving column color:', error);
+            }
+        }
+    </script>
+  </body>
+</html>
+    </script>
+  </body>
+</html>
+                console.error('Error saving column color:', error);
+            }
+        }
+    </script>
+  </body>
+</html>
+            }
+        }
+    </script>
+  </body>
+</html>
         }
     </script>
   </body>

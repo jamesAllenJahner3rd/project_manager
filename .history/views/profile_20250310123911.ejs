@@ -19,125 +19,121 @@
     <style>
         /* ... existing styles ... */
         
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            height: fit-content;
+            overflow-y: auto;
+            cursor: move; /* Shows move cursor anywhere on container */
+            user-select: none; /* Prevents text selection while dragging */
+        }
+
         .edit-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            width: 30px;
-            height: 30px;
-            margin-left: 5px;
+            position: relative; /* Change from absolute if it was set */
+            padding: 8px;
+            background: transparent;
             border: none;
-            background: none;
-            cursor: pointer;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .edit-btn:hover {
+            color: #333;
+            transform: none; /* Prevents any movement on hover */
         }
 
         .edit-btn i {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             font-size: 16px;
-            color: #666;
         }
 
-        .edit-btn:hover i {
-            color: #333;
-        }
-
-        .project-list {
-            list-style: none;
-            padding: 0;
-            margin: 20px 0;
-        }
-
-        .project-item {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        #createColumnForm {
+            cursor: move; /* Shows move cursor anywhere on the form */
+            user-select: none; /* Prevents text selection while dragging */
+            position: relative; /* Needed for dragging */
+            background: white;
             padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .project-header {
+        .project-documents {
+            position: relative;
+            background: white;
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: move; /* Shows move cursor on white space */
+            min-height: 200px; /* Ensures there's always some white space */
+            user-select: none; /* Prevents text selection while dragging */
+        }
+
+        .document-column {
+            background: #f5f5f5; /* Different background to distinguish from white space */
+            padding: 15px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Ensure buttons and interactive elements keep their cursors */
+        .document-column button,
+        .document-column a,
+        .document-card,
+        .document-actions button {
+            cursor: pointer;
+        }
+
+        .column-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #ddd;
         }
 
-        .project-header a {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .project-actions {
+        .column-controls {
             display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        .project-documents {
-            margin-top: 15px;
+        .color-picker {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        .document-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
         }
 
-        .document-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            padding: 10px 0;
+        .color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        /* Ensure text remains readable on any background */
+        .document-column {
+            transition: background-color 0.3s ease;
         }
 
         .document-card {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 15px;
-            position: relative;
-        }
-
-        .document-card h4 {
-            margin: 0 0 10px 0;
-            font-weight: bold;
-        }
-
-        .document-card p {
-            margin: 0;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .document-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .add-document-btn {
-            background: #007bff;
-            color: white;
-            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            margin: 10px 0;
+            padding: 10px;
             border-radius: 4px;
-            padding: 8px 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .add-document-btn:hover {
-            background: #0056b3;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
     </style>
   </head>
@@ -174,31 +170,32 @@
         </div>
         <button type="submit" class="btn btn-primary">Create Project</button>
       </form>
-      <ul class="project-list">
-        <% if (typeof projectList !== 'undefined' && projectList.length > 0) { %>
-            <% projectList.forEach(project => { %>
-                <li class="project-item">
-                    <div class="project-header">
-                        <a href="/project/<%= project._id %>"><%= project.name %></a>
-                        <div class="project-actions">
-                            <button class="delete-btn" data-id="<%= project._id %>">
-                                <i class="fas fa-trash-alt"></i> 
-                            </button>
-                            <a href="/profile/project/<%= project._id %>/edit" class="edit-btn">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                        </div>
+      <ul>
+        <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
+          <% for(let i = 0; i < projectList.length; i++) { %>
+            <li>
+              <a href="/project/<%= projectList[i]._id %>"><%= projectList[i].name %></a>
+              <button class="delete-btn" data-id="<%= projectList[i]._id %>">
+                <i class="fas fa-trash-alt"></i> 
+              </button>
+              <a href="/profile/project/<%= projectList[i]._id %>/edit" class="edit-btn">
+                <i class="fas fa-edit"></i>
+              </a>
+            </li>
+            <div class="project-documents">
+                <div class="document-column" data-project-id="<%= projectList[i]._id %>">
+                    <h3>Documents</h3>
+                    <div class="document-list" id="documentList-<%= projectList[i]._id %>">
+                        <!-- Documents will be loaded here dynamically -->
                     </div>
-                    
-                    <div class="project-details">
-                        <p><strong>Status:</strong> <%= project.status %></p>
-                        <p><strong>Columns:</strong> <%= project.columns ? project.columns.length : 0 %></p>
-                        <p><strong>Documents:</strong> <%= project.columns ? project.columns.reduce((sum, col) => sum + (col.documents ? col.documents.length : 0), 0) : 0 %></p>
-                    </div>
-                </li>
-            <% }) %>
+                    <button class="add-document-btn" onclick="showAddDocumentModal('<%= projectList[i]._id %>')">
+                        <i class="fas fa-file-circle-plus"></i> Add Document
+                    </button>
+                </div>
+            </div>
+          <% } %>
         <% } else { %>
-            <li>No projects found</li>
+          <li>No projects found.</li>
         <% } %>
       </ul>
     </section>
@@ -401,6 +398,38 @@
                 const documents = await response.json();
                 const documentList = document.getElementById(`documentList-${projectId}`);
                 
+                // Add color picker in the column header
+                const columnHeader = document.createElement('div');
+                columnHeader.className = 'column-header';
+                columnHeader.innerHTML = `
+                    <h3>Documents</h3>
+                    <div class="column-controls">
+                        <input type="color" class="color-picker" title="Change container color">
+                        <button class="add-document-btn" onclick="showAddDocumentModal('${projectId}')">
+                            <i class="fas fa-file-circle-plus"></i> Add Document
+                        </button>
+                    </div>
+                `;
+                
+                // Insert the header before the document list
+                documentList.parentNode.insertBefore(columnHeader, documentList);
+                
+                // Add color picker event listener
+                const colorPicker = columnHeader.querySelector('.color-picker');
+                colorPicker.addEventListener('change', (e) => {
+                    const container = e.target.closest('.document-column');
+                    container.style.backgroundColor = e.target.value;
+                    // Optionally save the color preference
+                    localStorage.setItem(`column-color-${projectId}`, e.target.value);
+                });
+                
+                // Load saved color if exists
+                const savedColor = localStorage.getItem(`column-color-${projectId}`);
+                if (savedColor) {
+                    colorPicker.value = savedColor;
+                    colorPicker.closest('.document-column').style.backgroundColor = savedColor;
+                }
+
                 documentList.innerHTML = documents.map(doc => `
                     <div class="document-card" draggable="true" data-id="${doc._id}">
                         <h4>${doc.title}</h4>
@@ -423,15 +452,38 @@
         function setupDragAndDrop() {
             const documents = document.querySelectorAll('.document-card');
             const columns = document.querySelectorAll('.document-column');
+            const projectDocuments = document.querySelectorAll('.project-documents');
             
+            // Make each project-documents container draggable
+            projectDocuments.forEach(container => {
+                container.addEventListener('mousedown', function(e) {
+                    // Only initiate drag if clicking the container itself, not its children
+                    if (e.target === container) {
+                        const startX = e.clientX - container.offsetLeft;
+                        const startY = e.clientY - container.offsetTop;
+                        
+                        function moveContainer(e) {
+                            container.style.position = 'absolute';
+                            container.style.left = `${e.clientX - startX}px`;
+                            container.style.top = `${e.clientY - startY}px`;
+                            container.style.zIndex = '1000';
+                        }
+                        
+                        function stopMoving() {
+                            document.removeEventListener('mousemove', moveContainer);
+                            document.removeEventListener('mouseup', stopMoving);
+                        }
+                        
+                        document.addEventListener('mousemove', moveContainer);
+                        document.addEventListener('mouseup', stopMoving);
+                    }
+                });
+            });
+
+            // Existing document drag handlers
             documents.forEach(doc => {
                 doc.addEventListener('dragstart', handleDragStart);
                 doc.addEventListener('dragend', handleDragEnd);
-            });
-            
-            columns.forEach(column => {
-                column.addEventListener('dragover', handleDragOver);
-                column.addEventListener('drop', handleDrop);
             });
         }
 
@@ -500,36 +552,38 @@
             document.getElementById('documentContent').value = '';
         });
 
-        // In your form submission handler
-        document.querySelector('form[action="/project/createProject"]').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                name: document.getElementById('name').value,
-                description: document.getElementById('description').value,
-                startDate: document.getElementById('startDate').value,
-                endDate: document.getElementById('endDate').value,
-                status: document.getElementById('status').value,
-                columns: [] // Initialize empty columns array
-            };
+        // Add this after your existing init() function
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
-            try {
-                const response = await fetch('/project/createProject', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+            element.addEventListener('mousedown', dragMouseDown);
 
-                if (response.ok) {
-                    window.location.reload();
-                }
-            } catch (error) {
-                console.error('Error:', error);
+            function dragMouseDown(e) {
+                e.preventDefault();
+                // get the mouse cursor position at startup
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.addEventListener('mousemove', elementDrag);
+                document.addEventListener('mouseup', closeDragElement);
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                // calculate the new cursor position
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // stop moving when mouse button is released
+                document.removeEventListener('mousemove', elementDrag);
             }
         });
-      });
     </script>
   </body>
 </html> 
