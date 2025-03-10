@@ -10,6 +10,5 @@ router.post('/project', ensureAuth, profileController.createProfile);
 router.get('/project/:id/edit', ensureAuth, profileController.editProject);
 router.put('/project/:id', ensureAuth, profileController.updateProject);
 router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);
-router.get('/project/:id/data', ensureAuth, profileController.getProjectData);
 
 module.exports = router;
