@@ -154,6 +154,62 @@
             border-bottom: 1px solid #ddd;
             margin-bottom: 15px;
         }
+
+        .column-color-picker {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .column-color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .column-color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .dragColumn {
+            transition: background-color 0.3s ease;
+        }
+
+        nav.columnNav {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-start;
+            position: relative;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .column-color-picker {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: transparent;
+        }
+
+        nav.columnNav {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-
     </style>
   </head>
 
@@ -241,46 +297,60 @@
                 newColumn.className = 'dragColumn';
                 newColumn.id = `column-${Math.random()}`;
 
-                // Without handle: column can't be dragged
-                const handleBar = document.createElement('span');
-                handleBar.className = "handle";
-                columnNav.appendChild(handleBar);
-                const newDocPopup = document.createElement("button")
-                newDocPopup.className = 'newDocPopupButton'
-                newDocPopup.dataset.column = newColumn.id
-                newDocPopup.addEventListener("click",()=>createDocumentPopup(newDocPopup.dataset.column))
-                columnNav.appendChild(newDocPopup)
-                columnNav.classList.add("columnNav")
+                // Create a container for buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'button-container';
 
+                // Add document button
+                const newDocPopup = document.createElement("button");
+                newDocPopup.className = 'newDocPopupButton';
+                newDocPopup.dataset.column = newColumn.id;
+                newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
+                buttonContainer.appendChild(newDocPopup);
+
+                // Add color picker
+                const colorPicker = document.createElement("input");
+                colorPicker.type = "color";
+                colorPicker.className = 'column-color-picker';
+                colorPicker.value = '#f9f9f9';
+                colorPicker.addEventListener('input', (e) => {
+                    newColumn.style.backgroundColor = e.target.value;
+                });
+                buttonContainer.appendChild(colorPicker);
+
+                // Delete button
+                const deleteMe = document.createElement("button");
+                deleteMe.className = 'deleteButton';
+                deleteMe.dataset.column = newColumn.id;
+                deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.column));
+                buttonContainer.appendChild(deleteMe);
+
+                // Add the button container to nav
+                columnNav.appendChild(buttonContainer);
+
+                // Add title
                 const title = document.createElement('h1');
-                title.className ='title';
+                title.className = 'title';
                 title.textContent = columnContent;
-                title.addEventListener("dblclick",()=> edit(title))
+                title.addEventListener("dblclick", () => edit(title));
                 columnNav.appendChild(title);
-                //the D in CRUD
-                const deleteMe = document.createElement("button")
-                deleteMe.className = 'deleteButton'
-                deleteMe.dataset.column = newColumn.id
-                deleteMe.addEventListener("click",()=>deleteDocument(deleteMe.dataset.column))
-                columnNav.appendChild(deleteMe)
-                
-                newColumn.appendChild(columnNav)
+
+                newColumn.appendChild(columnNav);
                 dragparent.appendChild(newColumn);
                 listOfColumn.push(newColumn);
                 createColumnForm.reset();
 
-                // Destroy existing dragula instance if it exists
+                // Update dragula for columns
                 if (columnDrake) {
                     columnDrake.destroy();
                 }
 
-                // Create new dragula instance with all columns
                 columnDrake = dragula(listOfColumn, {
                     moves: function (el, container, handle) {
-                        return handle.classList.contains('bar');
+                        return true;
                     },
                     accepts: function(el, target, source, sibling) {
-                        return !sibling || (!sibling.classList.contains('title') && !sibling.classList.contains('handle'));
+                        return true;
                     },
                     direction: 'vertical'
                 });
@@ -336,10 +406,19 @@
             }
         }
 
-        // Without this initialization: columns not draggable
+        // Update main dragula instance for columns with swap behavior
         dragula([dragparent], {
             moves: function (el, container, handle) {
-                return handle.classList.contains('handle');
+                return true;
+            },
+            direction: 'horizontal',
+            revertOnSpill: true,
+            removeOnSpill: false
+        }).on('drop', function(el, target, source, sibling) {
+            // Handle the swap
+            if (sibling && sibling !== el) {
+                target.insertBefore(sibling, el);
+                return true; // Allow dragging from anywhere
             }
         });
         function deleteDocument(docID){

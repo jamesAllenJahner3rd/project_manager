@@ -16,6 +16,130 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>User Profile</title>
     <title>User Profile</title>
+    <style>
+        /* ... existing styles ... */
+        
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 30px;
+            height: 30px;
+            margin-left: 5px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .edit-btn i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #666;
+        }
+
+        .edit-btn:hover i {
+            color: #333;
+        }
+
+        .project-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .project-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .project-header a {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-documents {
+            margin-top: 15px;
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .document-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .document-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .document-card h4 {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+
+        .document-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .add-document-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .add-document-btn:hover {
+            background: #0056b3;
+        }
+    </style>
   </head>
   <body>
     <!-- header -->
@@ -50,29 +174,35 @@
         </div>
         <button type="submit" class="btn btn-primary">Create Project</button>
       </form>
-      <ul>
+      <ul class="project-list">
         <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
           <% for(let i = 0; i < projectList.length; i++) { %>
-            <li>
-              <a href="/project/<%= projectList[i]._id %>"><%= projectList[i].name %></a>
-              <button class="delete-btn" data-id="<%= projectList[i]._id %>">
-                <i class="fas fa-trash-alt"></i> 
-              </button>
-              <a href="/profile/project/<%= projectList[i]._id %>/edit" class="edit-btn">
-                <i class="fas fa-edit"></i>
-              </a>
-            </li>
-            <div class="project-documents">
-                <div class="document-column" data-project-id="<%= projectList[i]._id %>">
-                    <h3>Documents</h3>
-                    <div class="document-list" id="documentList-<%= projectList[i]._id %>">
-                        <!-- Documents will be loaded here dynamically -->
+            <li class="project-item">
+                <div class="project-header">
+                    <a href="/project/<%= projectList[i]._id %>"><%= projectList[i].name %></a>
+                    <div class="project-actions">
+                        <button class="delete-btn" data-id="<%= projectList[i]._id %>">
+                            <i class="fas fa-trash-alt"></i> 
+                        </button>
+                        <a href="/profile/project/<%= projectList[i]._id %>/edit" class="edit-btn">
+                            <i class="fas fa-edit"></i>
+                        </a>
                     </div>
-                    <button class="add-document-btn" onclick="showAddDocumentModal('<%= projectList[i]._id %>')">
-                        <i class="fas fa-file-circle-plus"></i> Add Document
-                    </button>
                 </div>
-            </div>
+                
+                <div class="project-documents">
+                    <div class="document-column" data-project-id="<%= projectList[i]._id %>">
+                        <div class="document-header">
+                            <button class="add-document-btn" onclick="showAddDocumentModal('<%= projectList[i]._id %>')">
+                                <i class="fas fa-file-circle-plus"></i> Add Document
+                            </button>
+                        </div>
+                        <div class="document-list" id="documentList-<%= projectList[i]._id %>">
+                            <!-- Documents will be loaded here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </li>
           <% } %>
         <% } else { %>
           <li>No projects found.</li>
