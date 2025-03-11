@@ -1,8 +1,6 @@
 const Profile = require("../models/Profile");
 const Project = require("../models/Project");
 const mongoose = require("mongoose");
-const Document = require("../models/Document");
-
 
 module.exports = {
     getProfile: async (req, res) => {
@@ -111,68 +109,6 @@ module.exports = {
             res.json(project);
         } catch (error) {
             res.status(500).json({ error: 'Server error' });
-        }
-    },
-
-    createDocument: async (req, res) => {
-        try {
-            const { title, content, columnId } = req.body;
-            // Get the count of existing documents in the column for ordering
-            const count = await Document.countDocuments({ columnId });
-            
-            const newDocument = new Document({
-                title,
-                content,
-                columnId,
-                order: count,
-                createdBy: req.user._id
-            });
-            
-            await newDocument.save();
-            res.json(newDocument);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server Error' });
-        }
-    },
-
-    updateDocument: async (req, res) => {
-        try {
-            const { title, content, status } = req.body;
-            const document = await Document.findByIdAndUpdate(
-                req.params.id,
-                { title, content, status },
-                { new: true }
-            );
-            res.json(document);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server Error' });
-        }
-    },
-
-    deleteDocument: async (req, res) => {
-        try {
-            await Document.findByIdAndDelete(req.params.id);
-            res.json({ success: true });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server Error' });
-        }
-    },
-
-    updateDocumentOrder: async (req, res) => {
-        try {
-            const { order, columnId } = req.body;
-            const document = await Document.findByIdAndUpdate(
-                req.params.id,
-                { order, columnId },
-                { new: true }
-            );
-            res.json(document);
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server Error' });
         }
     }
 };

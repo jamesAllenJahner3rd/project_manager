@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 21,
+            "activePatchIndex": 15,
             "patches": [
                 {
                     "date": 1740876641142,
@@ -68,30 +68,6 @@
                 {
                     "date": 1741540801581,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,15 +9,7 @@\n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n-router.post('/project/:id', async (req, res) => {\n-    try {\n-      const projectId = req.params.id;\n-      const updatedProject = await Project.findByIdAndUpdate(projectId, req.body, { new: true });\n-      res.json({ success: true, project: updatedProject });\n-    } catch (error) {\n-      res.json({ success: false, error: error.message });\n-    }\n-  });\n-  \n+router.get('/project/:id/data', ensureAuth, profileController.getProjectData);\n+\n module.exports = router;\n\\ No newline at end of file\n"
-                },
-                {
-                    "date": 1741545030117,
-                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,11 +5,18 @@\n \n // routes for logged in user creating new project\n router.get('/', ensureAuth, profileController.getProfile);\n router.post('/project', ensureAuth, profileController.createProfile);\n+\n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/data', ensureAuth, profileController.getProjectData);\n \n+// Document routes\n+router.post('/project/:id/document', ensureAuth, profileController.createDocument);\n+router.put('/document/:id', ensureAuth, profileController.updateDocument);\n+router.delete('/document/:id', ensureAuth, profileController.deleteDocument);\n+router.put('/document/:id/order', ensureAuth, profileController.updateDocumentOrder);\n+\n module.exports = router;\n\\ No newline at end of file\n"
-                },
-                {
-                    "date": 1741546399099,
-                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,8 +5,9 @@\n \n // routes for logged in user creating new project\n router.get('/', ensureAuth, profileController.getProfile);\n router.post('/project', ensureAuth, profileController.createProfile);\n+router.get('/project/:id', ensureAuth, profileController.getProject);\n \n // routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n"
-                },
-                {
-                    "date": 1741546553291,
-                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,8 +2,14 @@\n const router = express.Router();\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n+// Add logging middleware to debug route matching\n+router.use((req, res, next) => {\n+    console.log('Profile Route:', req.method, req.url);\n+    next();\n+});\n+\n // routes for logged in user creating new project\n router.get('/', ensureAuth, profileController.getProfile);\n router.post('/project', ensureAuth, profileController.createProfile);\n router.get('/project/:id', ensureAuth, profileController.getProject);\n"
-                },
-                {
-                    "date": 1741546668114,
-                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,20 +2,18 @@\n const router = express.Router();\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n-// Add logging middleware to debug route matching\n+// Debug middleware\n router.use((req, res, next) => {\n-    console.log('Profile Route:', req.method, req.url);\n+    console.log('Request URL:', req.originalUrl);\n+    console.log('Request Method:', req.method);\n     next();\n });\n \n-// routes for logged in user creating new project\n+// Routes\n router.get('/', ensureAuth, profileController.getProfile);\n router.post('/project', ensureAuth, profileController.createProfile);\n-router.get('/project/:id', ensureAuth, profileController.getProject);\n-\n-// routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/data', ensureAuth, profileController.getProjectData);\n"
-                },
-                {
-                    "date": 1741547005450,
-                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n });\n \n // Routes\n router.get('/', ensureAuth, profileController.getProfile);\n-router.post('/project', ensureAuth, profileController.createProfile);\n+router.post('/project', ensureAuth, profileController.createProject);\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/data', ensureAuth, profileController.getProjectData);\n"
-                },
-                {
-                    "date": 1741547117508,
-                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,18 +2,13 @@\n const router = express.Router();\n const profileController = require('../controllers/profileController');\n const { ensureAuth } = require('../middleware/auth');\n \n-// Debug middleware\n-router.use((req, res, next) => {\n-    console.log('Request URL:', req.originalUrl);\n-    console.log('Request Method:', req.method);\n-    next();\n-});\n+// routes for logged in user creating new project\n+router.get('/', ensureAuth, profileController.getProfile);\n+router.post('/project', ensureAuth, profileController.createProfile);\n \n-// Routes\n-router.get('/', ensureAuth, profileController.getProfile);\n-router.post('/project', ensureAuth, profileController.createProject);\n+// routes for making changes to existing projects\n router.get('/project/:id/edit', ensureAuth, profileController.editProject);\n router.put('/project/:id', ensureAuth, profileController.updateProject);\n router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);\n router.get('/project/:id/data', ensureAuth, profileController.getProjectData);\n"
                 }
             ],
             "date": 1740876641142,
