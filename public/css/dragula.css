@@ -27,7 +27,3 @@
   cursor: pointer;
   width: 150px;
 }
-/* this is needed to keep the columns from wrapping on screen */
-#dragparent{
-  flex-flow: nowrap;
-}

@@ -1,203 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- css link -->
-    <link rel="stylesheet" href="/css/reset.css" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <!-- fonts link -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <!-- Font Awesome link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- css link -->
+        <link rel="stylesheet" href="/css/reset.css" />
+        <link rel="stylesheet" href="/css/style.css" />
+        <!-- fonts link -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <!-- added css links  -->
     <title>User Profile</title>
-    <title>User Profile</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <!-- header -->
+     <!-- changed the nav bar to the partial header -->
     <%- include('partials/header') %>
-    <h1>Adjust your profile here</h1>
-    <a href="/">To index Page</a>
-    <section class="hero">
-      <form action="/project/createProject" method="POST">
+     <h1>Adjust your profile here</h1>
+    <a href="/"> To index Page</a>
+ 
+ <section class="hero">
+    <form  action="/project/createProject" method="POST">
         <div class="form-group">
-          <label for="name">Project Name</label>
-          <input type="text" name="name" id="name" class="form-control" required>
+            <label for="name">Project Name</label>
+        <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <div class ="form-group">
+            <label for="description">Description</label>
+            <textarea name="description" id="description" class="form-control" required></textarea>
         </div>
         <div class="form-group">
-          <label for="description">Description</label>
-          <textarea name="description" id="description" class="form-control" required></textarea>
+            <label for="startDate">Start Date</label>
+            <input type="date" name="startDate" id="startDate" class="form-control" required>
         </div>
         <div class="form-group">
-          <label for="startDate">Start Date</label>
-          <input type="date" name="startDate" id="startDate" class="form-control" required>
+            <label for="endDate">End Date</label>
+            <input type="date" name="endDate" id="endDate" class="form-control" required>
         </div>
         <div class="form-group">
-          <label for="endDate">End Date</label>
-          <input type="date" name="endDate" id="endDate" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select name="status" id="status" class="form-control">
-            <option value="Not Started">Not Started</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-primary">Create Project</button>
-      </form>
-      <ul>
+    </form>
+    <ul>
         <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
-          <% for(let i = 0; i < projectList.length; i++) { %>
-            <li>
-              <a href="/project/<%= projectList[i]._id %>"><%= projectList[i].name %></a>
-              <button class="delete-btn" data-id="<%= projectList[i]._id %>">
-                <i class="fas fa-trash-alt"></i> 
-              </button>
-              <a href="/profile/project/<%= projectList[i]._id %>/edit" class="edit-btn">
-                <i class="fas fa-edit"></i>
-              </a>
-            </li>
-          <% } %>
+            <% for(let i = 0; i < projectList.length; i++) { %>
+                <a href="/project/<%=projectList[i]._id %>"><li><%= projectList[i].name %></li></a>
+            <% } %>
         <% } else { %>
-          <li>No projects found.</li>
+            <li>No projects found.</li>
         <% } %>
-      </ul>
-    </section>
-    <!-- Add Modal HTML -->
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <form id="editProjectForm">
-          <div class="form-group">
-            <label for="editName">Project Name</label>
-            <input type="text" name="name" id="editName" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="editDescription">Description</label>
-            <textarea name="description" id="editDescription" class="form-control" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="editStartDate">Start Date</label>
-            <input type="date" name="startDate" id="editStartDate" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="editEndDate">End Date</label>
-            <input type="date" name="endDate" id="editEndDate" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="editStatus">Status</label>
-            <select name="status" id="editStatus" class="form-control">
-              <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Update Project</button>
-        </form>
-      </div>
-    </div>
+    </ul>
+    
+    
     <footer>
-      all thanks goes to the 100devs
+        all thanks goes to the 100devs
     </footer>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('editModal');
-        const span = document.getElementsByClassName('close')[0];
-        const editProjectForm = document.getElementById('editProjectForm');
-        let currentProjectId = null;
-
-        // Delete project functionality
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-        deleteButtons.forEach(button => {
-          button.addEventListener('click', function(event) {
-            const projectId = event.target.closest('button').getAttribute('data-id');
-            fetch(`/profile/project/${projectId}/delete`, {
-              method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                window.location.reload();
-              } else {
-                alert('Failed to delete project');
-              }
-            });
-          });
-        });
-
-        // Edit project functionality
-        const editButtons = document.querySelectorAll('.edit-btn');
-        editButtons.forEach(button => {
-          button.addEventListener('click', async function(event) {
-            event.preventDefault();
-            const projectId = this.getAttribute('href').split('/edit')[0].split('project/')[1];
-            currentProjectId = projectId;
-            
-            // Fetch project data
-            const response = await fetch(`/profile/project/${projectId}/data`);
-            const project = await response.json();
-            
-            // Populate form
-            document.getElementById('editName').value = project.name;
-            document.getElementById('editDescription').value = project.description;
-            document.getElementById('editStartDate').value = project.startDate.split('T')[0];
-            document.getElementById('editEndDate').value = project.endDate.split('T')[0];
-            document.getElementById('editStatus').value = project.status;
-            
-            // Show modal
-            modal.style.display = 'block';
-          });
-        });
-
-        // Close modal when clicking (x)
-        span.onclick = function() {
-          modal.style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-          if (event.target == modal) {
-            modal.style.display = 'none';
-          }
-        }
-
-        // Handle form submission
-        editProjectForm.addEventListener('submit', async function(event) {
-          event.preventDefault();
-          
-          const formData = {
-            name: document.getElementById('editName').value,
-            description: document.getElementById('editDescription').value,
-            startDate: document.getElementById('editStartDate').value,
-            endDate: document.getElementById('editEndDate').value,
-            status: document.getElementById('editStatus').value
-          };
-
-          try {
-            const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formData)
-            });
-
-            if (response.ok) {
-              window.location.reload();
-            } else {
-              alert('Failed to update project');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            alert('Failed to update project');
-          }
-        });
-      });
-    </script>
-  </body>
+</body>
 </html>
