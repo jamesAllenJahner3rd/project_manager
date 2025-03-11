@@ -415,14 +415,17 @@
                     columnDrake.destroy();
                 }
                
-                columnDrake = dragula(listOfColumn, {
-                        moves: function (el, container, handle) {
-                        return true;
-                        },
-                    accepts: function(el, target, source, sibling) {
-                        return true;
-                        },
-                        direction: 'vertical'
+                columnDrake = dragula([dragparent], {
+                    moves: function (el, container, handle) {
+                        // Only allow moving if it's a column and being dragged by its nav
+                        return el.classList.contains('dragColumn') && 
+                               (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
+                    },
+                    accepts: function (el, target) {
+                        // Only accept drops if the element is a column and target is the main container
+                        return el.classList.contains('dragColumn') && target === dragparent;
+                    },
+                    direction: 'horizontal'
                 });
             }
 
@@ -542,16 +545,17 @@
             // Call loadProjectData when page loads
             loadProjectData();
 
-            // Get all columns for dragula containers
-            const columns = document.querySelectorAll('.dragColumn');
-            
-            // Initialize dragula with all columns as containers
-            const documentDrake = dragula(Array.from(columns), {
-                moves: function (el) {
-                    return el.classList.contains('dragDocument'); // Only move documents
+            // Separate dragula instance for documents
+            let documentDrake = dragula(listOfColumn, {
+                moves: function (el, container, handle) {
+                    // Only allow moving if it's a document
+                    return el.classList.contains('dragDocument');
                 },
                 accepts: function (el, target) {
-                    return target.classList.contains('dragColumn'); // Accept drops in any column
+                    // Accept drops only if:
+                    // 1. The element being moved is a document
+                    // 2. The target is a column
+                    return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
                 },
                 revertOnSpill: true,
                 removeOnSpill: false
