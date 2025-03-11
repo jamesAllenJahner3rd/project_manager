@@ -1,37 +1,33 @@
 const mongoose = require('mongoose');
 
 const ProfileSchema = new mongoose.Schema({
-    googleId:{
+    googleId: {
         type: String,
         required: true
     },
-    displayName:{
+    displayName: {
         type: String,
         required: true
     },
-     firstName:{
+    firstName: {
         type: String,
         required: true
     },
-     lastName:{
+    lastName: {
         type: String,
         required: true
     },
-     image:{
+    image: {
         type: String
-        
     },
-    createdAt:{
+    createdAt: {
         type: Date,
-        default:Date.now()
+        default: Date.now()
     },
-    username:{
+    username: {
         type: String,
         required: true
     }
+});
 
-})
-
-const Profile = mongoose.model('Profile', ProfileSchema);
-
-module.exports = Profile;
+module.exports = mongoose.model('Profile', ProfileSchema);
