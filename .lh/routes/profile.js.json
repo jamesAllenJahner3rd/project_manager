@@ -1,0 +1,18 @@
+{
+    "sourceFile": "routes/profile.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1741627771179,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1741627771179,
+            "name": "Commit-0",
+            "content": "router.get('/', ensureAuth, async (req, res) => {\n    try {\n        // Get all projects with their columns and documents\n        const projectList = await Project.find({ adminId: req.user._id })\n            .populate({\n                path: 'columns',\n                populate: {\n                    path: 'documents',\n                    options: { sort: { 'position': 1 } }\n                }\n            })\n            .lean();\n\n        res.render('profile', {\n            projectList,\n            user: req.user\n        });\n    } catch (err) {\n        console.error(err);\n        res.render('error/500');\n    }\n});\n\n// Add a route to get project data\nrouter.get('/project/:id/data', ensureAuth, async (req, res) => {\n    try {\n        const project = await Project.findById(req.params.id)\n            .populate({\n                path: 'columns',\n                populate: {\n                    path: 'documents',\n                    options: { sort: { 'position': 1 } }\n                }\n            });\n        res.json(project);\n    } catch (err) {\n        res.status(500).json({ error: err.message });\n    }\n}); "
+        }
+    ]
+}

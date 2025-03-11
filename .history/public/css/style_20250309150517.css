@@ -1,0 +1,583 @@
+/***************************/
+/********** BASE *********/
+/***************************/
+:root {
+  --white: #fff;
+  --black: #000;
+  --light-green: #EBF5F3;
+  --dark-green: #0C3245;
+  --green: #08CF65;
+  --dark-blue: #181F38;
+  --gray: #EBEDF5;
+}
+
+body {
+  background-color: var(--white);
+  font-family: Roboto, sans-serif
+}
+
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  font-family: Poppins, Roboto, sans-serif;
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/***************************/
+/********** LAYOUT *********/
+/***************************/
+.drag-container {
+  height: 100%;
+  overflow:scroll;
+ 
+}
+/* the horizantal scroll bar was at the bottom. to decrease the touches i moved it to the top. */
+#dragparent, .dragColumn{
+  transform: rotate(180deg);
+}
+
+
+/***************************/
+/********** HEADER *********/
+/***************************/
+header {
+  background-color: var(--light-green);
+  height: 5em;
+  padding: 1em;
+  margin-bottom: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header nav {
+  text-align: center;
+  display: flex;
+  /*align-items: center;*/
+  justify-content: space-between;
+  /*align-self: center;*/
+}
+
+header nav ul {
+  justify-content: center;
+  display: flex;
+  gap: 3em;
+  margin: 0 auto;
+}
+
+/***************************/
+/********** HERO *********/
+/***************************/
+.hero {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 1em;
+  margin-bottom: 1em;
+  /*align-items: center;*/
+}
+
+.hero>div {
+  width: 50%;
+  display: flex;
+  flex-flow: column wrap;
+  /*justify-content: center;*/
+}
+
+.hero-testimony {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1em;
+  align-items: center;
+}
+
+/***************************/
+/****** Google Button ******/
+/***************************/
+.btn i {
+  font-size: 1.3rem;
+  line-height: inherit;
+  color: #fff;
+  text-align: center;
+  letter-spacing: .5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab {
+  font-weight: 400;
+  font-family: "Font Awesome 6 Brands";
+  -webkit-font-smooColumn: antialiased;
+  display: var(--fa-display, inline-block);
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+}
+
+i.left {
+  float: left;
+  margin-right: 15px;
+}
+
+.red.darken-1 {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #E53935 !important;
+  color: #fff;
+  border: none;
+  border-radius: 2%;
+  box-shadow: 1px 1px 1px #000;
+  vertical-align: middle;
+  margin: auto;
+}
+
+.googleAnchor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  align-self: center;
+}
+
+/***************************/
+/****** Testimonials *******/
+/***************************/
+.testimonials {
+  /*display: flex;*/
+  /*flex-flow: row wrap;*/
+  text-align: center;
+  background-color: var(--white);
+}
+
+.testimonial-card {
+  display: flex;
+  /*flex-flow: row wrap;*/
+  padding: 1em;
+  margin: 3em;
+  background-color: var(--light-green);
+  border-radius: 10px;
+}
+
+.testimonial-card>div {
+  width: 50%;
+}
+
+/*.testimonials.card>div:first-child() {*/
+/*  width: 70%;*/
+/*}*/
+/**/
+/*.testimonials.card>div:last-child() {*/
+/*  width: 30%;*/
+/*}*/
+
+/***************************/
+/********** Features *********/
+/***************************/
+.features {
+  background-color: var(--gray);
+  text-align: center;
+  padding: 2em;
+}
+
+.feature-card-container {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+  margin: 0 auto;
+  gap: 1.5em;
+}
+
+.feature-card {
+  background-color: var(--white);
+  text-align: left;
+  padding: 1em;
+  border-radius: 10px;
+}
+
+/*TODO: .feature-card hover and focus state */
+
+.feature-card a {
+  color: var(--dark-green);
+}
+
+/***************************/
+/********** Contact Us *********/
+/***************************/
+.contact-us {
+  padding: 1em;
+  background-color: var(--dark-blue);
+  color: var(--white);
+  text-align: center;
+}
+
+h1,
+p {
+  margin-bottom: 0.5em;
+}
+
+.contact-us form {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 1em;
+  /*column-gap: 3em;*/
+}
+
+.contact-us input {
+  padding: 0.4em 1em;
+  /*border: 0.2em solid var(--white);*/
+  border-radius: 10px;
+  border: none;
+  height: 3em;
+  /*margin: 0 2em;*/
+}
+
+.contact-us button {
+  padding: 0.4em 1em;
+  background-color: var(--green);
+  color: var(--white);
+  /*border: 0.2em solid var(--white);*/
+  border-radius: 10px;
+  border: none;
+  height: 3em;
+  font-weight: bold;
+}
+
+/***************************/
+/********** FOOTER *********/
+/***************************/
+footer {
+  padding: 1em;
+  background-color: var(--dark-green);
+  color: var(--white);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+footer nav {
+  display: flex;
+  text-align: center;
+  margin-bottom: 2em;
+}
+
+footer nav ul {
+  display: flex;
+  gap: 3em;
+  margin: 0 auto;
+}
+
+/***************************/
+/********** Project *********/
+/***************************/
+.project-card {
+  padding: 1em;
+  border: 0.2em solid var(--black);
+  border-radius: 10px;
+}
+.dragDocument{
+  border: 1px,solid,black;
+  background-color: #08CF65;
+  z-index: 1;
+  position:relative;
+}
+/*Code for popup modal*/
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+/* Separate file */
+.project-documents {
+    margin-top: 1em;
+}
+
+.document-column {
+    border: 1px solid #ccc;
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 5px;
+}
+
+.document-card {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    margin: 0.5em 0;
+    border-radius: 3px;
+    cursor: move;
+}
+
+.document-card:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.document-actions {
+    display: flex;
+    gap: 0.5em;
+    margin-top: 0.5em;
+}
+
+/* Project List Styling */
+.project-list {
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.project-list li {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.project-list li:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Project Link Styling */
+.project-list li a {
+    flex-grow: 1;
+    color: var(--dark-green);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1em;
+}
+
+/* Button Styling */
+.delete-btn, .edit-btn {
+    padding: 8px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.delete-btn:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+.edit-btn:hover {
+    color: #0056b3;
+    transform: scale(1.1);
+}
+
+/* Icon Styling */
+.fas {
+    font-size: 1.2em;
+}
+
+.fa-trash-alt {
+    color: #dc3545;
+}
+
+.fa-edit {
+    color: #0056b3;
+}
+
+/* Document Section Styling */
+.project-documents {
+    margin-top: 15px;
+    margin-left: 20px;
+    padding: 15px;
+    background-color: var(--light-green);
+    border-radius: 8px;
+}
+
+.document-column {
+    background-color: var(--white);
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.document-column h3 {
+    color: var(--dark-green);
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+/* Document Card Styling */
+.document-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 6px;
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.document-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.document-card h4 {
+    color: var(--dark-green);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.document-card p {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Document Actions Styling */
+.document-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.document-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.document-actions button:first-child {
+    background-color: #0056b3;
+    color: white;
+}
+
+.document-actions button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.document-actions button:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+}
+
+/* Add Document Button Styling */
+.add-document-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: var(--green);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-document-btn:hover {
+    background-color: #07b659;
+    transform: translateY(-1px);
+}
+
+/* Form Group Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--dark-green);
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 2px rgba(8, 207, 101, 0.2);
+}
+
+/* Modal Improvements */
+.modal-content {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: var(--dark-green);
+}
+
+/* Button Primary Styling */
+.btn-primary {
+    background-color: var(--green);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #07b659;
+    transform: translateY(-1px);
+}

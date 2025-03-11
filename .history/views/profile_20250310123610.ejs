@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- css link -->
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <!-- fonts link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- Font Awesome link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>User Profile</title>
+    <title>User Profile</title>
+    <style>
+        /* ... existing styles ... */
+        
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            height: fit-content;
+            overflow-y: auto;
+            cursor: move; /* Shows move cursor anywhere on container */
+            user-select: none; /* Prevents text selection while dragging */
+        }
+
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative; /* Change from absolute if it was set */
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .edit-btn:hover {
+            color: #333;
+            transform: none; /* Prevents any movement on hover */
+        }
+
+        .edit-btn i {
+            font-size: 16px;
+        }
+
+        #createColumnForm {
+            cursor: move; /* Shows move cursor anywhere on the form */
+            user-select: none; /* Prevents text selection while dragging */
+            position: relative; /* Needed for dragging */
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .document-column {
+            cursor: move; /* Shows move cursor */
+            user-select: none; /* Prevents text selection while dragging */
+            background: white;
+            padding: 15px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .project-documents {
+            position: relative; /* Required for absolute positioning of children */
+        }
+    </style>
+  </head>
+  <body>
+    <!-- header -->
+    <%- include('partials/header') %>
+    <h1>Adjust your profile here</h1>
+    <a href="/">To index Page</a>
+    <section class="hero">
+      <form action="/project/createProject" method="POST">
+        <div class="form-group">
+          <label for="name">Project Name</label>
+          <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea name="description" id="description" class="form-control" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" name="startDate" id="startDate" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="endDate">End Date</label>
+          <input type="date" name="endDate" id="endDate" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select name="status" id="status" class="form-control">
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+      </form>
+      <ul>
+        <% if (typeof projectList !== 'undefined' && Array.isArray(projectList) && projectList.length > 0) { %>
+          <% for(let i = 0; i < projectList.length; i++) { %>
+            <li>
+              <a href="/project/<%= projectList[i]._id %>"><%= projectList[i].name %></a>
+              <button class="delete-btn" data-id="<%= projectList[i]._id %>">
+                <i class="fas fa-trash-alt"></i> 
+              </button>
+              <a href="/profile/project/<%= projectList[i]._id %>/edit" class="edit-btn">
+                <i class="fas fa-edit"></i>
+              </a>
+            </li>
+            <div class="project-documents">
+                <div class="document-column" data-project-id="<%= projectList[i]._id %>">
+                    <h3>Documents</h3>
+                    <div class="document-list" id="documentList-<%= projectList[i]._id %>">
+                        <!-- Documents will be loaded here dynamically -->
+                    </div>
+                    <button class="add-document-btn" onclick="showAddDocumentModal('<%= projectList[i]._id %>')">
+                        <i class="fas fa-file-circle-plus"></i> Add Document
+                    </button>
+                </div>
+            </div>
+          <% } %>
+        <% } else { %>
+          <li>No projects found.</li>
+        <% } %>
+      </ul>
+    </section>
+    <!-- Add Modal HTML -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="editProjectForm">
+          <div class="form-group">
+            <label for="editName">Project Name</label>
+            <input type="text" name="name" id="editName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editDescription">Description</label>
+            <textarea name="description" id="editDescription" class="form-control" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editStartDate">Start Date</label>
+            <input type="date" name="startDate" id="editStartDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editEndDate">End Date</label>
+            <input type="date" name="endDate" id="editEndDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editStatus">Status</label>
+            <select name="status" id="editStatus" class="form-control">
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Update Project</button>
+        </form>
+      </div>
+    </div>
+    <!-- Add Document Modal -->
+    <div id="addDocumentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="addDocumentForm">
+                <div class="form-group">
+                    <label for="documentTitle">Title</label>
+                    <input type="text" id="documentTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentContent">Content</label>
+                    <textarea id="documentContent" required></textarea>
+                </div>
+                <button type="submit">Add Document</button>
+            </form>
+        </div>
+    </div>
+    <footer>
+      all thanks goes to the 100devs
+    </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('editModal');
+        const span = document.getElementsByClassName('close')[0];
+        const editProjectForm = document.getElementById('editProjectForm');
+        let currentProjectId = null;
+
+        // Delete project functionality
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+          button.addEventListener('click', function(event) {
+            const projectId = event.target.closest('button').getAttribute('data-id');
+            fetch(`/profile/project/${projectId}/delete`, {
+              method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                window.location.reload();
+              } else {
+                alert('Failed to delete project');
+              }
+            });
+          });
+        });
+
+        // Edit project functionality
+        const editButtons = document.querySelectorAll('.edit-btn');
+        editButtons.forEach(button => {
+          button.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const projectId = this.getAttribute('href').split('/edit')[0].split('project/')[1];
+            currentProjectId = projectId;
+            
+            // Fetch project data
+            const response = await fetch(`/profile/project/${projectId}/data`);
+            const project = await response.json();
+            
+            // Populate form
+            document.getElementById('editName').value = project.name;
+            document.getElementById('editDescription').value = project.description;
+            document.getElementById('editStartDate').value = project.startDate.split('T')[0];
+            document.getElementById('editEndDate').value = project.endDate.split('T')[0];
+            document.getElementById('editStatus').value = project.status;
+            
+            // Show modal
+            modal.style.display = 'block';
+          });
+        });
+
+        // Close modal when clicking (x)
+        span.onclick = function() {
+          modal.style.display = 'none';
+        }
+
+        // Get all modals
+        const editModal = document.getElementById('editModal');
+        const addDocumentModal = document.getElementById('addDocumentModal');
+        
+        // Function to close modal and reset form
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            if(modal === addDocumentModal) {
+                // Reset form fields
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === editModal) {
+                closeModal(editModal);
+            }
+            if (event.target === addDocumentModal) {
+                closeModal(addDocumentModal);
+            }
+        });
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (editModal.style.display === 'block') {
+                    closeModal(editModal);
+                }
+                if (addDocumentModal.style.display === 'block') {
+                    closeModal(addDocumentModal);
+                }
+            }
+        });
+
+        // Close button functionality
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                closeModal(modal);
+            });
+        });
+
+        // Handle form submission
+        editProjectForm.addEventListener('submit', async function(event) {
+          event.preventDefault();
+          
+          const formData = {
+            name: document.getElementById('editName').value,
+            description: document.getElementById('editDescription').value,
+            startDate: document.getElementById('editStartDate').value,
+            endDate: document.getElementById('editEndDate').value,
+            status: document.getElementById('editStatus').value
+          };
+
+          try {
+            const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+              window.location.reload();
+            } else {
+              alert('Failed to update project');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to update project');
+          }
+        });
+
+        let currentColumnId = null;
+
+        function showAddDocumentModal(projectId) {
+            currentColumnId = projectId;
+            const modal = document.getElementById('addDocumentModal');
+            modal.style.display = 'block';
+        }
+
+        // Load documents for each project
+        async function loadDocuments(projectId) {
+            try {
+                const response = await fetch(`/profile/project/${projectId}/documents`);
+                const documents = await response.json();
+                const documentList = document.getElementById(`documentList-${projectId}`);
+                
+                documentList.innerHTML = documents.map(doc => `
+                    <div class="document-card" draggable="true" data-id="${doc._id}">
+                        <h4>${doc.title}</h4>
+                        <p>${doc.content}</p>
+                        <div class="document-actions">
+                            <button onclick="editDocument('${doc._id}')">Edit</button>
+                            <button onclick="deleteDocument('${doc._id}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add drag and drop functionality
+                setupDragAndDrop();
+            } catch (error) {
+                console.error('Error loading documents:', error);
+            }
+        }
+
+        // Initialize drag and drop
+        function setupDragAndDrop() {
+            const documents = document.querySelectorAll('.document-card');
+            const columns = document.querySelectorAll('.document-column');
+            const projectDocuments = document.querySelectorAll('.project-documents');
+            
+            // Make each project-documents container draggable
+            projectDocuments.forEach(container => {
+                container.addEventListener('mousedown', function(e) {
+                    // Only initiate drag if clicking the container itself, not its children
+                    if (e.target === container) {
+                        const startX = e.clientX - container.offsetLeft;
+                        const startY = e.clientY - container.offsetTop;
+                        
+                        function moveContainer(e) {
+                            container.style.position = 'absolute';
+                            container.style.left = `${e.clientX - startX}px`;
+                            container.style.top = `${e.clientY - startY}px`;
+                            container.style.zIndex = '1000';
+                        }
+                        
+                        function stopMoving() {
+                            document.removeEventListener('mousemove', moveContainer);
+                            document.removeEventListener('mouseup', stopMoving);
+                        }
+                        
+                        document.addEventListener('mousemove', moveContainer);
+                        document.addEventListener('mouseup', stopMoving);
+                    }
+                });
+            });
+
+            // Existing document drag handlers
+            documents.forEach(doc => {
+                doc.addEventListener('dragstart', handleDragStart);
+                doc.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        // Add document form submission
+        document.getElementById('addDocumentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('documentTitle').value;
+            const content = document.getElementById('documentContent').value;
+            
+            try {
+                const response = await fetch(`/profile/project/${currentColumnId}/document`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, content, columnId: currentColumnId })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('addDocumentModal').style.display = 'none';
+                    loadDocuments(currentColumnId);
+                }
+            } catch (error) {
+                console.error('Error adding document:', error);
+            }
+        });
+
+        // Load documents for all projects on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const projects = document.querySelectorAll('[data-project-id]');
+            projects.forEach(project => {
+                loadDocuments(project.dataset.projectId);
+            });
+        });
+
+        // Get the add document modal
+        const addDocumentModal = document.getElementById('addDocumentModal');
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === addDocumentModal) {
+                addDocumentModal.style.display = 'none';
+                // Clear form fields
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && addDocumentModal.style.display === 'block') {
+                addDocumentModal.style.display = 'none';
+                // Clear form fields
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
+            }
+        });
+
+        // Make sure the close button (×) works
+        const closeBtn = addDocumentModal.querySelector('.close');
+        closeBtn.addEventListener('click', function() {
+            addDocumentModal.style.display = 'none';
+            // Clear form fields
+            document.getElementById('documentTitle').value = '';
+            document.getElementById('documentContent').value = '';
+        });
+
+        // Add this after your existing init() function
+        function makeDraggable(element) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+            element.addEventListener('mousedown', dragMouseDown);
+
+            function dragMouseDown(e) {
+                e.preventDefault();
+                // get the mouse cursor position at startup
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.addEventListener('mousemove', elementDrag);
+                document.addEventListener('mouseup', closeDragElement);
+            }
+
+            function elementDrag(e) {
+                e.preventDefault();
+                // calculate the new cursor position
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // stop moving when mouse button is released
+                document.removeEventListener('mousemove', elementDrag);
+            }
+        });
+    </script>
+  </body>
+</html> 

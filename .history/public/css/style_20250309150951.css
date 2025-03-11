@@ -1,0 +1,680 @@
+/***************************/
+/********** BASE *********/
+/***************************/
+:root {
+  --white: #fff;
+  --black: #000;
+  --light-green: #EBF5F3;
+  --dark-green: #0C3245;
+  --green: #08CF65;
+  --dark-blue: #181F38;
+  --gray: #EBEDF5;
+}
+
+body {
+  background-color: var(--white);
+  font-family: Roboto, sans-serif
+}
+
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  font-family: Poppins, Roboto, sans-serif;
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+/***************************/
+/********** LAYOUT *********/
+/***************************/
+.drag-container {
+  height: 100%;
+  overflow:scroll;
+ 
+}
+/* the horizantal scroll bar was at the bottom. to decrease the touches i moved it to the top. */
+#dragparent, .dragColumn{
+  transform: rotate(180deg);
+}
+
+
+/***************************/
+/********** HEADER *********/
+/***************************/
+header {
+  background-color: var(--light-green);
+  height: 5em;
+  padding: 1em;
+  margin-bottom: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header nav {
+  text-align: center;
+  display: flex;
+  /*align-items: center;*/
+  justify-content: space-between;
+  /*align-self: center;*/
+}
+
+header nav ul {
+  justify-content: center;
+  display: flex;
+  gap: 3em;
+  margin: 0 auto;
+}
+
+/***************************/
+/********** HERO *********/
+/***************************/
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.hero>div {
+  width: 50%;
+  display: flex;
+  flex-flow: column wrap;
+  /*justify-content: center;*/
+}
+
+.hero-testimony {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1em;
+  align-items: center;
+}
+
+/***************************/
+/****** Google Button ******/
+/***************************/
+.btn i {
+  font-size: 1.3rem;
+  line-height: inherit;
+  color: #fff;
+  text-align: center;
+  letter-spacing: .5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab {
+  font-weight: 400;
+  font-family: "Font Awesome 6 Brands";
+  -webkit-font-smooColumn: antialiased;
+  display: var(--fa-display, inline-block);
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+}
+
+i.left {
+  float: left;
+  margin-right: 15px;
+}
+
+.red.darken-1 {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #E53935 !important;
+  color: #fff;
+  border: none;
+  border-radius: 2%;
+  box-shadow: 1px 1px 1px #000;
+  vertical-align: middle;
+  margin: auto;
+}
+
+.googleAnchor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  align-self: center;
+}
+
+/***************************/
+/****** Testimonials *******/
+/***************************/
+.testimonials {
+  /*display: flex;*/
+  /*flex-flow: row wrap;*/
+  text-align: center;
+  background-color: var(--white);
+}
+
+.testimonial-card {
+  display: flex;
+  /*flex-flow: row wrap;*/
+  padding: 1em;
+  margin: 3em;
+  background-color: var(--light-green);
+  border-radius: 10px;
+}
+
+.testimonial-card>div {
+  width: 50%;
+}
+
+/*.testimonials.card>div:first-child() {*/
+/*  width: 70%;*/
+/*}*/
+/**/
+/*.testimonials.card>div:last-child() {*/
+/*  width: 30%;*/
+/*}*/
+
+/***************************/
+/********** Features *********/
+/***************************/
+.features {
+  background-color: var(--gray);
+  text-align: center;
+  padding: 2em;
+}
+
+.feature-card-container {
+  display: flex;
+  justify-content: space-around;
+  width: 80%;
+  margin: 0 auto;
+  gap: 1.5em;
+}
+
+.feature-card {
+  background-color: var(--white);
+  text-align: left;
+  padding: 1em;
+  border-radius: 10px;
+}
+
+/*TODO: .feature-card hover and focus state */
+
+.feature-card a {
+  color: var(--dark-green);
+}
+
+/***************************/
+/********** Contact Us *********/
+/***************************/
+.contact-us {
+  padding: 1em;
+  background-color: var(--dark-blue);
+  color: var(--white);
+  text-align: center;
+}
+
+h1,
+p {
+  margin-bottom: 0.5em;
+}
+
+.contact-us form {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: 1em;
+  /*column-gap: 3em;*/
+}
+
+.contact-us input {
+  padding: 0.4em 1em;
+  /*border: 0.2em solid var(--white);*/
+  border-radius: 10px;
+  border: none;
+  height: 3em;
+  /*margin: 0 2em;*/
+}
+
+.contact-us button {
+  padding: 0.4em 1em;
+  background-color: var(--green);
+  color: var(--white);
+  /*border: 0.2em solid var(--white);*/
+  border-radius: 10px;
+  border: none;
+  height: 3em;
+  font-weight: bold;
+}
+
+/***************************/
+/********** FOOTER *********/
+/***************************/
+footer {
+  padding: 1em;
+  background-color: var(--dark-green);
+  color: var(--white);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+footer nav {
+  display: flex;
+  text-align: center;
+  margin-bottom: 2em;
+}
+
+footer nav ul {
+  display: flex;
+  gap: 3em;
+  margin: 0 auto;
+}
+
+/***************************/
+/********** Project *********/
+/***************************/
+.project-card {
+  padding: 1em;
+  border: 0.2em solid var(--black);
+  border-radius: 10px;
+}
+.dragDocument{
+  border: 1px,solid,black;
+  background-color: #08CF65;
+  z-index: 1;
+  position:relative;
+}
+/*Code for popup modal*/
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.close {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--dark-green);
+  transition: color 0.2s ease;
+}
+
+.close:hover {
+  color: var(--green);
+}
+
+/* Separate file */
+.project-documents {
+    margin-top: 15px;
+    background: var(--light-green);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.document-column {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.document-card {
+    background: var(--white);
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.document-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.document-card h4 {
+    color: var(--dark-green);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.document-card p {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Document Actions */
+.document-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.document-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.document-actions button:first-child {
+    background-color: var(--green);
+    color: white;
+}
+
+.document-actions button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Add Document Button */
+.add-document-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+}
+
+.add-document-btn:hover {
+    background: #07b659;
+    transform: translateY(-2px);
+}
+
+/* Project List Styling */
+.project-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.project-list li {
+    background: var(--white);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Project Actions */
+.project-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.delete-btn, .edit-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    font-size: 1.2rem;
+}
+
+.delete-btn:hover, .edit-btn:hover {
+    transform: scale(1.1);
+}
+
+.fa-trash-alt {
+    color: #dc3545;
+}
+
+.fa-edit {
+    color: #0056b3;
+}
+
+/* Document Section Styling */
+.project-documents {
+    margin-top: 15px;
+    background: var(--light-green);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.document-column {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.document-column h3 {
+    color: var(--dark-green);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Document Cards */
+.document-list {
+    min-height: 100px;
+    padding: 10px 0;
+}
+
+.document-card {
+    background: var(--white);
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: move;
+    transition: all 0.2s ease;
+}
+
+.document-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.document-card h4 {
+    color: var(--dark-green);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+/* Document Actions */
+.document-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.document-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.document-actions button:first-child {
+    background-color: var(--green);
+    color: white;
+}
+
+.document-actions button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Add Document Button */
+.add-document-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+}
+
+.add-document-btn:hover {
+    background: #07b659;
+    transform: translateY(-2px);
+}
+
+/* Form Group Styling */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--dark-green);
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(8, 207, 101, 0.2);
+}
+
+/* Modal Improvements */
+.modal-content {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.close:hover {
+    color: var(--dark-green);
+}
+
+/* Button Primary Styling */
+.btn-primary {
+    background-color: var(--green);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+  cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #07b659;
+    transform: translateY(-1px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .project-list li {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .project-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .document-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .form-control {
+        font-size: 16px; /* Prevents zoom on mobile */
+    }
+}
+
+/* Drag and Drop Visual Feedback */
+.document-card.dragging {
+    opacity: 0.5;
+    background: var(--light-green);
+}
+
+.document-column.drag-over {
+    background: var(--light-green);
+    border: 2px dashed var(--green);
+}
+
+/* Icons within documents */
+.document-card i {
+    font-size: 1.1rem;
+    margin-right: 5px;
+}
+
+.document-actions i {
+    font-size: 1rem;
+}

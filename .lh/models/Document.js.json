@@ -1,0 +1,22 @@
+{
+    "sourceFile": "models/Document.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741545086023,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741627635613,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,12 +10,12 @@\n         required: true\n     },\n     columnId: {\n         type: mongoose.Schema.Types.ObjectId,\n-        ref: 'Project',\n+        ref: 'Column',\n         required: true\n     },\n-    order: {\n+    position: {\n         type: Number,\n         required: true\n     },\n     createdBy: {\n"
+                }
+            ],
+            "date": 1741545086023,
+            "name": "Commit-0",
+            "content": "const mongoose = require('mongoose');\n\nconst DocumentSchema = new mongoose.Schema({\n    title: {\n        type: String,\n        required: true\n    },\n    content: {\n        type: String,\n        required: true\n    },\n    columnId: {\n        type: mongoose.Schema.Types.ObjectId,\n        ref: 'Project',\n        required: true\n    },\n    order: {\n        type: Number,\n        required: true\n    },\n    createdBy: {\n        type: mongoose.Schema.Types.ObjectId,\n        ref: 'User',\n        required: true\n    },\n    createdAt: {\n        type: Date,\n        default: Date.now\n    },\n    status: {\n        type: String,\n        enum: ['Not Started', 'In Progress', 'Completed'],\n        default: 'Not Started'\n    }\n});\n\nmodule.exports = mongoose.model('Document', DocumentSchema);"
+        }
+    ]
+}

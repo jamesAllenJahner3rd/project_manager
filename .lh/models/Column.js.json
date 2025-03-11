@@ -1,0 +1,26 @@
+{
+    "sourceFile": "models/Column.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1741627250396,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741627508585,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,27 +1,1 @@\n-const mongoose = require('mongoose');\n-\n-const ColumnSchema = new mongoose.Schema({\n-    title: {\n-        type: String,\n-        required: true\n-    },\n-    projectId: {\n-        type: mongoose.Schema.Types.ObjectId,\n-        ref: 'Project',\n-        required: true\n-    },\n-    backgroundColor: {\n-        type: String,\n-        default: '#f9f9f9'\n-    },\n-    order: {\n-        type: Number,\n-        required: true\n-    },\n-    createdAt: {\n-        type: Date,\n-        default: Date.now\n-    }\n-});\n-\n-module.exports = mongoose.model('Column', ColumnSchema); \n\\ No newline at end of file\n+ \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1741627641147,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,1 +1,27 @@\n- \n\\ No newline at end of file\n+const mongoose = require('mongoose');\n+\n+const ColumnSchema = new mongoose.Schema({\n+    title: {\n+        type: String,\n+        required: true\n+    },\n+    backgroundColor: {\n+        type: String,\n+        default: '#f9f9f9'\n+    },\n+    position: {\n+        type: Number,\n+        required: true\n+    },\n+    projectId: {\n+        type: mongoose.Schema.Types.ObjectId,\n+        ref: 'Project',\n+        required: true\n+    },\n+    documents: [{\n+        type: mongoose.Schema.Types.ObjectId,\n+        ref: 'Document'\n+    }]\n+});\n+\n+module.exports = mongoose.model('Column', ColumnSchema); \n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1741627250396,
+            "name": "Commit-0",
+            "content": "const mongoose = require('mongoose');\n\nconst ColumnSchema = new mongoose.Schema({\n    title: {\n        type: String,\n        required: true\n    },\n    projectId: {\n        type: mongoose.Schema.Types.ObjectId,\n        ref: 'Project',\n        required: true\n    },\n    backgroundColor: {\n        type: String,\n        default: '#f9f9f9'\n    },\n    order: {\n        type: Number,\n        required: true\n    },\n    createdAt: {\n        type: Date,\n        default: Date.now\n    }\n});\n\nmodule.exports = mongoose.model('Column', ColumnSchema); "
+        }
+    ]
+}

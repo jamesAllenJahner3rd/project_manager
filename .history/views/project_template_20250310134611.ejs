@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Without reset.css: inconsistent element styling across browsers -->
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/dragula.css"/>
+    <!-- Without font preconnect: slow font loading and page render -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <title>Project Template</title>
+    <style>
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            height: fit-content;
+            overflow-y: auto;
+        }
+        .dragColumn {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+            word-wrap: break-word;
+            margin: 10px;
+            flex: 1 0 10%;
+            position: relative;
+           display: flex;
+           position: relative;
+
+           flex-flow: column nowrap;
+           align-items: inherit;
+           justify-content: flex-start;
+        }
+        .gu-mirror{
+            /*this was required to flip right-side -up the dragged objects.  */
+            transform: rotate(0deg);
+        }
+        .handle, .bar{
+            border:  1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: inline-block;
+            text-align: center;
+            background-image: url(/images/Icons2.webp);
+            background-color: goldenrod;
+            background-size: 1155%;
+            background-position: 90.5% 37%;
+            border-radius: 22%;
+        }
+        .dragDocument {
+           border: 1px, solid, black;
+           background-color: #08CF65;
+           z-index: 1;
+           position: relative;
+           display: flex;
+           position: relative;
+           flex-flow: column nowrap;
+           align-items: flex-start;
+           justify-content: flex-start;
+           cursor: move;
+           transition: transform 0.2s ease;
+        }
+        .deleteButton {
+            border: 1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vh;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: flex;
+            text-align: center;
+            background-image: url(/images/Icons1.webp);
+            background-color: lightgrey;
+            background-size: 1300%;
+            background-position: 63% 37%;
+            border-radius: 22%;
+            position: relative;
+            /* bottom: 7%; */
+            /* left: 95%; */
+            margin: 1% 1%;
+            /* justify-self: flex-end; */
+            /* flex-direction: row; */
+            /* align-self: flex-end; */
+        }
+        .dragDocument .deleteButton{
+            align-self: flex-end;
+        }
+        .newDocPopupButton {
+            border: 1px solid #ccc;
+            font-size: 1.5rem;
+            width: 3vw;
+            height: 3vh;
+            padding: 0.1vh 0 0 0;
+            display: flex
+;       
+            text-align: center;
+            background-image: url(/images/Icons1.webp);
+            background-color: lightgrey;
+            background-size: 1000%;
+            background-position: 36% 63%;
+            border-radius: 22%;
+            position: relative;
+            margin: 1% 1%;
+            
+        }
+         nav.columnNav{
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            position: relative;
+            align-items: baseline;
+        }
+        #createDocumentForm{
+            border: 1px solid black;
+            position: fixed;
+            width: 30%;
+            z-index: 2;
+            background-color: white;
+            top: 50%;
+            left: calc(50% + 400px);
+            transform: translate(-50%, -50%);
+        }
+        body{
+            position: relative;
+            height: 100vh;
+        }
+        footer{
+            position: sticky;
+            top: 100vh;
+        }
+        .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+        }
+
+        .form-header {
+            position: relative;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .column-color-picker {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .column-color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .column-color-picker::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+
+        .dragColumn {
+            transition: background-color 0.3s ease;
+            min-height: 50px; /* Ensure columns are droppable when empty */
+        }
+
+        nav.columnNav {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-start;
+            position: relative;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+        }
+
+        .button-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .column-color-picker {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: transparent;
+        }
+
+        nav.columnNav {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            border-
+
+        .dragDocument:hover {
+            transform: translateY(-2px);
+        }
+
+        .gu-mirror {
+            cursor: grabbing;
+        }
+
+        .gu-transit {
+            opacity: 0.4;
+            background-color: #f0f0f0;
+        }
+
+        .dragDocument {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+            background-color: #08CF65;
+            position: relative;
+            cursor: move;
+        }
+
+        .document-content {
+            margin-right: 30px; /* Space for delete button */
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .document-header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            flex-grow: 1;
+        }
+
+        .document-color-picker {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .dragDocument p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .deleteButton {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+  </head>
+
+  <body onload="init()">
+    <!-- Without header: navigation missing -->
+    <%- include('partials/header') %>
+
+    <!-- Without this form: no way to c
+     new columns -->
+    <form id="createColumnForm">
+        <div class="form-group">
+            <label for="columnContent">Column Content</label>
+            <input type="text" id="columnContent" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Column</button>
+    </form>
+
+    <!-- Without hidden attribute: form shows before any columns exist -->
+    <form id="createDocumentForm" hidden class="document-form">
+        <div class="form-header">
+        <h2>Create Document</h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="form-group">
+            <label for="documentTitle">Document Title</label>
+            <input type="text" id="documentTitle" class="form-control" required>
+            
+            <label for="documentDescription">Document Description</label>
+            <textarea id="documentDescription" class="form-control"></textarea>
+            
+            <div class="form-buttons">
+                <input type="button" id="documentColumn" class="form-control btn-secondary" value="Column">
+                <input type="button" id="documentAssignee" class="form-control btn-secondary" value="Assignee">
+                <input type="button" id="documentLabel" class="form-control btn-secondary" value="Label">
+                <input type="button" id="documentProject" class="form-control btn-secondary" value="Assign to Project">
+                <input type="button" id="MileStone" class="form-control btn-secondary" value="MileStone">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+    </form>
+
+    <!-- Without this container: nowhere to place dragable columns -->
+    <div id="dragparent" class="drag-container"></div>
+
+    <!-- Without footer: missing page closure and contact info -->
+    <%- include('partials/footer') %>
+    
+    <!-- Without main.js: core application features missing -->
+    <script src="/js/main.js"></script>
+    <!-- Without dragula.js: no drag-and-drop functionality -->
+    <script src="/js/dragula.js"></script>
+
+    <script>
+        // Without this array: unable to track columns for dragula integration
+        let listOfColumn = [];
+
+        function init() {
+            const createColumnForm = document.getElementById('createColumnForm');
+            const createDocumentForm = document.getElementById('createDocumentForm');
+            const dragparent = document.getElementById('dragparent');
+
+            // Without this event listener: document form submission not handled
+            createDocumentForm.addEventListener('submit', createDocumentFunc);
+
+            // Without this event listener: columns can't be created
+            createColumnForm.addEventListener('submit',createColumnFunc )
+
+            // Add this near the beginning of init()
+            const closeBtn = document.querySelector('.close-btn');
+            closeBtn.addEventListener('click', function() {
+                const createDocumentForm = document.getElementById('createDocumentForm');
+                createDocumentForm.setAttribute('hidden', '');
+            });
+
+            // Move dragula initialization outside of createColumnFunc
+            let columnDrake;
+
+            function createColumnFunc(event) {
+                event.preventDefault();
+                const columnContent = document.getElementById('columnContent').value;
+
+                const newColumn = document.createElement('ul');
+                const columnNav = document.createElement('nav');
+
+                newColumn.className = 'dragColumn';
+                newColumn.id = `column-${Math.random()}`;
+
+                // Create a container for buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'button-container';
+
+                // Add document button
+                const newDocPopup = document.createElement("button");
+                newDocPopup.className = 'newDocPopupButton';
+                newDocPopup.dataset.column = newColumn.id;
+                newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
+                buttonContainer.appendChild(newDocPopup);
+
+                // Add color picker
+                const colorPicker = document.createElement("input");
+                colorPicker.type = "color";
+                colorPicker.className = 'column-color-picker';
+                colorPicker.value = '#f9f9f9';
+                colorPicker.addEventListener('input', async (e) => {
+                    newColumn.style.backgroundColor = e.target.value;
+                    await saveColumnColor(newColumn.id, e.target.value);
+                });
+                buttonContainer.appendChild(colorPicker);
+
+                // Delete button
+                const deleteMe = document.createElement("button");
+                deleteMe.className = 'deleteButton';
+                deleteMe.dataset.column = newColumn.id;
+                deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.column));
+                buttonContainer.appendChild(deleteMe);
+
+                // Add the button container to nav
+                columnNav.appendChild(buttonContainer);
+
+                // Add title
+                const title = document.createElement('h1');
+                title.className = 'title';
+                title.textContent = columnContent;
+                title.addEventListener("dblclick", () => edit(title));
+                columnNav.appendChild(title);
+
+                newColumn.appendChild(columnNav);
+                dragparent.appendChild(newColumn);
+                listOfColumn.push(newColumn);
+                createColumnForm.reset();
+
+                // Update dragula for columns
+                if (columnDrake) {
+                    columnDrake.destroy();
+                }
+               
+                columnDrake = dragula(listOfColumn, {
+                        moves: function (el, container, handle) {
+                        return true;
+                        },
+                    accepts: function(el, target, source, sibling) {
+                        return true;
+                        },
+                        direction: 'vertical'
+                });
+            }
+
+            function createDocumentPopup(columnData){
+                console.log(columnData)
+                const theDocPopupForm =document.getElementById('createDocumentForm')
+                 theDocPopupForm.toggleAttribute("hidden");
+                 const popupButton = document.getElementById('createDoc');
+                 popupButton.setAttribute('data-id', columnData);
+
+            }
+
+
+            function createDocumentFunc(event) {
+                event.preventDefault();
+                const columnID = document.getElementById("createDoc").dataset.id;
+                const documentLineItem = document.createElement('li');
+                documentLineItem.className = 'dragDocument';
+                documentLineItem.id = `doc-${Math.random()}`;
+
+                // Create document container
+                const docContainer = document.createElement('div');
+                docContainer.className = 'document-container';
+
+                // Add title
+                const docTitle = document.createElement('h2');
+                const documentTitle = document.getElementById('documentTitle').value;
+                docTitle.textContent = documentTitle;
+                docTitle.style.fontWeight = 'bold';
+                docTitle.addEventListener("dblclick", () => edit(docTitle));
+                docContainer.appendChild(docTitle);
+                
+                // Add description
+                const docDescription = document.createElement('p');
+                const documentDescription = document.getElementById('documentDescription').value;
+                docDescription.textContent = documentDescription; // Use description value, not title
+                docDescription.addEventListener("dblclick", () => edit(docDescription));
+                docContainer.appendChild(docDescription);
+
+                // Add color picker
+                const colorPicker = document.createElement('input');
+                colorPicker.type = 'color';
+                colorPicker.className = 'document-color-picker';
+                colorPicker.value = '#08CF65'; // Default green color
+                colorPicker.style.position = 'absolute';
+                colorPicker.style.right = '40px';
+                colorPicker.style.top = '10px';
+                colorPicker.addEventListener('input', (e) => {
+                    documentLineItem.style.backgroundColor = e.target.value;
+                });
+                docContainer.appendChild(colorPicker);
+                
+                // Add delete button
+                const deleteMe = document.createElement("button");
+                deleteMe.className = 'deleteButton';
+                deleteMe.dataset.document = documentLineItem.id;
+                deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.document));
+                docContainer.appendChild(deleteMe);
+
+                // Add container to document
+                documentLineItem.appendChild(docContainer);
+
+                // Add to column
+                const parentColumn = document.getElementById(`${columnID}`);
+                parentColumn.appendChild(documentLineItem);
+
+                // Reset and close form
+                createDocumentForm.reset();
+                createDocumentPopup(null);
+            }
+
+            // Load saved project data
+            async function loadProjectData() {
+                const projectId = window.location.pathname.split('/project/')[1];
+                try {
+                    const response = await fetch(`/profile/project/${projectId}/data`);
+                    const project = await response.json();
+                    
+                    // Create columns from saved data
+                    project.columns.forEach(column => {
+                        const newColumn = createColumnFromData(column);
+                        
+                        // Create documents for each column
+                        column.documents.forEach(doc => {
+                            createDocumentFromData(doc, newColumn.id);
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error loading project:', error);
+                }
+            }
+
+            function createColumnFromData(columnData) {
+                const newColumn = document.createElement('ul');
+                newColumn.className = 'dragColumn';
+                newColumn.id = columnData._id;
+                newColumn.style.backgroundColor = columnData.backgroundColor;
+
+                // Create column content (similar to createColumnFunc but using saved data)
+                // ... rest of column creation code ...
+
+                return newColumn;
+            }
+
+            function createDocumentFromData(docData, columnId) {
+                const documentLineItem = document.createElement('li');
+                documentLineItem.className = 'dragDocument';
+                documentLineItem.id = docData._id;
+
+                // Create document content (similar to createDocumentFunc but using saved data)
+                // ... rest of document creation code ...
+
+                const parentColumn = document.getElementById(columnId);
+                parentColumn.appendChild(documentLineItem);
+            }
+
+            // Call loadProjectData when page loads
+            loadProjectData();
+
+            // Get all columns for dragula containers
+            const columns = document.querySelectorAll('.dragColumn');
+            
+            // Initialize dragula with all columns as containers
+            const documentDrake = dragula(Array.from(columns), {
+                moves: function (el) {
+                    return el.classList.contains('dragDocument'); // Only move documents
+                },
+                accepts: function (el, target) {
+                    return target.classList.contains('dragColumn'); // Accept drops in any column
+                },
+                revertOnSpill: true,
+                removeOnSpill: false
+            });
+
+            // Handle successful drops
+            documentDrake.on('drop', function (el, target, source) {
+                if (target !== source) {
+                    // Document was moved to a different column
+                    const documentId = el.id;
+                    const newColumnId = target.id;
+                    const oldColumnId = source.id;
+
+                    // Update the document's parent in the DOM
+                    target.appendChild(el);
+
+                    // Optional: Update the database to persist the change
+                    updateDocumentColumn(documentId, newColumnId, oldColumnId);
+                }
+            });
+
+            // Function to update document's column in database
+            async function updateDocumentColumn(documentId, newColumnId, oldColumnId) {
+                try {
+                    const response = await fetch(`/projects/documents/${documentId}/move`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            newColumnId: newColumnId,
+                            oldColumnId: oldColumnId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        console.error('Failed to update document column');
+                    }
+                } catch (error) {
+                    console.error('Error updating document column:', error);
+                }
+            }
+        }
+
+        function deleteDocument(docID){
+            theDoomedDocument = document.getElementById(docID)
+            if(theDoomedDocument){
+                theDoomedDocument.parentNode.removeChild(theDoomedDocument)
+            }
+        }
+        function edit(element){
+            let text = element.textContent
+            element.textContent = ''
+            const rewrite =document.createElement('input');
+            rewrite.classList.add('form-control');
+            rewrite.id = "editInput";
+            rewrite.type ="textbox";
+            rewrite.placeholder = text
+            rewrite.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                  event.preventDefault(); // the page would reload otherwise.
+                  console.log(rewrite.value||"it's empty")
+                  element.textContent = rewrite.value||rewrite.placeholder
+                  delete rewrite
+                }if (event.key === "Escape") {
+                    console.log('escape')
+                    element.textContent = text;
+                    rewrite.remove(); // Properly remove the input element from the DOM
+                }
+            })
+            rewrite.addEventListener("blur",  function(event) {
+                element.textContent = text;
+                rewrite.remove(); // Properly remove the input element from the DOM
+            })
+            element.appendChild(rewrite).focus();
+        }
+
+        async function saveColumnColor(columnId, color) {
+            try {
+                await fetch(`/projects/columns/${columnId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ backgroundColor: color })
+                });
+            } catch (error) {
+                console.error('Error saving column color:', error);
+            }
+        }
+    </script>
+  </body>
+</html>
