@@ -30,12 +30,9 @@ const ProjectSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId, 
-        required: false
-    },
     adminId: {
         type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Profile',
         required: true
     }
 });

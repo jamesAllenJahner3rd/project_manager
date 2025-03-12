@@ -9,28 +9,21 @@ module.exports = {
         console.log("Fetching profile...");
 
         try {
-            const userProfile = await Profile.findOne({ googleId: req.user.googleId });
-
-            if (!userProfile) {
-                console.log("No profile found for this user.");
-                return res.status(404).send("Profile not found. Try logging in again.");
+            const profile = await Profile.findOne({ googleId: req.user.googleId });
+            if (!profile) {
+                return res.redirect('/auth/google');
             }
 
-            console.log("User Profile Found:", userProfile);
-            console.log("User Profile ID:", userProfile._id);
+            console.log("User Profile Found:", profile);
+            console.log("User Profile ID:", profile._id);
 
-            // Ensure ObjectId format
-            const userId = new mongoose.Types.ObjectId(userProfile._id);
-
-            // Fetch projects
-            const projectList = await Project.find({
-                $or: [{ adminId: userId }, { userId: userId }]
-            });
-
-            console.log("Projects fetched from DB:", projectList);
+            // Get all projects where user is admin
+            const projectList = await Project.find({ adminId: profile._id })
+                .populate('columns');
 
             res.render("profile", {
-                userProfile,
+                user: req.user,
+                profile,
                 projectList,
                 isAuthenticated: req.isAuthenticated(),
             });
@@ -94,7 +87,10 @@ module.exports = {
 
     deleteProject: async (req, res) => {
         try {
-            await Project.findByIdAndDelete(req.params.id);
+            const result = await Project.findByIdAndDelete(req.params.id);
+            if (!result) {
+                return res.status(404).json({ success: false, message: 'Project not found' });
+            }
             res.json({ success: true });
         } catch (err) {
             console.error(err);
