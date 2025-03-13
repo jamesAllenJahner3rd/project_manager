@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- css link -->
+    <link rel="stylesheet" href="/css/reset.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <!-- fonts link -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <!-- Font Awesome link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>User Profile</title>
+    <style>
+        /* ... existing styles ... */
+        
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 30px;
+            height: 30px;
+            margin-left: 5px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .edit-btn i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #666;
+        }
+
+        .edit-btn:hover i {
+            color: #333;
+        }
+
+        .project-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .project-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .project-header a {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-documents {
+            margin-top: 15px;
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .document-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .document-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .document-card h4 {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+
+        .document-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .document-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .add-document-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .add-document-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+  </head>
+  <body>
+    <!-- header -->
+    <%- include('partials/header') %>
+    <h1>Adjust your profile here</h1>
+    <a href="/">To index Page</a>
+    <section class="hero">
+      <form id="createProjectForm">
+        <div class="form-group">
+          <label for="name">Project Name</label>
+          <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea name="description" id="description" class="form-control" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" name="startDate" id="startDate" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="endDate">End Date</label>
+          <input type="date" name="endDate" id="endDate" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select name="status" id="status" class="form-control">
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+      </form>
+      <ul class="project-list">
+        <% if (typeof projectList !== 'undefined' && projectList.length > 0) { %>
+            <% projectList.forEach(project => { %>
+                <li class="project-item">
+                    <div class="project-header">
+                        <a href="/project/<%= project._id %>"><%= project.name %></a>
+                        <div class="project-actions">
+                            <button class="delete-btn" data-id="<%= project._id %>">
+                <i class="fas fa-trash-alt"></i> 
+              </button>
+                            <a href="/profile/project/<%= project._id %>/edit" class="edit-btn">
+                <i class="fas fa-edit"></i>
+              </a>
+                        </div>
+                    </div>
+                    
+                    <div class="project-details">
+                        <p><strong>Status:</strong> <%= project.status %></p>
+                        <p><strong>Columns:</strong> <%= project.columns ? project.columns.length : 0 %></p>
+                        <p><strong>Documents:</strong> <%= project.columns ? project.columns.reduce((sum, col) => sum + (col.documents ? col.documents.length : 0), 0) : 0 %></p>
+                    </div>
+            </li>
+            <% }) %>
+        <% } else { %>
+            <li>No projects found</li>
+        <% } %>
+      </ul>
+    </section>
+    <!-- Add Modal HTML -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <form id="editProjectForm">
+          <div class="form-group">
+            <label for="editName">Project Name</label>
+            <input type="text" name="name" id="editName" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editDescription">Description</label>
+            <textarea name="description" id="editDescription" class="form-control" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editStartDate">Start Date</label>
+            <input type="date" name="startDate" id="editStartDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editEndDate">End Date</label>
+            <input type="date" name="endDate" id="editEndDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label for="editStatus">Status</label>
+            <select name="status" id="editStatus" class="form-control">
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Update Project</button>
+        </form>
+      </div>
+    </div>
+    <!-- Add Document Modal -->
+    <div id="addDocumentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="addDocumentForm">
+                <div class="form-group">
+                    <label for="documentTitle">Title</label>
+                    <input type="text" id="documentTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentContent">Content</label>
+                    <textarea id="documentContent" required></textarea>
+                </div>
+                <button type="submit">Add Document</button>
+            </form>
+        </div>
+    </div>
+    <iframe name="hidden-iframe" id="hidden-iframe" style="display:none;"></iframe>
+    <footer>
+      all thanks goes to the 100devs
+    </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Modal elements
+        const modal = document.getElementById('editModal');
+        const addDocumentModal = document.getElementById('addDocumentModal');
+        const span = document.getElementsByClassName('close')[0];
+        const editProjectForm = document.getElementById('editProjectForm');
+        let currentProjectId = null;
+
+        // Delete project functionality
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', async function(event) {
+            const projectId = event.target.closest('button').getAttribute('data-id');
+                await deleteProject(projectId);
+            });
+        });
+
+        // Edit project functionality
+        const editButtons = document.querySelectorAll('.edit-btn');
+        editButtons.forEach(button => {
+            button.addEventListener('click', async function(event) {
+                event.preventDefault();
+                const projectId = this.getAttribute('href').split('/edit')[0].split('project/')[1];
+                currentProjectId = projectId;
+                
+                // Fetch project data
+                const response = await fetch(`/profile/project/${projectId}/data`);
+                const project = await response.json();
+                
+                // Populate form
+                document.getElementById('editName').value = project.name;
+                document.getElementById('editDescription').value = project.description;
+                document.getElementById('editStartDate').value = project.startDate.split('T')[0];
+                document.getElementById('editEndDate').value = project.endDate.split('T')[0];
+                document.getElementById('editStatus').value = project.status;
+                
+                // Show modal
+                modal.style.display = 'block';
+            });
+        });
+
+        // Modal functionality
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            if(modal === addDocumentModal) {
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
+            }
+        }
+
+        // Close modal when clicking (x)
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal(modal);
+            }
+            if (event.target === addDocumentModal) {
+                closeModal(addDocumentModal);
+            }
+        });
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (modal.style.display === 'block') {
+                    closeModal(modal);
+                }
+                if (addDocumentModal.style.display === 'block') {
+                    closeModal(addDocumentModal);
+                }
+            }
+        });
+
+        // Close button functionality
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                closeModal(modal);
+            });
+        });
+
+        // Handle edit form submission
+        editProjectForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('editName').value,
+                description: document.getElementById('editDescription').value,
+                startDate: document.getElementById('editStartDate').value,
+                endDate: document.getElementById('editEndDate').value,
+                status: document.getElementById('editStatus').value
+            };
+
+            try {
+                const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                window.location.reload();
+              } else {
+                    alert('Failed to update project');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to update project');
+            }
+        });
+
+        // Update the form submission code
+        const createProjectForm = document.getElementById('createProjectForm');
+        
+        // Set the form target to our hidden iframe
+        createProjectForm.target = "hidden-iframe";
+        createProjectForm.action = "/project/createProject";
+        createProjectForm.method = "POST";
+
+        createProjectForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Create FormData object
+            const formData = new FormData(createProjectForm);
+            
+            // Make a traditional form POST
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/project/createProject', true);
+            
+            xhr.onload = function() {
+                if (xhr.status === 200 || xhr.status === 201) {
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        
+                        // Add the new project to the UI
+                        const projectList = document.querySelector('.project-list');
+                        
+                        if (projectList.innerHTML.includes('No projects found')) {
+                            projectList.innerHTML = '';
+                        }
+
+                        const newProjectHTML = `
+                            <li class="project-item">
+                                <div class="project-header">
+                                    <a href="/project/${result.project._id}">${formData.get('name')}</a>
+                                    <div class="project-actions">
+                                        <button class="delete-btn" data-id="${result.project._id}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                        <a href="/profile/project/${result.project._id}/edit" class="edit-btn">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="project-details">
+                                    <p><strong>Status:</strong> ${formData.get('status')}</p>
+                                    <p><strong>Columns:</strong> 0</p>
+                                    <p><strong>Documents:</strong> 0</p>
+                                </div>
+                            </li>
+                        `;
+                        
+                        projectList.insertAdjacentHTML('afterbegin', newProjectHTML);
+
+                        // Add event listener to the new delete button
+                        const newDeleteBtn = projectList.firstElementChild.querySelector('.delete-btn');
+                        if (newDeleteBtn) {
+                            newDeleteBtn.addEventListener('click', () => deleteProject(result.project._id));
+                        }
+
+                        // Reset the form
+                        createProjectForm.reset();
+
+                        // Show success message
+                        alert('Project created successfully!');
+                        
+                    } catch (error) {
+                        window.location.reload(); // Fallback to page reload if JSON parsing fails
+                    }
+                } else {
+                    alert('Error creating project. Please try again.');
+                }
+            };
+
+            xhr.onerror = function() {
+                alert('Error creating project. Please try again.');
+            };
+
+            // Send the form data
+            const formDataObj = {};
+            formData.forEach((value, key) => formDataObj[key] = value);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(formDataObj));
+        });
+
+        // Function to delete project
+        window.deleteProject = async function(projectId) {
+            if (confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                try {
+                    // Delete from database
+                    const response = await fetch(`/profile/project/${projectId}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to delete project from database');
+                    }
+
+                    // Remove the project element from the DOM
+                    const projectElement = document.querySelector(`[data-id="${projectId}"]`).closest('.project-item');
+                    if (projectElement) {
+                        projectElement.remove();
+                    }
+
+                    // Check if there are no more projects
+                    const projectList = document.querySelector('.project-list');
+                    if (!projectList.children.length) {
+                        projectList.innerHTML = '<li>No projects found. Create a new project to get started!</li>';
+                    }
+
+                } catch (error) {
+                    console.error('Error deleting project:', error);
+                    alert('Failed to delete project. Please try again.');
+                }
+            }
+        };
+      });
+    </script>
+  </body>
+</html>

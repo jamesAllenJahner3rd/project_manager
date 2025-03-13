@@ -1,0 +1,22 @@
+{
+    "sourceFile": "server.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1741898229436,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1741898251220,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -85,9 +85,8 @@\n app.use('/login', loginRoutes);\n app.use('/post', postRoutes);\n app.use('/project', projectRoutes);\n \n-app.get('/api/projects/:id', async (req, res) => {\n // Error Handling Middleware\n app.use(notFound);\n app.use(errorHandler);\n \n"
+                }
+            ],
+            "date": 1741898229436,
+            "name": "Commit-0",
+            "content": "const express = require('express');\nconst mongoose = require('mongoose');\nconst methodOverride = require('method-override');\nconst dotenv = require('dotenv');\nconst session = require('express-session');\nconst MongoStore = require('connect-mongo');\nconst passport = require('passport');\n// const dragula = require(\"dragula\");\n\nconst indexRoutes = require('./routes/indexRoutes');\nconst profileRoutes = require('./routes/profileRoutes');\nconst loginRoutes = require('./routes/loginRoutes');\nconst postRoutes = require('./routes/postRoutes');\nconst projectRoutes = require('./routes/projectRoutes');\nconst { notFound, errorHandler } = require('./middleware/errorMiddleware'); \n\nconst morgan = require('morgan')\nconst connectDB = require(\"./config/database\");\nconst ejs =require(\"ejs\");\n\n\nconst authRoutes = require(\"./routes/auth\");\nconst path = require(\"path\");\n// load the config\ndotenv.config({ path: './config/.env' });\n\n//Passport config\nrequire(\"./config/passport\")(passport)//i'm passing variable passport as an arguement\n\nconnectDB();\n\nconst app = express();\nconst PORT = process.env.PORT ||  8000;\n\n\nif (process.env.NODE_ENV ==='development'){\n    app. use(morgan('dev'))\n}\n\n// Middleware\napp.use(express.urlencoded({ extended: true }));\napp.use(express.json());\napp.use(methodOverride('_method'));\napp.use('/public', express.static('public'));\n \n// Log each request to see the flow\napp.use((req, res, next) => {\n    console.log(`${req.method} ${req.url}`);\n    next();\n});\n\n// View engine\napp.set('view engine', 'ejs');\n\n//Express-session middleware\napp.use(\n    session({\n      secret: 'keyboard cat',\n      resave: false,\n      saveUninitialized: false,\n      //this was stoping us from being logged in as true\n      cookie: { secure: false },\n      //this was required do to an updated module\n      store: MongoStore.create({ mongoUrl: process.env.DB_STRING  }),\n    })\n);\n\n// Passport middleware\napp.use(passport.initialize());\napp.use(passport.session());\n// Add this middleware before your route definitions\n//the partials weren't recieving the to isAuthenticated.\napp.use((req, res, next) => {\n    res.locals.isAuthenticated = req.isAuthenticated();\n    next();\n});\n\n//static folder\napp.use(express.static(path.join(__dirname,\"public\")));\n\n// Routes\napp.use('/', indexRoutes);\napp.use('/auth',authRoutes);\napp.use('/profile', profileRoutes);\napp.use('/login', loginRoutes);\napp.use('/post', postRoutes);\napp.use('/project', projectRoutes);\n\napp.get('/api/projects/:id', async (req, res) => {\n// Error Handling Middleware\napp.use(notFound);\napp.use(errorHandler);\n\n//NODE_ENV is going to let us know what stage of development we're in when booting.\napp.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));"
+        }
+    ]
+}
