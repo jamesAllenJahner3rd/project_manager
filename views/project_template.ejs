@@ -332,8 +332,200 @@
     <script src="/js/dragula.js"></script>
 
     <script>
-        // Without this array: unable to track columns for dragula integration
         let listOfColumn = [];
+
+        function saveToLocalStorage() {
+            const boardState = {
+                columns: Array.from(document.querySelectorAll('.dragColumn')).map(column => {
+                    const documents = Array.from(column.querySelectorAll('.dragDocument')).map(doc => ({
+                        id: doc.id,
+                        title: doc.querySelector('h2').textContent,
+                        description: doc.querySelector('p').textContent,
+                        backgroundColor: doc.style.backgroundColor || '#08CF65'
+                    }));
+
+                    return {
+                        id: column.id,
+                        title: column.querySelector('.title').textContent,
+                        backgroundColor: column.style.backgroundColor || '#f9f9f9',
+                        documents: documents
+                    };
+                })
+            };
+
+            localStorage.setItem('kanbanBoard', JSON.stringify(boardState));
+        }
+
+        function createDocumentFromSaved(doc) {
+            const documentLineItem = document.createElement('li');
+            documentLineItem.className = 'dragDocument';
+            documentLineItem.id = doc.id;
+            documentLineItem.style.backgroundColor = doc.backgroundColor;
+
+            const docContainer = document.createElement('div');
+            docContainer.className = 'document-container';
+
+            // Add title
+            const docTitle = document.createElement('h2');
+            docTitle.textContent = doc.title;
+            docTitle.style.fontWeight = 'bold';
+            docTitle.addEventListener("dblclick", () => edit(docTitle));
+            docContainer.appendChild(docTitle);
+
+            // Add description
+            const docDescription = document.createElement('p');
+            docDescription.textContent = doc.description;
+            docDescription.addEventListener("dblclick", () => edit(docDescription));
+            docContainer.appendChild(docDescription);
+
+            // Add color picker
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.className = 'document-color-picker';
+            colorPicker.value = doc.backgroundColor || '#08CF65';
+            colorPicker.style.position = 'absolute';
+            colorPicker.style.right = '40px';
+            colorPicker.style.top = '10px';
+            colorPicker.addEventListener('input', (e) => {
+                documentLineItem.style.backgroundColor = e.target.value;
+                saveToLocalStorage();
+            });
+            docContainer.appendChild(colorPicker);
+
+            // Add delete button
+            const deleteMe = document.createElement("button");
+            deleteMe.className = 'deleteButton';
+            deleteMe.dataset.document = documentLineItem.id;
+            deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.document));
+            docContainer.appendChild(deleteMe);
+
+            documentLineItem.appendChild(docContainer);
+            return documentLineItem;
+        }
+
+        function createColumnFromSaved(column) {
+            const newColumn = document.createElement('ul');
+            newColumn.className = 'dragColumn';
+            newColumn.id = column.id;
+            newColumn.style.backgroundColor = column.backgroundColor;
+
+            const columnNav = document.createElement('nav');
+            columnNav.className = 'columnNav';
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'button-container';
+
+            // Add document button
+            const newDocPopup = document.createElement("button");
+            newDocPopup.className = 'newDocPopupButton';
+            newDocPopup.dataset.column = newColumn.id;
+            newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
+            buttonContainer.appendChild(newDocPopup);
+
+            // Add color picker
+            const colorPicker = document.createElement("input");
+            colorPicker.type = "color";
+            colorPicker.className = 'column-color-picker';
+            colorPicker.value = column.backgroundColor || '#f9f9f9';
+            colorPicker.addEventListener('input', (e) => {
+                newColumn.style.backgroundColor = e.target.value;
+                saveToLocalStorage();
+            });
+            buttonContainer.appendChild(colorPicker);
+
+            // Delete button
+            const deleteMe = document.createElement("button");
+            deleteMe.className = 'deleteButton';
+            deleteMe.dataset.column = newColumn.id;
+            deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.column));
+            buttonContainer.appendChild(deleteMe);
+
+            columnNav.appendChild(buttonContainer);
+
+            // Add title
+            const title = document.createElement('h1');
+            title.className = 'title';
+            title.textContent = column.title;
+            title.addEventListener("dblclick", () => edit(title));
+            columnNav.appendChild(title);
+
+            newColumn.appendChild(columnNav);
+
+            // Create saved documents
+            if (column.documents) {
+                column.documents.forEach(doc => {
+                    const documentLineItem = createDocumentFromSaved(doc);
+                    newColumn.appendChild(documentLineItem);
+                });
+            }
+
+            return newColumn;
+        }
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('kanbanBoard');
+            if (!savedData) return;
+
+            const boardState = JSON.parse(savedData);
+            const dragparent = document.getElementById('dragparent');
+            
+            // Clear existing columns
+            dragparent.innerHTML = '';
+            listOfColumn = [];
+
+            boardState.columns.forEach(column => {
+                const newColumn = createColumnFromSaved(column);
+                dragparent.appendChild(newColumn);
+                listOfColumn.push(newColumn);
+            });
+        }
+
+        function deleteDocument(docID) {
+            const theDoomedDocument = document.getElementById(docID);
+            if(theDoomedDocument) {
+                theDoomedDocument.parentNode.removeChild(theDoomedDocument);
+                saveToLocalStorage();
+            }
+        }
+
+        function edit(element) {
+            let text = element.textContent;
+            element.textContent = '';
+            const rewrite = document.createElement('input');
+            rewrite.classList.add('form-control');
+            rewrite.id = "editInput";
+            rewrite.type = "textbox";
+            rewrite.placeholder = text;
+            rewrite.value = text;
+            
+            rewrite.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    element.textContent = rewrite.value || rewrite.placeholder;
+                    rewrite.remove();
+                    saveToLocalStorage();
+                } else if (event.key === "Escape") {
+                    element.textContent = text;
+                    rewrite.remove();
+                }
+            });
+
+            rewrite.addEventListener("blur", function(event) {
+                element.textContent = text;
+                rewrite.remove();
+            });
+
+            element.appendChild(rewrite);
+            rewrite.focus();
+        }
+
+        function createDocumentPopup(columnData) {
+            const theDocPopupForm = document.getElementById('createDocumentForm');
+            theDocPopupForm.toggleAttribute("hidden");
+            const popupButton = document.getElementById('createDoc');
+            popupButton.setAttribute('data-id', columnData);
+            const documentTitle = document.getElementById('documentTitle');
+            documentTitle.focus();
+        }
 
         function init() {
             const createColumnForm = document.getElementById('createColumnForm');
@@ -342,431 +534,88 @@
             let columnDrake;
             let documentDrake;
 
-            // Move these functions to be accessible in the entire init scope
-            function initDragula() {
-                // Initialize column dragula
-                if (columnDrake) {
-                    columnDrake.destroy();
+            // Load saved data first
+            loadFromLocalStorage();
+            
+            // Initialize dragula
+            columnDrake = dragula([dragparent], {
+                moves: function (el, container, handle) {
+                    return el.classList.contains('dragColumn') && 
+                           (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
+                },
+                accepts: function (el, target) {
+                    return el.classList.contains('dragColumn') && target === dragparent;
+                },
+                direction: 'horizontal'
+            });
+
+            // Update listOfColumn
+            listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
+            
+            documentDrake = dragula(listOfColumn, {
+                moves: function (el, container, handle) {
+                    return el.classList.contains('dragDocument');
+                },
+                accepts: function (el, target) {
+                    return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
                 }
+            });
+
+            // Event Listeners
+            columnDrake.on('drop', saveToLocalStorage);
+            documentDrake.on('drop', saveToLocalStorage);
+
+            createColumnForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const columnContent = document.getElementById('columnContent').value;
+                const column = {
+                    id: `column-${Date.now()}`,
+                    title: columnContent,
+                    backgroundColor: '#f9f9f9',
+                    documents: []
+                };
+                const newColumn = createColumnFromSaved(column);
+                dragparent.appendChild(newColumn);
+                listOfColumn.push(newColumn);
+                createColumnForm.reset();
+                saveToLocalStorage();
                 
-                columnDrake = dragula([dragparent], {
-                    moves: function (el, container, handle) {
-                        return el.classList.contains('dragColumn') && 
-                               (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
-                    },
-                    accepts: function (el, target) {
-                        return el.classList.contains('dragColumn') && target === dragparent;
-                    },
-                    direction: 'horizontal'
-                });
-
-                // Save column order after drag
-                columnDrake.on('drop', function() {
-                    saveToLocalStorage();
-                });
-
-                // Initialize document dragula with updated column list
-                if (documentDrake) {
-                    documentDrake.destroy();
-                }
-
-                // Get fresh list of columns
+                // Reinitialize dragula for documents with new column
+                documentDrake.destroy();
                 listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
-                
                 documentDrake = dragula(listOfColumn, {
                     moves: function (el, container, handle) {
                         return el.classList.contains('dragDocument');
                     },
                     accepts: function (el, target) {
                         return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
-                    },
-                    revertOnSpill: true,
-                    removeOnSpill: false
-                });
-
-                documentDrake.on('drop', function(el, target, source) {
-                    if (target !== source) {
-                        const documentId = el.id;
-                        const newColumnId = target.id;
-                        const oldColumnId = source.id;
-                        updateDocumentColumn(documentId, newColumnId, oldColumnId);
                     }
-                    saveToLocalStorage();
                 });
-            }
-
-            function saveToLocalStorage() {
-                const boardState = {
-                    columns: Array.from(dragparent.children).map(column => {
-                        const documents = Array.from(column.querySelectorAll('.dragDocument')).map(doc => ({
-                            id: doc.id,
-                            title: doc.querySelector('h2').textContent,
-                            description: doc.querySelector('p').textContent,
-                            backgroundColor: doc.style.backgroundColor || '#08CF65',
-                            colorPickerValue: doc.querySelector('.document-color-picker').value
-                        }));
-
-                        return {
-                            id: column.id,
-                            title: column.querySelector('.title').textContent,
-                            backgroundColor: column.style.backgroundColor || '#f9f9f9',
-                            colorPickerValue: column.querySelector('.column-color-picker').value,
-                            documents: documents
-                        };
-                    })
-                };
-
-                localStorage.setItem('kanbanBoard', JSON.stringify(boardState));
-            }
-
-            function loadFromLocalStorage() {
-                const savedData = localStorage.getItem('kanbanBoard');
-                if (!savedData) return;
-
-                const boardState = JSON.parse(savedData);
-                
-                // Clear existing columns
-                dragparent.innerHTML = '';
-                listOfColumn = [];
-
-                boardState.columns.forEach(column => {
-                    // Create column with saved data
-                    const newColumn = document.createElement('ul');
-                    newColumn.className = 'dragColumn';
-                    newColumn.id = column.id; // Keep original ID for consistency
-                    newColumn.style.backgroundColor = column.backgroundColor || '#f9f9f9';
-
-                    // Create a container for buttons
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'button-container';
-
-                    // Add document button
-                    const newDocPopup = document.createElement("button");
-                    newDocPopup.className = 'newDocPopupButton';
-                    newDocPopup.dataset.column = newColumn.id;
-                    newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
-                    buttonContainer.appendChild(newDocPopup);
-
-                    // Add color picker
-                    const colorPicker = document.createElement("input");
-                    colorPicker.type = "color";
-                    colorPicker.className = 'column-color-picker';
-                    colorPicker.value = column.colorPickerValue || '#f9f9f9';
-                    colorPicker.addEventListener('input', (e) => {
-                        newColumn.style.backgroundColor = e.target.value;
-                    });
-                    buttonContainer.appendChild(colorPicker);
-
-                    // Delete button
-                    const deleteMe = document.createElement("button");
-                    deleteMe.className = 'deleteButton';
-                    deleteMe.dataset.column = newColumn.id;
-                    deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.column));
-                    buttonContainer.appendChild(deleteMe);
-
-                    // Add the button container to nav
-                    const columnNav = document.createElement('nav');
-                    columnNav.appendChild(buttonContainer);
-
-                    // Add title
-                    const title = document.createElement('h1');
-                    title.className = 'title';
-                    title.textContent = column.title;
-                    title.addEventListener("dblclick", () => edit(title));
-                    columnNav.appendChild(title);
-
-                    newColumn.appendChild(columnNav);
-                    dragparent.appendChild(newColumn);
-                    listOfColumn.push(newColumn);
-
-                    // Create documents
-                    column.documents.forEach(doc => {
-                        const documentLineItem = document.createElement('li');
-                        documentLineItem.className = 'dragDocument';
-                        documentLineItem.id = `doc-${Math.random()}`;
-
-                        // Create document container
-                        const docContainer = document.createElement('div');
-                        docContainer.className = 'document-container';
-
-                        // Add title
-                        const docTitle = document.createElement('h2');
-                        docTitle.textContent = doc.title;
-                        docTitle.style.fontWeight = 'bold';
-                        docTitle.addEventListener("dblclick", () => edit(docTitle));
-                        docContainer.appendChild(docTitle);
-                        
-                        // Add description
-                        const docDescription = document.createElement('p');
-                        docDescription.textContent = doc.description;
-                        docDescription.addEventListener("dblclick", () => edit(docDescription));
-                        docContainer.appendChild(docDescription);
-
-                        // Add color picker
-                        const docColorPicker = document.createElement('input');
-                        docColorPicker.type = 'color';
-                        docColorPicker.className = 'document-color-picker';
-                        docColorPicker.value = doc.colorPickerValue || '#08CF65';
-                        docColorPicker.style.position = 'absolute';
-                        docColorPicker.style.right = '40px';
-                        docColorPicker.style.top = '10px';
-                        docColorPicker.addEventListener('input', (e) => {
-                            documentLineItem.style.backgroundColor = e.target.value;
-                            saveToLocalStorage();
-                        });
-                        docContainer.appendChild(docColorPicker);
-                        
-                        // Add delete button
-                        const deleteDoc = document.createElement("button");
-                        deleteDoc.className = 'deleteButton';
-                        deleteDoc.dataset.document = documentLineItem.id;
-                        deleteDoc.addEventListener("click", () => deleteDocument(deleteDoc.dataset.document));
-                        docContainer.appendChild(deleteDoc);
-
-                        // Add container to document
-                        documentLineItem.appendChild(docContainer);
-
-                        // Add to column
-                        const parentColumn = document.getElementById(`${newColumn.id}`);
-                        parentColumn.appendChild(documentLineItem);
-
-                        // Set the document background color immediately
-                        documentLineItem.style.backgroundColor = doc.backgroundColor || '#08CF65';
-                        docColorPicker.value = doc.backgroundColor || '#08CF65'; // Set color picker value to match
-                    });
-
-                    // Set the column background color immediately after creation
-                    colorPicker.value = column.backgroundColor || '#f9f9f9'; // Set color picker value to match
-                });
-
-                // Initialize dragula after loading all columns
-                initDragula();
-            }
-
-            // Without this event listener: document form submission not handled
-            createDocumentForm.addEventListener('submit', createDocumentFunc);
-
-            // Without this event listener: columns can't be created
-            createColumnForm.addEventListener('submit',createColumnFunc )
-
-            // Add this near the beginning of init()
-            const closeBtn = document.querySelector('.close-btn');
-            closeBtn.addEventListener('click', function() {
-                const createDocumentForm = document.getElementById('createDocumentForm');
-                createDocumentForm.setAttribute('hidden', '');
+                documentDrake.on('drop', saveToLocalStorage);
             });
 
-            function createColumnFunc(event) {
-                event.preventDefault();
-                const columnContent = document.getElementById('columnContent').value;
-
-                const newColumn = document.createElement('ul');
-                const columnNav = document.createElement('nav');
-
-                newColumn.className = 'dragColumn';
-                newColumn.id = `column-${Math.random()}`;
-
-                // Create a container for buttons
-                const buttonContainer = document.createElement('div');
-                buttonContainer.className = 'button-container';
-
-                // Add document button
-                const newDocPopup = document.createElement("button");
-                newDocPopup.className = 'newDocPopupButton';
-                newDocPopup.dataset.column = newColumn.id;
-                newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
-                buttonContainer.appendChild(newDocPopup);
-
-                // Add color picker
-                const colorPicker = document.createElement("input");
-                colorPicker.type = "color";
-                colorPicker.className = 'column-color-picker';
-                colorPicker.value = '#f9f9f9';
-                colorPicker.addEventListener('input', (e) => {
-                    newColumn.style.backgroundColor = e.target.value;
-                });
-                buttonContainer.appendChild(colorPicker);
-
-                // Delete button
-                const deleteMe = document.createElement("button");
-                deleteMe.className = 'deleteButton';
-                deleteMe.dataset.column = newColumn.id;
-                deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.column));
-                buttonContainer.appendChild(deleteMe);
-
-                // Add the button container to nav
-                columnNav.appendChild(buttonContainer);
-
-                // Add title
-                const title = document.createElement('h1');
-                title.className = 'title';
-                title.textContent = columnContent;
-                title.addEventListener("dblclick", () => edit(title));
-                columnNav.appendChild(title);
-
-                newColumn.appendChild(columnNav);
-                dragparent.appendChild(newColumn);
-                listOfColumn.push(newColumn);
-                createColumnForm.reset();
-
-                // Update dragula for columns
-                if (columnDrake) {
-                    columnDrake.destroy();
-                }
-               
-                columnDrake = dragula([dragparent], {
-                    moves: function (el, container, handle) {
-                        // Only allow moving if it's a column and being dragged by its nav
-                        return el.classList.contains('dragColumn') && 
-                               (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
-                    },
-                    accepts: function (el, target) {
-                        // Only accept drops if the element is a column and target is the main container
-                        return el.classList.contains('dragColumn') && target === dragparent;
-                    },
-                    direction: 'horizontal'
-                });
-
-                // Add this at the end of the function
-                saveToLocalStorage();
-            }
-
-            function createDocumentPopup(columnData){
-                console.log(columnData)
-                const theDocPopupForm =document.getElementById('createDocumentForm')
-                 theDocPopupForm.toggleAttribute("hidden");
-                 const popupButton = document.getElementById('createDoc');
-                 popupButton.setAttribute('data-id', columnData);
-                 documentTitle = document.getElementById('documentTitle')
-                 documentTitle.focus();
-            }
-
-
-            function createDocumentFunc(event) {
+            createDocumentForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 const columnID = document.getElementById("createDoc").dataset.id;
-                const documentLineItem = document.createElement('li');
-                documentLineItem.className = 'dragDocument';
-                documentLineItem.id = `doc-${Math.random()}`;
-
-                // Create document container
-                const docContainer = document.createElement('div');
-                docContainer.className = 'document-container';
-
-                // Add title
-                const docTitle = document.createElement('h2');
-                const documentTitle = document.getElementById('documentTitle').value;
-                docTitle.textContent = documentTitle;
-                docTitle.style.fontWeight = 'bold';
-                docTitle.addEventListener("dblclick", () => edit(docTitle));
-                docContainer.appendChild(docTitle);
-                
-                // Add description
-                const docDescription = document.createElement('p');
-                const documentDescription = document.getElementById('documentDescription').value;
-                docDescription.textContent = documentDescription; // Use description value, not title
-                docDescription.addEventListener("dblclick", () => edit(docDescription));
-                docContainer.appendChild(docDescription);
-
-                // Add color picker
-                const colorPicker = document.createElement('input');
-                colorPicker.type = 'color';
-                colorPicker.className = 'document-color-picker';
-                colorPicker.value = '#08CF65'; // Default green color
-                colorPicker.style.position = 'absolute';
-                colorPicker.style.right = '40px';
-                colorPicker.style.top = '10px';
-                colorPicker.addEventListener('input', (e) => {
-                    documentLineItem.style.backgroundColor = e.target.value;
-                    saveToLocalStorage();
-                });
-                docContainer.appendChild(colorPicker);
-                
-                // Add delete button
-                const deleteMe = document.createElement("button");
-                deleteMe.className = 'deleteButton';
-                deleteMe.dataset.document = documentLineItem.id;
-                deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.document));
-                docContainer.appendChild(deleteMe);
-
-                // Add container to document
-                documentLineItem.appendChild(docContainer);
-
-                // Add to column
-                const parentColumn = document.getElementById(`${columnID}`);
+                const doc = {
+                    id: `doc-${Date.now()}`,
+                    title: document.getElementById('documentTitle').value,
+                    description: document.getElementById('documentDescription').value,
+                    backgroundColor: '#08CF65'
+                };
+                const documentLineItem = createDocumentFromSaved(doc);
+                const parentColumn = document.getElementById(columnID);
                 parentColumn.appendChild(documentLineItem);
-
-                // Reset and close form
                 createDocumentForm.reset();
-                createDocumentPopup(null);
-
-                // Add this at the end of the function
+                createDocumentForm.setAttribute('hidden', '');
                 saveToLocalStorage();
-            }
+            });
 
-            // Function to update document's column in database
-            async function updateDocumentColumn(documentId, newColumnId, oldColumnId) {
-                try {
-                    const response = await fetch(`/projects/documents/${documentId}/move`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            newColumnId: newColumnId,
-                            oldColumnId: oldColumnId
-                        })
-                    });
-
-                    if (!response.ok) {
-                        console.error('Failed to update document column');
-                    }
-                } catch (error) {
-                    console.error('Error updating document column:', error);
-                }
-            }
-
-            // Call loadFromLocalStorage when page loads
-            loadFromLocalStorage();
-        }
-
-        function deleteDocument(docID){
-            theDoomedDocument = document.getElementById(docID)
-            if(theDoomedDocument){
-                theDoomedDocument.parentNode.removeChild(theDoomedDocument)
-            }
-
-            // Add save to localStorage after deletion
-            saveToLocalStorage();
-        }
-        function edit(element){
-            let text = element.textContent
-            element.textContent = ''
-            const rewrite =document.createElement('input');
-            rewrite.classList.add('form-control');
-            rewrite.id = "editInput";
-            rewrite.type ="textbox";
-            rewrite.placeholder = text
-            rewrite.addEventListener("keydown", function(event) {
-                if (event.key === "Enter") {
-                  event.preventDefault(); // the page would reload otherwise.
-                  console.log(rewrite.value||"it's empty")
-                  element.textContent = rewrite.value||rewrite.placeholder
-                  delete rewrite
-                }if (event.key === "Escape") {
-                    console.log('escape')
-                    element.textContent = text;
-                    rewrite.remove(); // Properly remove the input element from the DOM
-                }
-            })
-            rewrite.addEventListener("blur",  function(event) {
-                element.textContent = text;
-                rewrite.remove(); // Properly remove the input element from the DOM
-            })
-            element.appendChild(rewrite).focus();
-
-            // Add save to localStorage after editing
-            saveToLocalStorage();
+            // Close button for document form
+            const closeBtn = document.querySelector('.close-btn');
+            closeBtn.addEventListener('click', function() {
+                createDocumentForm.setAttribute('hidden', '');
+            });
         }
     </script>
   </body>
