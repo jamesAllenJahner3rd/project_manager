@@ -60,12 +60,12 @@
             padding: 12px 45px 12px 12px; /* Add padding on the right for icons */
             margin: 8px 0;
             border-radius: 4px;
-            background-color: #08CF65;
+           background-color: #08CF65;
             position: relative;
             cursor: move;
         }
         .document-container {
-            position: relative;
+           position: relative;
             width: 100%;
         }
         /* Create a container for the icons */
@@ -74,7 +74,7 @@
             top: 50%;
             right: -35px; /* Adjust based on padding */
             transform: translateY(-50%);
-            display: flex;
+           display: flex;
             gap: 8px;
             align-items: center;
         }
@@ -332,8 +332,66 @@
     <script src="/js/dragula.js"></script>
 
     <script>
+<<<<<<< HEAD
+=======
+        // Global variables
+>>>>>>> 7941b4e5113eb94addb6a9ab77b856fbf9c9b26b
         let listOfColumn = [];
+        const projectId = window.location.pathname.split('/project/')[1];
 
+        // Define createColumnFunc before init
+        function createColumnFunc(event) {
+            event.preventDefault();
+            const dragparent = document.getElementById('dragparent');
+            const columnContent = document.getElementById('columnContent').value;
+
+            const newColumn = document.createElement('ul');
+            const columnNav = document.createElement('nav');
+            columnNav.className = 'columnNav';
+
+            newColumn.className = 'dragColumn';
+            newColumn.id = `column-${Math.random()}`;
+
+            // Create a container for buttons
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'button-container';
+
+            // Add document button
+            const newDocPopup = document.createElement("button");
+            newDocPopup.className = 'newDocPopupButton';
+            newDocPopup.dataset.column = newColumn.id;
+            newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
+            buttonContainer.appendChild(newDocPopup);
+
+            // Add color picker
+            const colorPicker = document.createElement("input");
+            colorPicker.type = "color";
+            colorPicker.className = 'column-color-picker';
+            colorPicker.value = '#f9f9f9';
+            colorPicker.addEventListener('input', async (e) => {
+                newColumn.style.backgroundColor = e.target.value;
+                await saveColumnColor(newColumn.id, e.target.value);
+                saveProjectToSession();
+            });
+            buttonContainer.appendChild(colorPicker);
+
+            // Delete button
+            const deleteMe = document.createElement("button");
+            deleteMe.className = 'deleteButton';
+            deleteMe.addEventListener("click", () => deleteDocument(newColumn.id));
+            buttonContainer.appendChild(deleteMe);
+
+            // Add the button container to nav
+            columnNav.appendChild(buttonContainer);
+
+            // Add title
+            const title = document.createElement('h1');
+            title.className = 'title';
+            title.textContent = columnContent;
+            title.addEventListener("dblclick", () => edit(title));
+            columnNav.appendChild(title);
+
+<<<<<<< HEAD
         function saveToLocalStorage() {
             const boardState = {
                 columns: Array.from(document.querySelectorAll('.dragColumn')).map(column => {
@@ -456,8 +514,97 @@
                     const documentLineItem = createDocumentFromSaved(doc);
                     newColumn.appendChild(documentLineItem);
                 });
+=======
+            newColumn.appendChild(columnNav);
+            dragparent.appendChild(newColumn);
+            listOfColumn.push(newColumn);
+            document.getElementById('createColumnForm').reset();
+
+            // Save to session storage
+            saveProjectToSession();
+
+            // Reinitialize dragula
+            initializeDragula();
+        }
+
+        // Then define init
+        function init() {
+            // Get DOM elements
+            const createColumnForm = document.getElementById('createColumnForm');
+            const createDocumentForm = document.getElementById('createDocumentForm');
+            const dragparent = document.getElementById('dragparent');
+
+            // Add event listeners
+            if (createColumnForm) {
+                createColumnForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    createColumnFunc(event);
+                });
             }
 
+            if (createDocumentForm) {
+                createDocumentForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                    createDocumentFunc(event);
+                });
+            }
+
+            const closeBtn = document.querySelector('.close-btn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    const createDocumentForm = document.getElementById('createDocumentForm');
+                    createDocumentForm.setAttribute('hidden', '');
+                });
+            }
+
+            // Load saved project data
+            loadProjectFromSession();
+            
+            // Initialize dragula
+            initializeDragula();
+            
+            // Setup autosave
+            setupAutosave();
+        }
+
+        // Define initializeDragula first
+        function initializeDragula() {
+            const dragparent = document.getElementById('dragparent');
+            
+            // Clean up existing drakes
+            if (window.columnDrake) {
+                window.columnDrake.destroy();
+            }
+            if (window.documentDrake) {
+                window.documentDrake.destroy();
+>>>>>>> 7941b4e5113eb94addb6a9ab77b856fbf9c9b26b
+            }
+            
+            // Initialize column drake
+            window.columnDrake = dragula([dragparent], {
+                        moves: function (el, container, handle) {
+                    return el.classList.contains('dragColumn') && 
+                           (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
+                },
+                accepts: function (el, target) {
+                    return el.classList.contains('dragColumn') && target === dragparent;
+                },
+                direction: 'horizontal'
+            });
+
+            // Initialize document drake
+            window.documentDrake = dragula(listOfColumn, {
+                moves: function (el) {
+                    return el.classList.contains('dragDocument');
+                },
+                accepts: function (el, target) {
+                    return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
+                },
+                revertOnSpill: true,
+                removeOnSpill: false
+            });
+
+<<<<<<< HEAD
             return newColumn;
         }
 
@@ -564,6 +711,142 @@
             // Event Listeners
             columnDrake.on('drop', saveToLocalStorage);
             documentDrake.on('drop', saveToLocalStorage);
+=======
+            // Add event listeners for drag operations
+            window.columnDrake.on('drop', () => {
+                saveProjectToSession();
+                saveProjectToDatabase();
+            });
+            
+            window.documentDrake.on('drop', () => {
+                saveProjectToSession();
+                saveProjectToDatabase();
+            });
+        }
+
+        function createDocumentPopup(columnData) {
+            const theDocPopupForm = document.getElementById('createDocumentForm');
+                 theDocPopupForm.toggleAttribute("hidden");
+                 const popupButton = document.getElementById('createDoc');
+                 popupButton.setAttribute('data-id', columnData);
+            const documentTitle = document.getElementById('documentTitle');
+            documentTitle.focus();
+            }
+
+            function createDocumentFunc(event) {
+                event.preventDefault();
+            const columnID = document.getElementById("createDoc").dataset.id;
+                const documentLineItem = document.createElement('li');
+                documentLineItem.className = 'dragDocument';
+            documentLineItem.id = `doc-${Math.random()}`;
+
+            // Create document container
+            const docContainer = document.createElement('div');
+            docContainer.className = 'document-container';
+
+            // Add title
+                const docTitle = document.createElement('h2');
+                const documentTitle = document.getElementById('documentTitle').value;
+                docTitle.textContent = documentTitle;
+            docTitle.style.fontWeight = 'bold';
+            docTitle.addEventListener("dblclick", () => edit(docTitle));
+            docContainer.appendChild(docTitle);
+                
+            // Add description
+                const docDescription = document.createElement('p');
+                const documentDescription = document.getElementById('documentDescription').value;
+            docDescription.textContent = documentDescription;
+            docDescription.addEventListener("dblclick", () => edit(docDescription));
+            docContainer.appendChild(docDescription);
+
+            // Add color picker
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.className = 'document-color-picker';
+            colorPicker.value = '#08CF65';
+            colorPicker.style.position = 'absolute';
+            colorPicker.style.right = '40px';
+            colorPicker.style.top = '10px';
+            colorPicker.addEventListener('input', (e) => {
+                documentLineItem.style.backgroundColor = e.target.value;
+                saveProjectToSession();
+            });
+            docContainer.appendChild(colorPicker);
+            
+            // Add delete button
+            const deleteMe = document.createElement("button");
+            deleteMe.className = 'deleteButton';
+            deleteMe.dataset.document = documentLineItem.id;
+            deleteMe.addEventListener("click", () => deleteDocument(deleteMe.dataset.document));
+            docContainer.appendChild(deleteMe);
+
+            // Add container to document
+            documentLineItem.appendChild(docContainer);
+
+            // Add to column
+                const parentColumn = document.getElementById(`${columnID}`);
+                parentColumn.appendChild(documentLineItem);
+
+            // Reset and close form
+            document.getElementById('createDocumentForm').reset();
+            createDocumentPopup(null);
+
+            // Save to session storage
+            saveProjectToSession();
+        }
+
+        function deleteDocument(id) {
+            const element = document.getElementById(id);
+            if (!element) return;
+
+            // Check if it's a column or document
+            const isColumn = element.classList.contains('dragColumn');
+            
+            if (confirm(`Are you sure you want to delete this ${isColumn ? 'column' : 'document'}?`)) {
+                if (isColumn) {
+                    // Remove from listOfColumn array
+                    const index = listOfColumn.indexOf(element);
+                    if (index > -1) {
+                        listOfColumn.splice(index, 1);
+                    }
+                }
+                
+                // Remove the element
+                element.remove();
+                
+                // Save changes
+                saveProjectToSession();
+                saveProjectToDatabase();
+            }
+        }
+
+        function edit(element){
+            let text = element.textContent
+            element.textContent = ''
+            const rewrite =document.createElement('input');
+            rewrite.classList.add('form-control');
+            rewrite.id = "editInput";
+            rewrite.type ="textbox";
+            rewrite.placeholder = text
+            rewrite.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                  event.preventDefault(); // the page would reload otherwise.
+                  console.log(rewrite.value||"it's empty")
+                  element.textContent = rewrite.value||rewrite.placeholder
+                  delete rewrite
+                }if (event.key === "Escape") {
+                    console.log('escape')
+                    element.textContent = text;
+                    rewrite.remove(); // Properly remove the input element from the DOM
+                }
+            })
+            rewrite.addEventListener("blur",  function(event) {
+                element.textContent = text;
+                rewrite.remove(); // Properly remove the input element from the DOM
+            })
+            element.appendChild(rewrite).focus();
+        }
+>>>>>>> 7941b4e5113eb94addb6a9ab77b856fbf9c9b26b
 
             createColumnForm.addEventListener('submit', function(event) {
                 event.preventDefault();
@@ -616,6 +899,250 @@
             closeBtn.addEventListener('click', function() {
                 createDocumentForm.setAttribute('hidden', '');
             });
+        }
+
+        // Update the saveProjectToSession function
+        function saveProjectToSession() {
+            try {
+                const columns = Array.from(document.getElementsByClassName('dragColumn')).map(column => {
+                    // Get documents with null checks
+                    const documents = Array.from(column.getElementsByClassName('dragDocument')).map(doc => {
+                        const title = doc.querySelector('h2')?.textContent || '';
+                        const description = doc.querySelector('p')?.textContent || '';
+                        return {
+                            id: doc.id,
+                            title: title,
+                            description: description,
+                            backgroundColor: doc.style.backgroundColor
+                        };
+                    });
+
+                    // Get column title with null check
+                    const titleElement = column.querySelector('.title');
+                    return {
+                        id: column.id,
+                        title: titleElement ? titleElement.textContent : '',
+                        backgroundColor: column.style.backgroundColor,
+                        documents: documents
+                    };
+                });
+
+                const projectData = {
+                    id: projectId,
+                    columns: columns,
+                    lastModified: new Date().toISOString()
+                };
+
+                // Save to session storage
+                sessionStorage.setItem(`project_${projectId}`, JSON.stringify(projectData));
+
+                // Update allProjects list
+                let allProjects = JSON.parse(sessionStorage.getItem('allProjects') || '[]');
+                const projectIndex = allProjects.findIndex(p => p.id === projectId);
+                
+                if (projectIndex === -1) {
+                    allProjects.push(projectData);
+                } else {
+                    allProjects[projectIndex] = projectData;
+                }
+                
+                sessionStorage.setItem('allProjects', JSON.stringify(allProjects));
+            } catch (error) {
+                console.error('Error saving project to session:', error);
+            }
+        }
+
+        // Update the saveProjectToDatabase function
+        async function saveProjectToDatabase() {
+            try {
+                const projectData = JSON.parse(sessionStorage.getItem(`project_${projectId}`));
+                if (!projectData) return;
+
+                const response = await fetch(`/project/${projectId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(projectData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save project');
+                }
+
+                // Update last saved timestamp
+                projectData.lastSaved = new Date().toISOString();
+                sessionStorage.setItem(`project_${projectId}`, JSON.stringify(projectData));
+
+            } catch (error) {
+                console.error('Error saving project:', error);
+            }
+        }
+
+        // Add autosave functionality
+        function setupAutosave() {
+            // Save every 30 seconds
+            setInterval(() => {
+                saveProjectToSession();
+                saveProjectToDatabase();
+            }, 30000);
+
+            // Save when user leaves the page
+            window.addEventListener('beforeunload', function(e) {
+                saveProjectToSession();
+                saveProjectToDatabase();
+            });
+
+            // Save after any drag operation
+            if (window.columnDrake) {
+                window.columnDrake.on('drop', () => {
+                    saveProjectToSession();
+                    saveProjectToDatabase();
+                });
+            }
+            if (window.documentDrake) {
+                window.documentDrake.on('drop', () => {
+                    saveProjectToSession();
+                    saveProjectToDatabase();
+                });
+            }
+        }
+
+        // Update the loadProjectFromSession function
+        function loadProjectFromSession() {
+            try {
+                const savedData = sessionStorage.getItem(`project_${projectId}`);
+                
+                if (!savedData) {
+                    console.log('No saved data found for project:', projectId);
+                    return;
+                }
+
+                const projectData = JSON.parse(savedData);
+                
+                // Clear existing columns
+                const dragparent = document.getElementById('dragparent');
+                dragparent.innerHTML = '';
+                listOfColumn = []; // Reset column list
+                
+                // Recreate columns and documents
+                if (projectData.columns && Array.isArray(projectData.columns)) {
+                    projectData.columns.forEach(columnData => {
+                        if (!columnData) return;
+                        
+                        const newColumn = document.createElement('ul');
+                        newColumn.className = 'dragColumn';
+                        newColumn.id = columnData.id || `column-${Math.random()}`;
+                        newColumn.style.backgroundColor = columnData.backgroundColor || '#f9f9f9';
+
+                        // Create column nav
+                        const columnNav = document.createElement('nav');
+                        columnNav.className = 'columnNav';
+
+                        // Create button container
+                        const buttonContainer = document.createElement('div');
+                        buttonContainer.className = 'button-container';
+
+                        // Add document button
+                        const newDocPopup = document.createElement("button");
+                        newDocPopup.className = 'newDocPopupButton';
+                        newDocPopup.dataset.column = newColumn.id;
+                        newDocPopup.addEventListener("click", () => createDocumentPopup(newDocPopup.dataset.column));
+                        buttonContainer.appendChild(newDocPopup);
+
+                        // Add color picker
+                        const colorPicker = document.createElement("input");
+                        colorPicker.type = "color";
+                        colorPicker.className = 'column-color-picker';
+                        colorPicker.value = columnData.backgroundColor || '#f9f9f9';
+                        colorPicker.addEventListener('input', async (e) => {
+                            newColumn.style.backgroundColor = e.target.value;
+                            await saveColumnColor(newColumn.id, e.target.value);
+                            saveProjectToSession();
+                        });
+                        buttonContainer.appendChild(colorPicker);
+
+                        // Delete button
+                        const deleteMe = document.createElement("button");
+                        deleteMe.className = 'deleteButton';
+                        deleteMe.addEventListener("click", () => deleteDocument(newColumn.id));
+                        buttonContainer.appendChild(deleteMe);
+
+                        // Add the button container to nav
+                        columnNav.appendChild(buttonContainer);
+
+                        // Add title
+                        const title = document.createElement('h1');
+                        title.className = 'title';
+                        title.textContent = columnData.title || '';
+                        title.addEventListener("dblclick", () => edit(title));
+                        columnNav.appendChild(title);
+
+                        newColumn.appendChild(columnNav);
+                        dragparent.appendChild(newColumn);
+                        listOfColumn.push(newColumn);
+
+                        // Create documents for this column
+                        if (columnData.documents && Array.isArray(columnData.documents)) {
+                            columnData.documents.forEach(docData => {
+                                if (!docData) return;
+                                const doc = createDocumentElement(docData);
+                                newColumn.appendChild(doc);
+                            });
+                        }
+                    });
+                }
+                
+                // Reinitialize dragula
+                initializeDragula();
+            } catch (error) {
+                console.error('Error loading project from session:', error);
+            }
+        }
+
+        // Helper function to create document elements
+        function createDocumentElement(docData) {
+            const doc = document.createElement('li');
+            doc.className = 'dragDocument';
+            doc.id = docData.id;
+            doc.style.backgroundColor = docData.backgroundColor;
+
+            const container = document.createElement('div');
+            container.className = 'document-container';
+
+            // Add title
+            const title = document.createElement('h2');
+            title.textContent = docData.title;
+            title.addEventListener("dblclick", () => edit(title));
+            container.appendChild(title);
+
+            // Add description
+            const description = document.createElement('p');
+            description.textContent = docData.description;
+            description.addEventListener("dblclick", () => edit(description));
+            container.appendChild(description);
+
+            // Add color picker
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.className = 'document-color-picker';
+            colorPicker.value = docData.backgroundColor;
+            colorPicker.addEventListener('input', (e) => {
+                doc.style.backgroundColor = e.target.value;
+                saveProjectToSession();
+            });
+            container.appendChild(colorPicker);
+
+            // Add delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.className = 'deleteButton';
+            deleteButton.dataset.document = doc.id;
+            deleteButton.addEventListener("click", () => deleteDocument(deleteButton.dataset.document));
+            container.appendChild(deleteButton);
+
+            doc.appendChild(container);
+            return doc;
         }
     </script>
   </body>

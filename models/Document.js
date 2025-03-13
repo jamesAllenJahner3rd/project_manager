@@ -20,7 +20,7 @@ const DocumentSchema = new mongoose.Schema({
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'Profile',
         required: true
     },
     createdAt: {
@@ -33,5 +33,8 @@ const DocumentSchema = new mongoose.Schema({
         default: 'Not Started'
     }
 });
+
+// Add index for better query performance
+DocumentSchema.index({ columnId: 1, position: 1 });
 
 module.exports = mongoose.model('Document', DocumentSchema);

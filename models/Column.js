@@ -24,4 +24,7 @@ const ColumnSchema = new mongoose.Schema({
     }]
 });
 
+// Add index for better query performance
+ColumnSchema.index({ projectId: 1, position: 1 });
+
 module.exports = mongoose.model('Column', ColumnSchema); 
