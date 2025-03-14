@@ -182,7 +182,7 @@
                         <a href="/project/<%= project._id %>"><%= project.name %></a>
                         <div class="project-actions">
                             <button class="delete-btn" data-id="<%= project._id %>">
-                                <i class="fas fa-trash-alt"></i> 
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                             <a href="/profile/project/<%= project._id %>/edit" class="edit-btn">
                                 <i class="fas fa-edit"></i>
@@ -258,6 +258,7 @@
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('editModal');
+        const addDocumentModal = document.getElementById('addDocumentModal');
         const span = document.getElementsByClassName('close')[0];
         const editProjectForm = document.getElementById('editProjectForm');
         let currentProjectId = null;
@@ -265,19 +266,32 @@
         // Delete project functionality
         const deleteButtons = document.querySelectorAll('.delete-btn');
         deleteButtons.forEach(button => {
-          button.addEventListener('click', function(event) {
-            const projectId = event.target.closest('button').getAttribute('data-id');
-            fetch(`/profile/project/${projectId}/delete`, {
-              method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                window.location.reload();
-              } else {
+          button.addEventListener('click', async function(event) {
+            // Prevent any parent elements from handling the click
+            event.stopPropagation();
+            
+            if (confirm('Are you sure you want to delete this project?')) {
+              const projectId = this.getAttribute('data-id');
+              try {
+                const response = await fetch(`/profile/project/${projectId}/delete`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                  // Remove the project item from the DOM
+                  this.closest('.project-item').remove();
+                } else {
+                  alert('Failed to delete project');
+                }
+              } catch (error) {
+                console.error('Error:', error);
                 alert('Failed to delete project');
               }
-            });
+            }
           });
         });
 
@@ -310,38 +324,24 @@
           modal.style.display = 'none';
         }
 
-        // Get all modals
-        const editModal = document.getElementById('editModal');
-        const addDocumentModal = document.getElementById('addDocumentModal');
-        
-        // Function to close modal and reset form
-        function closeModal(modal) {
-            modal.style.display = 'none';
-            if(modal === addDocumentModal) {
-                // Reset form fields
-                document.getElementById('documentTitle').value = '';
-                document.getElementById('documentContent').value = '';
-            }
-        }
-
         // Close modal when clicking outside
         window.addEventListener('click', function(event) {
-            if (event.target === editModal) {
-                closeModal(editModal);
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
             if (event.target === addDocumentModal) {
-                closeModal(addDocumentModal);
+                addDocumentModal.style.display = 'none';
+                // Clear form fields
+                document.getElementById('documentTitle').value = '';
+                document.getElementById('documentContent').value = '';
             }
         });
 
         // Close modal when pressing Escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                if (editModal.style.display === 'block') {
-                    closeModal(editModal);
-                }
-                if (addDocumentModal.style.display === 'block') {
-                    closeModal(addDocumentModal);
+                if (modal.style.display === 'block') {
+                    modal.style.display = 'none';
                 }
             }
         });
@@ -350,7 +350,7 @@
         document.querySelectorAll('.close').forEach(closeBtn => {
             closeBtn.addEventListener('click', function() {
                 const modal = this.closest('.modal');
-                closeModal(modal);
+                modal.style.display = 'none';
             });
         });
 
@@ -466,38 +466,6 @@
             projects.forEach(project => {
                 loadDocuments(project.dataset.projectId);
             });
-        });
-
-        // Get the add document modal
-        const addDocumentModal = document.getElementById('addDocumentModal');
-
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target === addDocumentModal) {
-                addDocumentModal.style.display = 'none';
-                // Clear form fields
-                document.getElementById('documentTitle').value = '';
-                document.getElementById('documentContent').value = '';
-            }
-        });
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && addDocumentModal.style.display === 'block') {
-                addDocumentModal.style.display = 'none';
-                // Clear form fields
-                document.getElementById('documentTitle').value = '';
-                document.getElementById('documentContent').value = '';
-            }
-        });
-
-        // Make sure the close button (×) works
-        const closeBtn = addDocumentModal.querySelector('.close');
-        closeBtn.addEventListener('click', function() {
-            addDocumentModal.style.display = 'none';
-            // Clear form fields
-            document.getElementById('documentTitle').value = '';
-            document.getElementById('documentContent').value = '';
         });
 
         // In your form submission handler
