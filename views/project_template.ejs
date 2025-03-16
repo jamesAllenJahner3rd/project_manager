@@ -355,6 +355,7 @@
     <script src="/js/dragula.js"></script>
 
     <script>
+        // Global variables
         let listOfColumn = [];
         const projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
 
@@ -437,6 +438,8 @@
 
             const columnNav = document.createElement('nav');
             columnNav.className = 'columnNav';
+            
+            // Create a container for buttons
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'button-container';
 
@@ -475,15 +478,6 @@
             columnNav.appendChild(title);
 
             newColumn.appendChild(columnNav);
-
-            // Create saved documents
-            if (column.documents) {
-                column.documents.forEach(doc => {
-                    const documentLineItem = createDocumentFromSaved(doc);
-                    newColumn.appendChild(documentLineItem);
-                });
-            }
-
             return newColumn;
         }
 
