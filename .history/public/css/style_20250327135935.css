@@ -281,7 +281,7 @@ h2 {
 /***************************/
 header {
   background: var(--gradient);
-  padding: 0.5rem 2rem;
+  padding: 1rem 2rem;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -291,7 +291,6 @@ header {
   left: 0;
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  min-height: 120px;
 }
 
 .logo-wrapper {
@@ -299,7 +298,7 @@ header {
 }
 
 .nav-logo {
-  height: 100px;
+  height: 60px;
   width: auto;
   display: block;
   object-fit: contain;
@@ -333,7 +332,7 @@ header {
 }
 
 .primary-navigation ul li a:hover {
-  color: var(--grey);
+  color: var(--white);
   transform: translateY(-2px);
 }
 
@@ -346,7 +345,7 @@ header {
   }
 
   .nav-logo {
-    height: 80px;
+    height: 50px;
   }
 
   .primary-navigation ul {
@@ -1403,7 +1402,7 @@ footer {
     }
 
     .nav-logo {
-        height: 80px; /* Slightly smaller on mobile but still substantial */
+        height: 80px; /* Slightly smaller on mobile */
         width: 80px;
     }
 }
