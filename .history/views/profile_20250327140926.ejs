@@ -303,31 +303,22 @@
         editButtons.forEach(button => {
           button.addEventListener('click', async function(event) {
             event.preventDefault();
-            event.stopPropagation();
-            
             const projectId = this.getAttribute('href').split('/edit')[0].split('project/')[1];
             currentProjectId = projectId;
             
-            try {
-              // Fetch project data
-              const response = await fetch(`/profile/project/${projectId}/data`);
-              if (!response.ok) throw new Error('Failed to fetch project data');
-              
-              const project = await response.json();
-              
-              // Populate form
-              document.getElementById('editName').value = project.name;
-              document.getElementById('editDescription').value = project.description;
-              document.getElementById('editStartDate').value = project.startDate.split('T')[0];
-              document.getElementById('editEndDate').value = project.endDate.split('T')[0];
-              document.getElementById('editStatus').value = project.status;
-              
-              // Show modal
-              modal.style.display = 'block';
-            } catch (error) {
-              console.error('Error:', error);
-              alert('Failed to load project data');
-            }
+            // Fetch project data
+            const response = await fetch(`/profile/project/${projectId}/data`);
+            const project = await response.json();
+            
+            // Populate form
+            document.getElementById('editName').value = project.name;
+            document.getElementById('editDescription').value = project.description;
+            document.getElementById('editStartDate').value = project.startDate.split('T')[0];
+            document.getElementById('editEndDate').value = project.endDate.split('T')[0];
+            document.getElementById('editStatus').value = project.status;
+            
+            // Show modal
+            modal.style.display = 'block';
           });
         });
 

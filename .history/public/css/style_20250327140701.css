@@ -360,53 +360,110 @@ header {
 /********** HERO *********/
 /***************************/
 .hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 100vh;
-  padding: 6rem 2rem;
-  background: var(--gradient);
-  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-  margin: 0;
-}
-
-/* Add a specific class for the profile page layout */
-.profile-layout {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 350px 1fr; /* Fixed width for form, remaining space for list */
   gap: 2rem;
   max-width: 1400px;
-  margin: 100px auto 0;
+  margin: 100px auto 0; /* Account for fixed header */
   padding: 2rem;
   min-height: calc(100vh - 100px);
 }
 
-/* Move profile-specific styles under the profile-layout class */
-.profile-layout form {
+/* Project Creation Form (Left Side) */
+.hero form {
   position: sticky;
-  top: 100px;
+  top: 100px; /* Match header height + some padding */
   background: var(--white);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   height: fit-content;
   align-self: start;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
 }
 
-.profile-layout ul.project-list {
+/* Project List Container (Right Side) */
+.hero ul.project-list {
   max-height: calc(100vh - 120px);
   overflow-y: auto;
   padding-right: 1rem;
   margin: 0;
 }
 
-/* Restore index.ejs specific styles */
+/* Individual Project Card */
+.hero ul li {
+  background: var(--white);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.hero ul li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Form Styling */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--dark-red);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+/* Scrollbar Styling */
+.hero ul::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hero ul::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.hero ul::-webkit-scrollbar-thumb {
+  background: var(--red);
+  border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 300px 1fr;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero form {
+    position: relative;
+    top: 0;
+    margin-bottom: 2rem;
+  }
+
+  .hero ul.project-list {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
 .hero-title {
   font-size: 4rem;
   font-weight: 800;
@@ -422,17 +479,293 @@ header {
   margin-bottom: 3rem;
   font-weight: 300;
   max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+.cta-button {
+  padding: 1rem 3rem;
+  background-color: var(--white);
+  color: var(--dark-red);
+  font-weight: 600;
+  border-radius: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  background-color: var(--gray);
+}
+
+/* Project Actions Container */
+.project-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Document Section */
+.project-documents {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  background: var(--light-green);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.document-column {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.document-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+/* Scrollbar Styling */
+.document-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.document-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.document-list::-webkit-scrollbar-thumb {
+  background: var(--green);
+  border-radius: 4px;
+}
+
+/* Document Cards */
+.document-card {
+  background: white;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+/* Modal Improvements */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.modal-content {
+  position: relative;
+  background: var(--white);
+  margin: 50px auto;
+  padding: 25px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* Form Group Spacing */
+.form-group {
+  margin-bottom: 12px; /* Reduced from 20px */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px; /* Reduced from 8px */
+  color: var(--dark-green);
+  font-weight: 500;
+  font-size: 0.9rem; /* Slightly smaller font */
+}
+
+/* Form Controls */
+.form-control {
+  width: 100%;
+  padding: 8px; /* Reduced from 10px */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px; /* Reduced from 10px */
+  font-size: 0.9rem;
+}
+
+/* Textarea specific styling */
+textarea.form-control {
+  min-height: 60px; /* Reduced from 100px */
+  max-height: 120px;
+  resize: vertical;
+}
+
+/* Buttons */
+.btn-primary, .add-document-btn {
+  padding: 8px 16px; /* Reduced padding */
+  font-size: 0.9rem;
+  width: 100%;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover, .add-document-btn:hover {
+  background: #07b659;
+  transform: translateY(-1px);
+}
+
+/* Action Buttons */
+.delete-btn, .edit-btn {
+  padding: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.delete-btn i {
+  color: #dc3545;
+  font-size: 1.2rem;
+}
+
+.edit-btn i {
+  color: #0056b3;
+  font-size: 1.2rem;
+}
+
+.delete-btn:hover, .edit-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Document Actions */
+.document-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.document-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  background: var(--green);
+  color: white;
+}
+
+.document-actions button:last-child {
+  background: #dc3545;
+}
+
+/* Header Styling */
+h1 {
+  color: var(--dark-green);
+  margin: 20px;
+  text-align: center;
+}
+
+/* Navigation Link */
+a[href="/"] {
+  display: inline-block;
+  margin: 0 20px 20px;
+  color: var(--dark-green);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a[href="/"]:hover {
+  color: var(--green);
+}
+
+/***************************/
+/****** Google Button ******/
+/***************************/
+.btn i {
+  font-size: 1.3rem;
+  line-height: inherit;
+  color: #fff;
+  text-align: center;
+  letter-spacing: .5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab {
+  font-weight: 400;
+  font-family: "Font Awesome 6 Brands";
+  -webkit-font-smooColumn: antialiased;
+  display: var(--fa-display, inline-block);
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+}
+
+i.left {
+  float: left;
+  margin-right: 15px;
+}
+
+.red.darken-1 {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #E53935 !important;
+  color: #fff;
+  border: none;
+  border-radius: 2%;
+  box-shadow: 1px 1px 1px #000;
+  vertical-align: middle;
+  margin: auto;
+}
+
+.googleAnchor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  align-self: center;
+}
+
+/***************************/
+/****** Testimonials *******/
+/***************************/
+.testimonials {
+  background-color: #f8f9fa;
+  padding: 6rem 2rem;
+}
+
+.testimonial-card {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 1000px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+/***************************/
+/********** Features *********/
+/***************************/
 .features {
   padding: 8rem 2rem;
   background-color: var(--white);
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 .features::before {
@@ -453,7 +786,6 @@ header {
   box-shadow: 0 10px 30px rgba(0,0,0,0.1);
   border: none;
   transition: all 0.4s ease;
-  text-align: center;
 }
 
 .feature-card:hover {
@@ -474,31 +806,24 @@ header {
   line-height: 1.8;
 }
 
-/* Restore testimonials section */
-.testimonials {
-  background-color: var(--dark-red);
-  padding: 6rem 2rem;
-  color: var(--white);
-  text-align: center;
+/*TODO: .feature-card hover and focus state */
+
+.feature-card a {
+  color: var(--dark-green);
 }
 
-.testimonial-card {
-  background: var(--white);
-  border-radius: 15px;
-  padding: 2rem;
-  margin: 2rem auto;
-  max-width: 1000px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-  color: var(--grey);
-}
-
-/* Contact section */
+/***************************/
+/********** Contact Us *********/
+/***************************/
 .contact-us {
   background: var(--gradient);
   padding: 6rem 2rem;
-  text-align: center;
-  color: var(--white);
   clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
+}
+
+h1,
+p {
+  margin-bottom: 0.5em;
 }
 
 .contact-us form {
@@ -506,7 +831,7 @@ header {
   flex-flow: row wrap;
   justify-content: center;
   gap: 1em;
-  margin-top: 2rem;
+  /*column-gap: 3em;*/
 }
 
 .contact-us input {
@@ -522,13 +847,10 @@ header {
   padding: 1rem 3rem;
   border-radius: 30px;
   background: var(--dark-red);
-  color: var(--white);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
 }
 
 .contact-us button:hover {
@@ -1141,135 +1463,4 @@ footer {
         height: 80px; /* Slightly smaller on mobile but still substantial */
         width: 80px;
     }
-}
-
-/* Update form styling in profile-layout */
-.profile-layout form {
-  position: sticky;
-  top: 100px;
-  background: var(--white);
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  height: fit-content;
-  align-self: start;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Update form groups */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.form-group label {
-  color: var(--dark-red);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--gray);
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--dark-red);
-  box-shadow: 0 0 0 2px rgba(73, 19, 19, 0.1);
-}
-
-/* Update modal styling */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-}
-
-.modal-content {
-  position: relative;
-  background: var(--white);
-  margin: 50px auto;
-  padding: 2rem;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-
-/* Close button styling */
-.close {
-  position: absolute;
-  right: 1rem;
-  top: 1rem;
-  font-size: 1.5rem;
-  color: var(--grey);
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.close:hover {
-  color: var(--dark-red);
-}
-
-/* Button styling */
-.btn-primary {
-  background: var(--dark-red);
-  color: var(--white);
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  margin-top: 1rem;
-}
-
-.btn-primary:hover {
-  background: var(--red);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Edit button styling */
-.edit-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--grey);
-  transition: color 0.3s ease;
-}
-
-.edit-btn i {
-  font-size: 1.2rem;
-}
-
-.edit-btn:hover {
-  color: var(--dark-red);
-}
-
-/* Textarea specific styling */
-textarea.form-control {
-  min-height: 100px;
-  resize: vertical;
 }
