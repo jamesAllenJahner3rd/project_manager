@@ -17,6 +17,10 @@ body {
   color: var(--black);
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
+  padding-top: 120px; /* Match header height */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
@@ -48,6 +52,9 @@ h2 {
   background: var(--light-green);
   border-radius: 8px;
   margin: 20px 0;
+  flex: 1;
+  margin: 1rem 0;
+  padding: 1rem;
 }
 
 .dragColumn {
@@ -289,6 +296,7 @@ header {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   z-index: 1000;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   min-height: 120px;
@@ -372,38 +380,89 @@ header {
   margin: 0;
 }
 
-/* Add a specific class for the profile page layout */
+/* Profile Layout */
 .profile-layout {
-  display: grid;
-  grid-template-columns: 350px 1fr;
+  display: flex;
+  justify-content: space-between;
   gap: 2rem;
-  max-width: 1400px;
-  margin: 100px auto 0;
-  padding: 2rem;
-  min-height: calc(100vh - 100px);
+  margin: 120px 2rem 0; /* Account for header height and add horizontal padding */
 }
 
-/* Move profile-specific styles under the profile-layout class */
+/* Project Creation Form (Left Side) */
 .profile-layout form {
+  flex: 0 0 350px; /* Fixed width */
   position: sticky;
-  top: 100px;
+  top: 140px; /* Header height + padding */
   background: var(--white);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   height: fit-content;
-  align-self: start;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  align-self: flex-start;
 }
 
-.profile-layout ul.project-list {
-  max-height: calc(100vh - 120px);
+/* Project List (Right Side) */
+.project-list {
+  flex: 1;
+  max-height: calc(100vh - 140px);
   overflow-y: auto;
   padding-right: 1rem;
   margin: 0;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--dark-red);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gray);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+/* Project Items */
+.project-item {
+  background: var(--white);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .profile-layout form {
+    flex: 0 0 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-layout {
+    flex-direction: column;
+    margin: 120px 1rem 0;
+  }
+
+  .profile-layout form {
+    position: relative;
+    top: 0;
+    width: 100%;
+  }
+
+  .project-list {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 /* Restore index.ejs specific styles */
@@ -543,6 +602,7 @@ footer {
   background: var(--dark-red);
   padding: 4rem 2rem;
   color: var(--white);
+  margin-top: auto;
 }
 
 footer nav {
@@ -672,12 +732,12 @@ footer nav ul a:hover {
 
 /* Create Column Form Styling */
 .createColumnForm {
+    position: relative;
+    padding: 1rem;
+    margin: 0.5rem 2rem;
     background: var(--white);
-    padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    max-width: 300px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 /* Form Header */
