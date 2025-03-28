@@ -53,3 +53,8 @@ ehthumbs_vista.db
 *.tmp
 *.bak
 *.swp
+
+# history files
+.history
+.localhistory/
+.lh/

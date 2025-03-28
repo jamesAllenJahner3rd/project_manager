@@ -1,7 +1,8 @@
 module.exports = {
-    getIndex: (req,res)=>{
-    //all these are so the ejs have the isAuthenticated to test so log out will out if logged in.
-        res.render('index.ejs', { isAuthenticated: req.isAuthenticated() } );
+    getIndex: (req, res) => {
+        res.render('index.ejs', {
+            user: req.user // Pass the user object from the session
+        })
     }
 }
 //
