@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>User Profile</title>
     <title>User Profile</title>
+    <!-- CSS  AND JS NEED THEIR OWN FILES----------------------------FIX -->
     <style>
         /* ... existing styles ... */
         
@@ -143,7 +144,7 @@
   </head>
   <body>
     <!-- header -->
-    <%- include('partials/header') %>
+    <%- include('partials/header') %> <!--  <%- %>outputs html  -->
     <h1>Adjust your profile here</h1>
     <a href="/">To index Page</a>
     <section class="hero">
@@ -175,7 +176,8 @@
         <button type="submit" class="btn btn-primary">Create Project</button>
       </form>
       <ul class="project-list">
-        <% if (typeof projectList !== 'undefined' && projectList.length > 0) { %>
+        <!-- <% %> used for logic, like loops or conditional statements. -->
+        <% if (typeof projectList !== 'undefined' && projectList.length > 0) { %> 
             <% projectList.forEach(project => { %>
                 <li class="project-item">
                     <div class="project-header">
@@ -191,7 +193,7 @@
                     </div>
                     
                     <div class="project-details">
-                        <p><strong>Status:</strong> <%= project.status %></p>
+                        <p><strong>Status:</strong> <%= project.status %></p><!-- <%= %> print escaped output -->
                         <p><strong>Columns:</strong> <%= project.columns ? project.columns.length : 0 %></p>
                         <p><strong>Documents:</strong> <%= project.columns ? project.columns.reduce((sum, col) => sum + (col.documents ? col.documents.length : 0), 0) : 0 %></p>
                     </div>

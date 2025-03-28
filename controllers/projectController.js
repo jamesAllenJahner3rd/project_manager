@@ -29,6 +29,7 @@ module.exports = {
     newProject: (req, res) => {
         res.render('project_template.ejs');
     },
+    // THIS SHOULD SET THE USER AS ADMIN -------------------------------------------------FIX
     createProject: async (req, res) => {
         try {
             console.log("trying now");

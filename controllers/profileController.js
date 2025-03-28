@@ -24,7 +24,7 @@ module.exports = {
 
             // Fetch projects
             const projectList = await Project.find({
-                $or: [{ adminId: userId }, { userId: userId }]
+                $or: [{ adminId: userId }, { userId: userId }]//$or Specifies a condition where at least one of the criteria must be true. MongoDB's query language
             });
 
             console.log("Projects fetched from DB:", projectList);
@@ -91,7 +91,7 @@ module.exports = {
             res.status(500).json({ message: 'Server error' });
         }
     },
-
+//THIS NEEDS TO CHECK FOR ADMIN PRIVILEGES  -----------------------------------------------------------------------------FIX
     deleteProject: async (req, res) => {
         try {
             await Project.findByIdAndDelete(req.params.id);
@@ -113,7 +113,7 @@ module.exports = {
             res.status(500).json({ error: 'Server error' });
         }
     },
-
+//THESE SHOULD BE IN A KANBAN CONTROLLER -----------------------------------------------------------FIX
     createDocument: async (req, res) => {
         try {
             const { title, content, columnId } = req.body;
