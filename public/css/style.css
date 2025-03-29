@@ -34,11 +34,19 @@ h2 {
   font-weight: bold;
 }
 .logo-container {
+  max-width: 500px;
+  width: 100%;
+  margin: -20px auto 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.logo-container img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
 
 /***************************/
 /********** LAYOUT *********/
@@ -371,13 +379,13 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
-  min-height: 100vh;
-  padding: 6rem 2rem;
+  min-height: 90vh;
+  padding: 2rem 2rem 6rem;
   background: var(--gradient);
   clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-  margin: 0;
+  margin: -20px 0 0 0;
 }
 
 /* Profile Layout */
@@ -467,20 +475,18 @@ header {
 
 /* Restore index.ejs specific styles */
 .hero-title {
-  font-size: 4rem;
-  font-weight: 800;
+  font-size: 3rem;
+  font-weight: bold;
   color: var(--white);
-  margin-bottom: 1.5rem;
+  margin: -80px 0 1rem 0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-  letter-spacing: -1px;
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
   color: var(--gray);
-  margin-bottom: 3rem;
-  font-weight: 300;
-  max-width: 600px;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .features {
@@ -1073,15 +1079,15 @@ footer nav ul a:hover {
     font-size: 3rem;
     font-weight: bold;
     color: var(--white);
-    margin-bottom: 1rem;
+    margin: -80px 0 1rem 0;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
 .hero-subtitle {
     font-size: 1.5rem;
     color: var(--gray);
-    margin-bottom: 2rem;
-    margin-top: 2.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 /* Buttons */
