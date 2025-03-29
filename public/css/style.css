@@ -17,7 +17,7 @@ body {
   color: var(--black);
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
-  padding-top: 80px; /* Reduced from 100px */
+  padding-top: 120px; /* Match header height */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -37,17 +37,8 @@ h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto 0; /* Removed bottom margin completely */
-  max-width: 500px;
-  width: 100%;
 }
 
-.logo-container img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  padding: 0;
-}
 
 /***************************/
 /********** LAYOUT *********/
@@ -55,12 +46,12 @@ h2 {
 .drag-container {
   display: flex;
   gap: 20px;
-  padding: 10px;
+  padding: 20px;
   overflow-x: auto;
-  min-height: 300px;
+  min-height: 500px;
   background: var(--light-green);
   border-radius: 8px;
-  margin: 10px 0;
+  margin: 20px 0;
   flex: 1;
   margin: 1rem 0;
   padding: 1rem;
@@ -380,11 +371,10 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   text-align: center;
-  min-height: 90vh; /* Slightly reduced from 100vh */
-  padding: 0 2rem 6rem;
-  margin-top: -20px; /* Added negative margin to pull content up */
+  min-height: 100vh;
+  padding: 6rem 2rem;
   background: var(--gradient);
   clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
   margin: 0;
@@ -480,8 +470,7 @@ header {
   font-size: 4rem;
   font-weight: 800;
   color: var(--white);
-  margin-top: -80px; /* Added negative margin to move title up */
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
   letter-spacing: -1px;
 }
@@ -489,8 +478,6 @@ header {
 .hero-subtitle {
   font-size: 1.5rem;
   color: var(--gray);
-  margin-top: 1rem; /* Reduced from 2.5rem */
-  margin-bottom: 1.5rem; /* Reduced from 2rem */
   margin-bottom: 3rem;
   font-weight: 300;
   max-width: 600px;
