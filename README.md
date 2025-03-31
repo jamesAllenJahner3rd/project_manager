@@ -1,4 +1,4 @@
-# project_manager
+# DevSync
 A project manager for software engineers
 
 ## Dependencies
