@@ -17,7 +17,7 @@ body {
   color: var(--black);
   font-family: 'Poppins', sans-serif;
   line-height: 1.6;
-  padding-top: 120px; /* Match header height */
+  padding-top: 120px; /* Keep this to account for the fixed header */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -36,10 +36,11 @@ h2 {
 .logo-container {
   max-width: 500px;
   width: 100%;
-  margin: -20px auto 0;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
+  transform: translateY(45px); /* Changed from 30px to 45px */
 }
 
 .logo-container img {
@@ -325,6 +326,7 @@ header {
   flex-grow: 1;
   display: flex;
   justify-content: center;
+  background: linear-gradient(to right, var(--dark-red) 0%, var(--white) 100%);
 }
 
 .primary-navigation ul {
@@ -337,8 +339,8 @@ header {
 }
 
 .primary-navigation ul li a {
-  color: var(--gray);
-  font-weight: 700;
+  color: var(--black);
+  font-weight: 800;
   text-transform: uppercase;
   font-size: 1.1rem;
   letter-spacing: 0.5px;
@@ -346,10 +348,11 @@ header {
   transition: all 0.3s ease;
   text-decoration: none;
   display: block;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .primary-navigation ul li a:hover {
-  color: var(--grey);
+  color: var(--dark-red);
   transform: translateY(-2px);
 }
 
@@ -382,10 +385,30 @@ header {
   justify-content: flex-start;
   text-align: center;
   min-height: 90vh;
-  padding: 2rem 2rem 6rem;
+  padding: 0 2rem 6rem 2rem; 
   background: var(--gradient);
   clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-  margin: -20px 0 0 0;
+  margin-top: -100px; /* Negative margin to pull everything up */
+}
+
+.logo-container {
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-10px); /* Changed from -50px to -20px */
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  letter-spacing: -1px;
+  margin: -80px 0 1rem 0;
 }
 
 /* Profile Layout */
@@ -474,14 +497,6 @@ header {
 }
 
 /* Restore index.ejs specific styles */
-.hero-title {
-  font-size: 3rem;
-  font-weight: bold;
-  color: var(--white);
-  margin: -80px 0 1rem 0;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-}
-
 .hero-subtitle {
   font-size: 1.5rem;
   color: var(--gray);
@@ -1075,14 +1090,6 @@ footer nav ul a:hover {
 }
 
 /* Hero Section */
-.hero-title {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--white);
-    margin: -80px 0 1rem 0;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-}
-
 .hero-subtitle {
     font-size: 1.5rem;
     color: var(--gray);
