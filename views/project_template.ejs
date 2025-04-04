@@ -143,12 +143,14 @@
             position: relative;
             display: flex;
             justify-items: left;
+           
         }
-        .project-layout fieldset{
+        fieldset.column{
             margin: auto;
-            flex-direction: row;
+            flex-direction: column;
             flex: 1;
             display: flex;
+            
         }
         #chat-box{ 
             display: flex;
@@ -164,11 +166,36 @@
             width: 100%;
             flex-direction: row;
         }
-        #chat-box fieldset *{
+        #chat-box fieldset label{
+            display: flex;
+            flex: 0;
+            width: 100%;
+            flex-direction: row;
+            font-size: xx-large;
+
+        }
+        #chat-box fieldset form {
             display: flex;
             flex: 2;
             width: 100%;
             flex-direction: row;
+            
+        }
+        #chat-box fieldset form input{
+            display: flex;
+            flex: 2;
+            width: 100%;
+            flex-direction: row;
+            font-size: xx-large;
+            margin: 1% 0;
+            
+        }
+        #chat-box fieldset form button{
+            display: flex;
+            flex: 0;
+            width: 100%;
+            flex-direction: row;
+            margin: 1% 1% ;
             
         }
         #chat-messages{
@@ -183,11 +210,14 @@
             margin: 10%;
         }
         .crosswise{
+            display: flex;
             flex: 1; /* Makes #chat-messages take up remaining space */
             margin: 1% 1% 1% 1% ;
             width: 98%;
             border: 3px solid black;
             overflow-y: auto;  
+            flex-direction: row;
+          
         }
     </style>
   </head>
@@ -199,7 +229,7 @@
     <section class="project-layout">
         <section class="crosswise">
             <!-- Project Creation Form -->
-            <fieldset>
+            <fieldset class="column">
                 <form class="project-button" action="/project/kanban<%= project._id %>" method="GET">
                   <button type="submit" class="btn btn-primary">Kanban Board</button>
                 </form>
@@ -207,7 +237,7 @@
                   <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
                 </form>
             </fieldset>
-            <fieldset>
+            <fieldset class="column">
                 <form class="project-button" action="/project/burnup" method="POST">
                   <button type="submit" class="btn btn-primary">Burnup Chart</button>
                 </form>
