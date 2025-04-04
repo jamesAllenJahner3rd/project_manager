@@ -21,6 +21,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+
 }
 
 h1 {
@@ -624,6 +625,10 @@ footer {
   padding: 4rem 2rem;
   color: var(--white);
   margin-top: auto;
+  position: relative;
+  /* bottom:0%; */
+  width: 100%;
+  left: 0%;
 }
 
 footer nav {

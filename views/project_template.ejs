@@ -138,6 +138,57 @@
         .add-document-btn:hover {
             background: #0056b3;
         }
+        .project-layout{
+            flex-direction: column;
+            position: relative;
+            display: flex;
+            justify-items: left;
+        }
+        .project-layout fieldset{
+            margin: auto;
+            flex-direction: row;
+            flex: 1;
+            display: flex;
+        }
+        #chat-box{ 
+            display: flex;
+            /* height: 100%; */
+            flex-direction: column;
+            position: relative;
+            flex: 2;
+            border: 1px solid black ;
+            margin: 0;
+        }
+        #chat-box fieldset{
+            display: flex;
+            width: 100%;
+            flex-direction: row;
+        }
+        #chat-box fieldset *{
+            display: flex;
+            flex: 2;
+            width: 100%;
+            flex-direction: row;
+            
+        }
+        #chat-messages{
+            flex: 1; /* Makes #chat-messages take up remaining space */
+            margin: 1% 1% 1% 1% ;
+            width: 98%;
+            border: 3px solid black;
+            overflow-y: auto; /* Allows scrolling if content overflows */
+        }
+
+        section.project-layout  form.project-button{
+            margin: 10%;
+        }
+        .crosswise{
+            flex: 1; /* Makes #chat-messages take up remaining space */
+            margin: 1% 1% 1% 1% ;
+            width: 98%;
+            border: 3px solid black;
+            overflow-y: auto;  
+        }
     </style>
   </head>
   <body>
@@ -145,24 +196,31 @@
     <%- include('partials/header') %>
     <h1>Project <%-project.name%></h1>
     <a href="/profile">Return to Profile Page</a>
-    <section class="profile-layout">
-      <!-- Project Creation Form -->
-      <form action="/project/kanban<%= project._id %>" method="GET">
-        <button type="submit" class="btn btn-primary">Kanban Board</button>
-      </form>
-      <form action="/project/CFD" method="POST">
-        <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
-      </form>
-      <form action="/project/burnup" method="POST">
-        <button type="submit" class="btn btn-primary">Burnup Chart</button>
-      </form>
-      <form action="/project/taskAging" method="POST">
-        <button type="submit" class="btn btn-primary">Task Aging Graph</button>
-      </form>
-      
-    <footer>
-      all thanks goes to the 100devs
-    </footer>
+    <section class="project-layout">
+        <section class="crosswise">
+            <!-- Project Creation Form -->
+            <fieldset>
+                <form class="project-button" action="/project/kanban<%= project._id %>" method="GET">
+                  <button type="submit" class="btn btn-primary">Kanban Board</button>
+                </form>
+                <form class="project-button" action="/project/CFD" method="POST">
+                  <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
+                </form>
+            </fieldset>
+            <fieldset>
+                <form class="project-button" action="/project/burnup" method="POST">
+                  <button type="submit" class="btn btn-primary">Burnup Chart</button>
+                </form>
+                <form class="project-button" action="/project/taskAging" method="POST">
+                  <button type="submit" class="btn btn-primary">Task Aging Graph</button>
+                </form>
+            </fieldset>
+            <%- include('partials/chat') %>
+        </section>
+    </section>
+    
+      <!-- footer -->
+      <%- include('partials/footer') %>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('editModal');

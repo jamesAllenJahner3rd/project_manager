@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <aside id='chat-box'>
+        <h2>chat</h2>
+        <section id="chat-messages">
+
+        </section>
+        <fieldset>
+            <label for="message">
+                Message
+            </label>
+            <form action="/project/chat<%= project._id %>"method='POST'>
+                <input type="text">
+                <button #id='message' type='submit' class='btn-primary btn'>Send</button>
+            </form>
+            
+        </fieldset>
+    </aside>
+    
+</body>
+</html>
