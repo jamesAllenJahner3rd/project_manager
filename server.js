@@ -17,8 +17,10 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const morgan = require('morgan')
 const connectDB = require("./config/database");
 const ejs =require("ejs");
-
-
+// const io = require('socket.io')(5000)
+// io.on('connection',socket =>{
+// console.log(socket.id)
+// })
 const authRoutes = require("./routes/auth");
 const path = require("path");
 // load the config
