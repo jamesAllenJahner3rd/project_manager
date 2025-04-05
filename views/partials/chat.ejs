@@ -96,13 +96,15 @@
             
         </fieldset>
     </aside>
-    <script>
-        // import{io} from 'socket.io-client'
+    <script src="/js/socket.io.js"></script>
+
+    <script type="module">
+        // import{io} from './node_modules/socket.io-client/dist/socket.io.js'
         const joinRoomButton = document.getElementById("room-button");
         const messageInput = document.getElementById("message-input")
         const roomInput = document.getElementById("room-input")
         const form = document.getElementById("form")
-        //const socket = io('http://localhost:5000')
+        const socket = io('http://localhost:3000')
         chatForm.addEventListener("submit",e =>{
             e.preventDefault()
             const message = messageInput.value;

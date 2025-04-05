@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
@@ -17,10 +18,8 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const morgan = require('morgan')
 const connectDB = require("./config/database");
 const ejs =require("ejs");
-// const io = require('socket.io')(5000)
-// io.on('connection',socket =>{
-// console.log(socket.id)
-// })
+
+
 const authRoutes = require("./routes/auth");
 const path = require("path");
 // load the config
@@ -30,10 +29,27 @@ dotenv.config({ path: './config/.env' });
 require("./config/passport")(passport)//i'm passing variable passport as an arguement
 
 connectDB();
-
-const app = express();
 const PORT = process.env.PORT ||  8000;
+const app = express();
 
+//setup socket.io
+const http = require('http') //Socket.IO requires a raw HTTP server
+const server = http.createServer(app);//creates an HTTP server using your Express application as its request handler.
+const io = require('socket.io')(server)
+/*,{//link socket.io to the server
+    cors:{//
+        origin: ['http://localhost:3000']
+    }//explicitly allows requests from your client application
+})*/
+io.on('connection',socket =>{
+    console.log(`User connected ${socket.id}`)
+    socket.on('project-update', (data) =>{
+        socket.broadcast.emit('project-update',data);
+    })
+    socket.on('disconnect',()=>{
+        console.log(`User disconnected: ${socket.id}`)
+    })
+})
 
 if (process.env.NODE_ENV ==='development'){
     app. use(morgan('dev'))
@@ -93,4 +109,4 @@ app.use(notFound);
 app.use(errorHandler);
 
 //NODE_ENV is going to let us know what stage of development we're in when booting.
-app.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
+server.listen(PORT, console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`));
