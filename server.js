@@ -41,9 +41,9 @@ const io = require('socket.io')(server)
         origin: ['http://localhost:3000']
     }//explicitly allows requests from your client application
 })*/
-io.on('connection',socket =>{
+io.on('connection',(socket,roomName) =>{
     
-    console.log(`Server side: User connected ${socket.id}`)
+    // console.log('Server side: User connected' <%= project._id %>)
     socket.on('project-update', (data) =>{
         socket.broadcast.emit('project-update',data);
     })
@@ -55,8 +55,9 @@ io.on('connection',socket =>{
     socket.on('disconnect',()=>{
         console.log(`User disconnected: ${socket.id}`)
     })
-    socket.on('join-room', room =>{
+    socket.on('join-room', (roomName, room) =>{
         socket.join(room)
+        console.log(`Server side: User connected ${roomName}`)
     })
 })
 

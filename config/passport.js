@@ -12,7 +12,7 @@ module.exports = function(passport){// this was passed in from the app.js
             },
             async(accessToken, RefreshToken, profile,done)=>{
 // done is the callback we call for the we need to  finish.
-                console.log(profile);
+                // console.log(profile);
               const newUser = {
                     googleId: profile.id,
                     displayName: profile.displayName,

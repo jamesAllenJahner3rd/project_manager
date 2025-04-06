@@ -21,7 +21,7 @@ module.exports = {
         ],
       });
 
-      console.log(projectList);
+      // console.log(projectList);
       res.render("project_template", { projectList: projectList });
     } catch (err) {
       console.error(err);
@@ -33,14 +33,14 @@ module.exports = {
   },
   createProject: async (req, res) => {
     try {
-      console.log("trying now");
+      // console.log("trying now");
       const { name, description, startDate, endDate, status } = req.body;
-      console.log("got:", name, description, startDate, endDate, status);
+      // console.log("got:", name, description, startDate, endDate, status);
       // now the user won't have to type his name
       const userProfile = await Profile.findOne({
         googleId: req.user.googleId,
       });
-      console.log("userProfile:", userProfile);
+      // console.log("userProfile:", userProfile);
       //incase the user is found...
       if (!userProfile) {
         return res
@@ -55,7 +55,7 @@ module.exports = {
         status,
         adminId: userProfile._id,
       });
-      console.log("newProject:", newProject);
+      // console.log("newProject:", newProject);
       await newProject.save();
       //all these are so the ejs have the isAuthenticated to test so log out will out if logged in.
       res.redirect("/profile");
@@ -67,7 +67,7 @@ module.exports = {
   getProject: async (req, res) => {
     try {
       const project = await Project.findById(req.params.id);
-      console.log("Project", project);
+      // console.log("Project", project);
       res.render("project_template", {
         project,
         isAuthenticated: req.isAuthenticated(),
@@ -105,7 +105,7 @@ module.exports = {
   getKanban: async (req, res) => {
     try {
       const project = await Project.findById(req.params.id);
-      console.log("board", project);
+      // console.log("board", project);
       res.render("kanban_template", {
         project,
         isAuthenticated: req.isAuthenticated(),
