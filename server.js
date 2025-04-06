@@ -42,14 +42,24 @@ const io = require('socket.io')(server)
     }//explicitly allows requests from your client application
 })*/
 io.on('connection',socket =>{
-    console.log(`User connected ${socket.id}`)
+    
+    console.log(`Server side: User connected ${socket.id}`)
     socket.on('project-update', (data) =>{
         socket.broadcast.emit('project-update',data);
+    })
+    socket.on('send-message', (message) =>{
+        socket.broadcast.emit('recieve-message',message)// broadcast doesn't send it back to the user
+       console.log(message)
+        // socket.broadcast.emit('project-update',data);
     })
     socket.on('disconnect',()=>{
         console.log(`User disconnected: ${socket.id}`)
     })
+    socket.on('join-room', room =>{
+        socket.join(room)
+    })
 })
+
 
 if (process.env.NODE_ENV ==='development'){
     app. use(morgan('dev'))

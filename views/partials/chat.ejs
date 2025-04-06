@@ -97,20 +97,33 @@
         </fieldset>
     </aside>
     <script src="/js/socket.io.js"></script>
-
+<!-- this what have to be it's own script. -->
     <script type="module">
         // import{io} from './node_modules/socket.io-client/dist/socket.io.js'
         const joinRoomButton = document.getElementById("room-button");
         const messageInput = document.getElementById("message-input")
         const roomInput = document.getElementById("room-input")
-        const form = document.getElementById("form")
+        const chatform = document.getElementById("chatForm")
         const socket = io('http://localhost:3000')
+        const room = "chat<%= project._id %>";
+        ;
+        socket.on('connect',() =>{
+            
+            displayMessage(`Client side: You connected with id: ${socket.id}`)
+            console.log(`Client side: User connected ${socket.id}`)
+        })
+        document.addEventListener( 'load',() =>{
+           
+            socket.emit('join-room', room)
+        })
+         socket.on('recieve-message', message => displayMessage(message))
         chatForm.addEventListener("submit",e =>{
             e.preventDefault()
             const message = messageInput.value;
-            // const room =roomInput.value;
+            
             if(message ==="") return
             displayMessage(message)
+             socket.emit('send-message',message,room)//server  socket.on('send-message',...
             messageInput.value = ""
         })
         // joinRoomButtom.addEventListener("click", () =>{
