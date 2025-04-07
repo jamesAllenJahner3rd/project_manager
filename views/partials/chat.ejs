@@ -1,81 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-    fieldset.column{
-            margin: auto;
-            flex-direction: column;
-            flex: 1;
-            display: flex;
-            
-        }
-        #chat-box{ 
-            display: flex;
-            /* height: 100%; */
-            flex-direction: column;
-            position: relative;
-            flex: 2;
-            border: 1px solid black ;
-            margin: 0;
-        }
-        #chat-box fieldset{
-            display: flex;
-            width: 100%;
-            flex-direction: row;
-        }
-        #chat-box fieldset label{
-            display: flex;
-            flex: 0;
-            width: 100%;
-            flex-direction: row;
-            font-size: xx-large;
+    fieldset.column {
+        margin: auto;
+        flex-direction: column;
+        flex: 1;
+        display: flex;
 
-        }
-        #chat-box fieldset form {
-            display: flex;
-            flex: 2;
-            width: 100%;
-            flex-direction: row;
-            
-        }
-        #chat-box fieldset form input{
-            display: flex;
-            flex: 2;
-            width: 100%;
-            flex-direction: row;
-            font-size: xx-large;
-            margin: 1% 0;
-            
-        }
-        #chat-box fieldset form button{
-            display: flex;
-            flex: 0;
-            width: 100%;
-            flex-direction: row;
-            margin: 1% 1% ;
-            
-        }
-        #message-container{
-            flex: 1; /* Makes #chat-messages take up remaining space */
-            margin: 1% 1% 1% 1% ;
-            width: 98%;
-            border: 3px solid black;
-            overflow-y: auto; /* Allows scrolling if content overflows */
-        }
+    }
 
-        section.project-layout  form.project-button{
-            margin: 10%;
-        }
-        .crosswise{
-            display: flex;
-            flex: 1; /* Makes #chat-messages take up remaining space */
-            margin: 1% 1% 1% 1% ;
-            width: 98%;
-            border: 3px solid black;
-            overflow-y: auto;  
-            flex-direction: row;
-          
-        }
+    #chat-box {
+        display: flex;
+        /* height: 100%; */
+        flex-direction: column;
+        position: relative;
+        flex: 2;
+        border: 1px solid black;
+        margin: 0;
+    }
+
+    #chat-box fieldset {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+    }
+
+    #chat-box fieldset label {
+        display: flex;
+        flex: 0;
+        width: 100%;
+        flex-direction: row;
+        font-size: xx-large;
+
+    }
+
+    #chat-box fieldset form {
+        display: flex;
+        flex: 2;
+        width: 100%;
+        flex-direction: row;
+
+    }
+
+    #chat-box fieldset form input {
+        display: flex;
+        flex: 2;
+        width: 100%;
+        flex-direction: row;
+        font-size: xx-large;
+        margin: 1% 0;
+
+    }
+
+    #chat-box fieldset form button {
+        display: flex;
+        flex: 0;
+        width: 100%;
+        flex-direction: row;
+        margin: 1% 1%;
+
+    }
+
+    #message-container {
+        flex: 1;
+        /* Makes #chat-messages take up remaining space */
+        margin: 1% 1% 1% 1%;
+        width: 98%;
+        border: 3px solid black;
+        overflow-y: auto;
+        /* Allows scrolling if content overflows */
+    }
+
+    section.project-layout form.project-button {
+        margin: 10%;
+    }
+
+    .crosswise {
+        display: flex;
+        flex: 1;
+        /* Makes #chat-messages take up remaining space */
+        margin: 1% 1% 1% 1%;
+        width: 98%;
+        border: 3px solid black;
+        overflow-y: auto;
+        flex-direction: row;
+
+    }
 </style>
+
 <body>
     <aside id='chat-box'>
         <h2>chat</h2>
@@ -83,54 +95,60 @@
 
         </section>
         <fieldset>
-           
+
             <form id="chatForm">
-                 <!-- action="/project/chat<%= project._id %>"method='POST'> -->
-                 <label for="message">
-                Message
-            </label>
-            <input type="text" id='message-input'>
+                <!-- action="/project/chat<%= project._id %>"method='POST'> -->
+                <label for="message">
+                    Message
+                </label>
+                <input type="text" id='message-input'>
                 <button #id='send-button' type='submit' class='btn-primary btn'>Send</button>
                 <!-- <input type='text' id="room-input"> ,<button type='button' id='room-button'>Join</button> -->
             </form>
-            
+
         </fieldset>
     </aside>
     <script src="/js/socket.io.js"></script>
-<!-- this what have to be it's own script. -->
+    <!-- this what have to be it's own script. -->
     <script type="module">
         // import{io} from './node_modules/socket.io-client/dist/socket.io.js'
         // const joinRoomButton = document.getElementById("room-button");
         const messageInput = document.getElementById("message-input");
-        // const roomInput = document.getElementById("room-input");
+        //  const roomInput = document.getElementById("room-input");
         const chatform = document.getElementById("chatForm");
         const socket = io('http://localhost:3000')
         const room = "chat<%= project._id %>";
-        const roomName = "<% project.name %>";
-        console.log("roomName",roomName)
-        socket.on('connect',() =>{
-            
+         console.log('<%- JSON.stringify(project) %>');
+        // const project = JSON.parse('<%- JSON.stringify(project) %>');
+        // console.log(project);
+        // console.log({"columns":[],"_id":"67a1b983250ece3eb3b2e11f","name":"another","description":"testtest"  });
+       
+
+        const roomName = "<%= project.name %>";
+        console.log("roomName", roomName, "room", room)
+        socket.on('connect', () => {
+
             displayMessage(`Client side: You connected with id: ${roomName}`);
             console.log(`Client side: User connected ${roomName}`);
         });
-        document.addEventListener( 'load',() =>{
-           
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log('join-room', roomName, room);
             socket.emit('join-room', roomName, room);
         });
-         socket.on('recieve-message', message => displayMessage(message));
-        chatForm.addEventListener("submit",e =>{
+        socket.on('recieve-message', message => displayMessage(message));
+        chatForm.addEventListener("submit", e => {
             e.preventDefault();
             const message = messageInput.value;
-            
-            if(message ==="") return
+
+            if (message === "") return
             displayMessage(message)
-            socket.emit('send-message',message,room)//server  socket.on('send-message',...
+            socket.emit('send-message', message, room)//server  socket.on('send-message',...
             messageInput.value = ""
         })
         // joinRoomButtom.addEventListener("click", () =>{
         //     const room =roomInput.value
         // })
-        function displayMessage(message){
+        function displayMessage(message) {
             console.log(message)
             const div = document.createElement("div")
             div.textContent = message
@@ -138,7 +156,8 @@
             document.getElementById("message-container").append(div)
         }
 
-       
+
     </script>
 </body>
+
 </html>

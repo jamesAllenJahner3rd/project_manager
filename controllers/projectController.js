@@ -1,5 +1,6 @@
 const Profile = require("../models/Profile");
 const Project = require("../models/Project");
+const Kanban = require("../models/Kanban");
 const mongoose = require("mongoose");
 module.exports = {
   getProjects: async (req, res) => {
@@ -28,12 +29,15 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
-  newProject: (req, res) => {
-    res.render("project_template.ejs");
-  },
+  // newProject: (req, res) => {
+  //   res.render("project_template.ejs");
+  // },
   createProject: async (req, res) => {
     try {
-      // console.log("trying now");
+      console.log(
+        "trying to create a project now************************************",
+        req
+      );
       const { name, description, startDate, endDate, status } = req.body;
       // console.log("got:", name, description, startDate, endDate, status);
       // now the user won't have to type his name
@@ -55,9 +59,28 @@ module.exports = {
         status,
         adminId: userProfile._id,
       });
-      // console.log("newProject:", newProject);
+      console.log(
+        "create project newProject:",
+        newProject._id,
+        "********************************************"
+      );
       await newProject.save();
       //all these are so the ejs have the isAuthenticated to test so log out will out if logged in.
+      console.log("CreateProject new project info", newProject);
+
+      const newKanban = new Kanban({
+        projectId: newProject._id,
+        columns: [],
+      });
+      console.log("Create Kanban new kanban info", newKanban);
+      try {
+        await newKanban.save();
+        console.log("Kanban saved successfully!");
+    } catch (error) {
+        console.error("Error saving Kanban:", error);
+    }
+    
+      console.log('saved a new kanban')
       res.redirect("/profile");
     } catch (err) {
       console.error(err);
@@ -67,7 +90,13 @@ module.exports = {
   getProject: async (req, res) => {
     try {
       const project = await Project.findById(req.params.id);
-      // console.log("Project", project);
+      console.log(
+        "get Project",
+        project,
+        "req.params.id ",
+        req.params.id,
+        "*******************************"
+      );
       res.render("project_template", {
         project,
         isAuthenticated: req.isAuthenticated(),
@@ -94,6 +123,11 @@ module.exports = {
     }
   },
   deleteProject: async (req, res) => {
+    console.log(
+      "req.params.id to delete",
+      req.params.id,
+      "****************************************"
+    );
     try {
       await Project.findByIdAndDelete(req.params.id);
       res.redirect("/projects");
@@ -113,6 +147,22 @@ module.exports = {
     } catch (err) {
       console.error(err);
       req.status(500).send("Server Error");
+    }
+  },
+  updateKanban: async (req, res) => {
+    try {
+      const { projectId, columns } = req.body;
+
+      const updatedKanban = await Kanban.findByIdAndUpdate(
+        { projectId: projectId },
+        { columns: columns },
+        { new: true, upsert: true });
+        req.app.get('socketio').emit(`updateBoard-${projectId}`, updatedKanban);
+
+    } catch (err) {
+      console.error("Error updating Kanban:", error);
+
+      res.status(500).send("Server Error");
     }
   },
 };

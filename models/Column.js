@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const ColumnSchema = new mongoose.Schema({
+    columnId :{
+        type: String,
+            required: true
+    },
     title: {
         type: String,
         required: true

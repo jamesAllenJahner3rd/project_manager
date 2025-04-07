@@ -328,7 +328,8 @@
     </style>
 </head>
 
-<body onload="init()">
+<body> 
+    <!-- onload="init()"> -->
     <!-- Without header: navigation missing -->
     <%- include('partials/header') %>
 
@@ -377,11 +378,22 @@
             <script src="/js/main.js"></script>
             <!-- Without dragula.js: no drag-and-drop functionality -->
             <script src="/js/dragula.js"></script>
+            <script src="/js/socket.io.js"></script>
+            <script type="module">
+                document.addEventListener("DOMContentLoaded", function () {
+    init();
+});
 
-            <script>
                 // Global variables
+                const socket = io('http://localhost:3000')
                 let listOfColumn = [];
                 const projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
+                socket.on('updateBoard-${projectId}',(updateBoard) => {
+                    console.log("Recieved update board state:", updatedBoard);
+                    const dragparent = document.getElementById('dragparent');
+                    dragparent.appendChild(newColumn);
+                });
+                console.log('Board state updated in the UI');
 
                 function saveToLocalStorage() {
                     const boardState = {
@@ -402,6 +414,8 @@
                             };
                         })
                     };
+                    // Send to the server
+                    socket.emit('updateBoard', boardState);
 
                     // Store with project-specific key
                     localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
