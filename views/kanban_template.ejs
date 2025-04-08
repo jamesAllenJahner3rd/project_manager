@@ -335,6 +335,7 @@
 
         <!-- Without this form: no way to c
      new columns -->
+     <h1><%= project.name %></h1>
         <form id="createColumnForm">
             <div class="form-group">
                 <label for="columnContent">Column Content</label>
@@ -381,11 +382,20 @@
             <script src="/js/socket.io.js"></script>
             <script type="module">
                 document.addEventListener("DOMContentLoaded", function () {
-    init();
-});
+                    init();
+                });
 
                 // Global variables
                 const socket = io('http://localhost:3000')
+                const room = "chat<%= project._id %>";
+                const roomName = "<%= project.name %>";
+                socket.on('connect', () => {
+                    
+                    document.addEventListener("DOMContentLoaded", () => {
+                        console.log('join-room', roomName, room);
+                        socket.emit('join-room', roomName, room);
+                    });
+                })
                 let listOfColumn = [];
                 const projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
                 socket.on('updateBoard-${projectId}',(updateBoard) => {
@@ -411,12 +421,13 @@
                                 title: column.querySelector('.title').textContent,
                                 backgroundColor: column.style.backgroundColor || '#f9f9f9',
                                 documents: documents
-                            };
-                        })
-                        console.log(`saveToLocalStorage`);
-                    };
+                            }
+                        }),
+                        
+                    };console.log(`saveToLocalStorage`);
                     // Send to the server
-                    console.log(`boardState ${boardState}`);
+                    console.log(`boardState:`, JSON.stringify(boardState, null, 2));
+
                     socket.emit('updateBoard', boardState);
 
                     // Store with project-specific key

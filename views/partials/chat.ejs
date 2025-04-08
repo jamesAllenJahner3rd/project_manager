@@ -111,10 +111,8 @@
     <script src="/js/socket.io.js"></script>
     <!-- this what have to be it's own script. -->
     <script type="module">
-        // import{io} from './node_modules/socket.io-client/dist/socket.io.js'
-        // const joinRoomButton = document.getElementById("room-button");
+
         const messageInput = document.getElementById("message-input");
-        //  const roomInput = document.getElementById("room-input");
         const chatform = document.getElementById("chatForm");
         const socket = io('http://localhost:3000')
         const room = "chat<%= project._id %>";
