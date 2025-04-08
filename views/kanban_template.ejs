@@ -413,8 +413,10 @@
                                 documents: documents
                             };
                         })
+                        console.log(`saveToLocalStorage`);
                     };
                     // Send to the server
+                    console.log(`boardState ${boardState}`);
                     socket.emit('updateBoard', boardState);
 
                     // Store with project-specific key

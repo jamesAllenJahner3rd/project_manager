@@ -41,7 +41,7 @@ const io = require("socket.io")(server);
     }//explicitly allows requests from your client application
 })*/
 io.on("connection", (socket, roomName, room) => {
- console.log('Server side: User connected', roomName)
+ console.log('Server side: User connected', "roomName",roomName,  room)
   socket.on("io.on('connection'  project-update", (data) => {
     socket.broadcast.emit("project-update", data);
   });
