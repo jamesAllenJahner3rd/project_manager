@@ -57,17 +57,19 @@ io.on("connection", (socket, roomName, room) => {
     socket.join(room);
     console.log(`socket.on("join-room" Server side: User connected ${roomName}`);
   });
-  socket.on("updateBoard", async (boardState) => {
+  socket.on(`updateBoard`, async (boardState) => {
     try {
-         console.log(`boardState:`, JSON.stringify(boardState, null, 2));
+        //  console.log(`boardState:`, JSON.stringify(boardState, null, 2));
       const { projectId } = boardState;
       console.log("projectId",projectId)
       await Kanban.findOneAndUpdate(
         { projectId: projectId },
         { columns: boardState.columns },
         { new: true, upsert: true }
-      );
-      
+      ).lean();
+
+      socket.broadcast.emit("board-updated");
+      console.log("server socket is trying to loadFromLocalStorage")
     } catch (error) {
       console.error("Error handling board update:", error);
     }
