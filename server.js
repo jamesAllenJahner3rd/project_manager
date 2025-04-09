@@ -2,6 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const dotenv = require('dotenv');
+
+// Apply patches to fix deprecation warnings
+require('./patches/apply-patches');
+
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
