@@ -8,9 +8,7 @@ const ProfileSchema = new mongoose.Schema({
     },
     googleId: {
         type: String,
-        required: false, 
-        unique: true,     
-        sparse: true      
+        required: false
     },
     displayName: {
         type: String,

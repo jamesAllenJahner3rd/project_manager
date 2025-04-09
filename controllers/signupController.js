@@ -19,18 +19,31 @@ module.exports = {
         const { username, password, confirmPassword, email, firstName, lastName } = req.body;
         const errors = [];
 
-        // --- Basic Validation --- 
-        // Added firstName and lastName checks
-        if (!username || !password || !confirmPassword || !email || !firstName || !lastName) {
+        // Validate required fields
+        if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
             errors.push({ msg: 'Please fill in all fields' });
         }
 
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) {
+            errors.push({ msg: 'Please enter a valid email address' });
+        }
+
+        // Validate username format
+        const usernameRegex = /^[a-zA-Z0-9_]+$/;
+        if (username && !usernameRegex.test(username)) {
+            errors.push({ msg: 'Username can only contain letters, numbers, and underscores' });
+        }
+
+        // Validate password match
         if (password !== confirmPassword) {
             errors.push({ msg: 'Passwords do not match' });
         }
 
-        if (password.length < 6) { // Example minimum password length
-            errors.push({ msg: 'Password should be at least 6 characters' });
+        // Validate password length
+        if (password && password.length < 6) {
+            errors.push({ msg: 'Password must be at least 6 characters' });
         }
 
         if (errors.length > 0) {
@@ -69,25 +82,32 @@ module.exports = {
 
             // Create new user with updated fields
             const newUser = new User({
-                provider: 'local', // Set provider to local
+                provider: 'local',
                 username: username.toLowerCase(), 
                 password: hashedPassword,
                 email: email.toLowerCase(), 
-                firstName: firstName, // Get from form
-                lastName: lastName,   // Get from form
-                displayName: `${firstName} ${lastName}`, // Construct displayName
-                // No googleId for local users
-                // image: can be added later or set to a default
+                firstName: firstName,
+                lastName: lastName,
+                displayName: `${firstName} ${lastName}`
             });
 
             await newUser.save();
             console.log('Local user registered:', newUser);
 
-            // Redirect to login page (optionally with success flash message)
-            if (req.flash) {
-                req.flash('success_msg', 'Registration successful! Please log in.');
-            }
-            res.redirect('/login');
+            // Log in the user directly
+            req.login(newUser, function(err) {
+                if (err) {
+                    console.error('Error during auto-login:', err);
+                    if (req.flash) {
+                        req.flash('error_msg', 'Registration successful but login failed. Please try logging in manually.');
+                    }
+                    return res.redirect('/login');
+                }
+                if (req.flash) {
+                    req.flash('success_msg', 'Registration successful! Welcome to your new account.');
+                }
+                return res.redirect('/profile');
+            });
 
         } catch (err) {
             console.error("Error during local signup:", err);
