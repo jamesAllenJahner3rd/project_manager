@@ -426,7 +426,7 @@
                         
                     };console.log(`saveToLocalStorage`);
                     // Send to the server
-                    console.log(`boardState:`, JSON.stringify(boardState, null, 2));
+                    // console.log(`boardState:`, JSON.stringify(boardState, null, 2));
 
                     socket.emit('updateBoard', boardState);
 
@@ -482,6 +482,7 @@
                 }
 
                 function createColumnFromSaved(column) {
+                    console.log(column)
                     const newColumn = document.createElement('ul');
                     newColumn.className = 'dragColumn';
                     newColumn.id = column.id;
@@ -529,6 +530,11 @@
                     columnNav.appendChild(title);
 
                     newColumn.appendChild(columnNav);
+                    column.documents.forEach(document => {
+                        const newDocument = createDocumentFromSaved(document);
+                        newColumn.appendChild(newDocument);
+                        // listOfColumn.push(newDocument);
+                    });
                     return newColumn;
                 }
 
@@ -552,7 +558,7 @@
                     const dragparent = document.getElementById('dragparent');
                     dragparent.innerHTML = ''; // Clear existing columns
                     listOfColumn = [];
-
+                    console.log(boardState.columns)
                     boardState.columns.forEach(column => {
                         const newColumn = createColumnFromSaved(column);
                         dragparent.appendChild(newColumn);
