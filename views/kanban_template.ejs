@@ -533,11 +533,16 @@
                 }
 
                 function loadFromLocalStorage() {
-                    const savedData = localStorage.getItem(`kanbanBoard-${projectId}`);
-                    if (!savedData) return;
-
-                    const boardState = JSON.parse(savedData);
-
+                    console.log(`LoadFromLocalStorage`);
+                    console.log("kanban")
+                    // const savedData = localStorage.getItem(`kanbanBoard-${projectId}`);
+                    
+                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
+                     if (kanban == true) return;
+                    // const boardState = JSON.parse(savedData);
+                    const boardState = kanban[0]
+                    // console.log("kanban", kanban, "/n boardstate",boardState)
+                    // console.log("kanban", kanban[0].columns, "/n boardstate",boardState.columns)
                     // Only load if the saved state matches the current project
                     if (boardState.projectId !== projectId) {
                         console.log('No saved state for this project');
@@ -609,7 +614,7 @@
                     const dragparent = document.getElementById('dragparent');
                     let columnDrake;
                     let documentDrake;
-
+                    console.log("init started");
                     // Load saved data first
                     loadFromLocalStorage();
 

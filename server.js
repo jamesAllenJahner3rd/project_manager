@@ -59,12 +59,15 @@ io.on("connection", (socket, roomName, room) => {
   });
   socket.on("updateBoard", async (boardState) => {
     try {
+         console.log(`boardState:`, JSON.stringify(boardState, null, 2));
       const { projectId } = boardState;
+      console.log("projectId",projectId)
       await Kanban.findOneAndUpdate(
         { projectId: projectId },
         { columns: boardState.columns },
         { new: true, upsert: true }
       );
+      
     } catch (error) {
       console.error("Error handling board update:", error);
     }

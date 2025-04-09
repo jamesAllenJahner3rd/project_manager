@@ -32,14 +32,14 @@ const ProjectSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: false,
-  },
-  adminId: {
+  userId: [{ 
+      type: mongoose.Schema.Types.ObjectId,
+    ref:'Profile',
+  }],
+  adminId: [{
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-  },
+  }],
 });
 
 module.exports = mongoose.model("Project", ProjectSchema);
