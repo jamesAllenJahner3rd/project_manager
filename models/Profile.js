@@ -8,9 +8,9 @@ const ProfileSchema = new mongoose.Schema({
     },
     googleId: {
         type: String,
-        required: false, // No longer required for local accounts
-        unique: true,     // Keep unique if present
-        sparse: true      // Allows multiple null/missing values
+        required: false, 
+        unique: true,     
+        sparse: true      
     },
     displayName: {
         type: String,
@@ -18,24 +18,24 @@ const ProfileSchema = new mongoose.Schema({
     },
     firstName: {
         type: String,
-        required: false // No longer required
+        required: false 
     },
     lastName: {
         type: String,
-        required: false // No longer required
+        required: false
     },
-    email: {             // Added Email field
+    email: {             
         type: String,
         required: true,
         unique: true,
-        lowercase: true,  // Store emails in lowercase
-        trim: true        // Remove whitespace
+        lowercase: true,  
+        trim: true       
     },
-    username: {          // Added unique constraint
+    username: {
         type: String,
         required: true,
         unique: true,
-        lowercase: true,  // Store usernames in lowercase
+        lowercase: true,
         trim: true
     },
     password: {
