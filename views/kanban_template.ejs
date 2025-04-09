@@ -385,12 +385,13 @@
                     init();
                 });
 
+                console.log('1')
                 // Global variables
                 const socket = io('http://localhost:3000')
                 const room = "chat<%= project._id %>";
                 const roomName = "<%= project.name %>";
                 socket.on('connect', () => {
-                    
+                    console.log('2')    
                     document.addEventListener("DOMContentLoaded", () => {
                         console.log('join-room', roomName, room);
                         socket.emit('join-room', roomName, room);
@@ -402,20 +403,22 @@
                     console.log("Recieved update board state:", updatedBoard);
                     const dragparent = document.getElementById('dragparent');
                     dragparent.appendChild(newColumn);
+                    console.log('3')
                 });
                 console.log('Board state updated in the UI');
 
                 function saveToLocalStorage() {
+                    console.log('4')
                     const boardState = {
                         projectId: projectId,
-                        columns: Array.from(document.querySelectorAll('.dragColumn')).map(column => {
+                        columns: Array.from(document.querySelectorAll('div ul.dragColumn')).map(column => {
                             const documents = Array.from(column.querySelectorAll('.dragDocument')).map(doc => ({
                                 id: doc.id,
                                 title: doc.querySelector('h2').textContent,
                                 description: doc.querySelector('p').textContent,
                                 backgroundColor: doc.style.backgroundColor || '#08CF65'
                             }));
-
+                            console.log('5')
                             return {
                                 id: column.id,
                                 title: column.querySelector('.title').textContent,
@@ -423,23 +426,23 @@
                                 documents: documents
                             }
                         }),
-                        
                     };console.log(`saveToLocalStorage`);
+                    console.log('24')
                     // Send to the server
                     // console.log(`boardState:`, JSON.stringify(boardState, null, 2));
-
+                    console.log('6')
                     socket.emit('updateBoard', boardState);
-
+                    console.log('7')
                     // Store with project-specific key
                     localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
                 }
-
+                console.log('8')
                 function createDocumentFromSaved(doc) {
                     const documentLineItem = document.createElement('li');
                     documentLineItem.className = 'dragDocument';
                     documentLineItem.id = doc.id;
                     documentLineItem.style.backgroundColor = doc.backgroundColor;
-
+                    console.log('9')
                     const docContainer = document.createElement('div');
                     docContainer.className = 'document-container';
 
@@ -480,14 +483,14 @@
                     documentLineItem.appendChild(docContainer);
                     return documentLineItem;
                 }
-
+                console.log('10')
                 function createColumnFromSaved(column) {
                     console.log(column)
                     const newColumn = document.createElement('ul');
                     newColumn.className = 'dragColumn';
                     newColumn.id = column.id;
                     newColumn.style.backgroundColor = column.backgroundColor;
-
+                    console.log('11')
                     const columnNav = document.createElement('nav');
                     columnNav.className = 'columnNav';
 
@@ -537,12 +540,12 @@
                     });
                     return newColumn;
                 }
-
+                console.log('12')
                 function loadFromLocalStorage() {
                     console.log(`LoadFromLocalStorage`);
                     console.log("kanban")
                     // const savedData = localStorage.getItem(`kanbanBoard-${projectId}`);
-                    
+                    console.log('13')   
                     const kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
                      if (kanban == true) return;
                     // const boardState = JSON.parse(savedData);
@@ -553,8 +556,9 @@
                     if (boardState.projectId !== projectId) {
                         console.log('No saved state for this project');
                         return;
+                        console.log('14')
                     }
-
+                    console.log('15')
                     const dragparent = document.getElementById('dragparent');
                     dragparent.innerHTML = ''; // Clear existing columns
                     listOfColumn = [];
@@ -565,12 +569,13 @@
                         listOfColumn.push(newColumn);
                     });
                 }
-
+                console.log('16')
                 function deleteDocument(docID) {
                     const theDoomedDocument = document.getElementById(docID);
                     if (theDoomedDocument) {
                         theDoomedDocument.parentNode.removeChild(theDoomedDocument);
                         saveToLocalStorage();
+                        console.log('17')
                     }
                 }
 
@@ -583,26 +588,30 @@
                     rewrite.type = "textbox";
                     rewrite.placeholder = text;
                     rewrite.value = text;
-
+                    console.log('18')
                     rewrite.addEventListener("keydown", function (event) {
                         if (event.key === "Enter") {
                             event.preventDefault();
                             element.textContent = rewrite.value || rewrite.placeholder;
                             rewrite.remove();
                             saveToLocalStorage();
+                            console.log('19')
                         } else if (event.key === "Escape") {
                             element.textContent = text;
                             rewrite.remove();
+                            console.log('20')
                         }
                     });
 
                     rewrite.addEventListener("blur", function (event) {
                         element.textContent = text;
                         rewrite.remove();
+                        console.log('21')
                     });
 
                     element.appendChild(rewrite);
                     rewrite.focus();
+                    console.log('22')
                 }
 
                 function createDocumentPopup(columnData) {
@@ -612,6 +621,7 @@
                     popupButton.setAttribute('data-id', columnData);
                     const documentTitle = document.getElementById('documentTitle');
                     documentTitle.focus();
+                    console.log('23')
                 }
 
                 function init() {
@@ -636,9 +646,19 @@
                         direction: 'horizontal'
                     });
 
+                     // Handle the drop event for columns
+                    columnDrake.on('drop', (el, target, source, sibling) => {
+                        if (source && source !== target) {
+                            source.removeChild(el); // Remove the original column from the source
+                        }
+                        saveToLocalStorage();
+                    });
+                    
                     // Update listOfColumn
                     listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
+                    console.log(listOfColumn);
 
+                    // Initialize dragula for documents
                     documentDrake = dragula(listOfColumn, {
                         moves: function (el, container, handle) {
                             return el.classList.contains('dragDocument');
@@ -649,7 +669,9 @@
                     });
 
                     // Event Listeners
-                    columnDrake.on('drop', saveToLocalStorage);
+                    //columnDrake.on('drop', saveToLocalStorage); updated above to 640?
+
+                    // Handle the drop event for documents
                     documentDrake.on('drop', saveToLocalStorage);
 
                     createColumnForm.addEventListener('submit', function (event) {
