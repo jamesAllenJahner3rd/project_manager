@@ -217,59 +217,11 @@
                 <% } %>
       </ul>
     </section>
-    <!-- Add Modal HTML -->
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <form id="editProjectForm">
-          <div class="form-group">
-            <label for="editName">Project Name</label>
-            <input type="text" name="name" id="editName" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="editDescription">Description</label>
-            <textarea name="description" id="editDescription" class="form-control" required></textarea>
-          </div>
-          <div class="form-group">
-            <label for="editStartDate">Start Date</label>
-            <input type="date" name="startDate" id="editStartDate" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="editEndDate">End Date</label>
-            <input type="date" name="endDate" id="editEndDate" class="form-control" required>
-          </div>
-          <div class="form-group">
-            <label for="editStatus">Status</label>
-            <select name="status" id="editStatus" class="form-control">
-              <option value="Not Started">Not Started</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Update Project</button>
-        </form>
-      </div>
-    </div>
-    <!-- Add Document Modal -->
-    <div id="addDocumentModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <form id="addDocumentForm">
-          <div class="form-group">
-            <label for="documentTitle">Title</label>
-            <input type="text" id="documentTitle" required>
-          </div>
-          <div class="form-group">
-            <label for="documentContent">Content</label>
-            <textarea id="documentContent" required></textarea>
-          </div>
-          <button type="submit">Add Document</button>
-        </form>
-      </div>
-    </div>
-    <footer>
-      all thanks goes to the 100devs
-    </footer>
+    <!-- Edit Modal HTML -->
+    
+    <%- include('partials/editProjectModal') %>
+    
+    <%- include('partials/footer') %>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const modal = document.getElementById('editModal');
@@ -471,6 +423,7 @@
         // Load documents for all projects on page load
         document.addEventListener('DOMContentLoaded', () => {
             const projects = document.querySelectorAll('[data-project-id]');
+            console.log(projects)
             projects.forEach(project => {
                 loadDocuments(project.dataset.projectId);
             });

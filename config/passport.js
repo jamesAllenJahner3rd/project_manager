@@ -12,6 +12,7 @@ module.exports = function(passport){// this was passed in from the app.js
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                 callbackURL:"/auth/google/callback"
             },
+
             async(accessToken, RefreshToken, profile, done) => {
                 console.log("--- Google Profile Received ---");
                 console.dir(profile, { depth: null });
@@ -27,6 +28,8 @@ module.exports = function(passport){// this was passed in from the app.js
 
                 const newUser = {
                     provider: 'google', // Set provider
+
+
                     googleId: profile.id,
                     displayName: profile.displayName,
                     firstName: profile.name.givenName,
