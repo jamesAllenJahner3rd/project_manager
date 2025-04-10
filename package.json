@@ -1,6 +1,15 @@
 {
+  "name": "project_manager",
+  "version": "1.0.0",
+  "description": "A project management application",
+  "main": "server.js",
+  "scripts": {
+    "build": "npm install",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cross-env node server.js",
+    "dev": "cross-env NODE_ENV=development nodemon -e js,css,ejs server.js"
+  },
   "dependencies": {
-    "bcrypt": "^5.1.1",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.4.7",
@@ -14,17 +23,10 @@
     "multer": "^1.4.5-lts.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "passport-local": "^1.0.0"
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "nodemon": "^3.1.9"
-  },
-  "main": "server.js",
-  "scripts": {
-    "build": "npm install",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cross-env node server.js",
-    "dev": "cross-env NODE_ENV=development nodemon -e js,css,ejs server.js"
   }
 }
