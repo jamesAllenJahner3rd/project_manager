@@ -1,11 +1,7 @@
 const mongoose = require('mongoose');
 
-const ColumnSchema = new mongoose.Schema({
-    columnId :{
-        type: String,
-            required: true
-    },
-    title: {
+const ChatSchema = new mongoose.Schema({
+    Room: {
         type: String,
         required: true
     },
