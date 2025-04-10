@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const KanbanSchema = new mongoose.Schema({
-  projectId: {
+  kanbanId: {
     type: String,
     required: true,
   },

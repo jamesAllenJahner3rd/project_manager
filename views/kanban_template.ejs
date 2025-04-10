@@ -328,14 +328,16 @@
     </style>
 </head>
 
-<body> 
+<body>
     <!-- onload="init()"> -->
     <!-- Without header: navigation missing -->
     <%- include('partials/header') %>
 
         <!-- Without this form: no way to c
      new columns -->
-     <h1><%= project.name %></h1>
+        <h1>
+            <%= project.name %>
+        </h1>
         <form id="createColumnForm">
             <div class="form-group">
                 <label for="columnContent">Column Content</label>
@@ -390,20 +392,23 @@
                 const socket = io('http://localhost:3000')
                 const room = "chat<%= project._id %>";
                 const roomName = "<%= project.name %>";
+                
                 socket.on('connect', () => {
-                    console.log('2')    
+                    console.log('2')
                     document.addEventListener("DOMContentLoaded", () => {
                         console.log('join-room', roomName, room);
                         socket.emit('join-room', roomName, room);
                     });
                 })
                 let listOfColumn = [];
-                const projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
-                socket.on('updateBoard-${projectId}',(updateBoard) => {
+                let projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
+                console.log("script projectId",projectId)
+                socket.on(`board-updated`, (updatedBoard) => {
                     console.log("Recieved update board state:", updatedBoard);
-                    const dragparent = document.getElementById('dragparent');
-                    dragparent.appendChild(newColumn);
-                    console.log('3')
+                     loadFromLocalStorage(updatedBoard, projectId);
+                    // const dragparent = document.getElementById('dragparent');
+                    // dragparent.appendChild(updatedBoard);
+                    // console.log('3')
                 });
                 console.log('Board state updated in the UI');
 
@@ -426,15 +431,15 @@
                                 documents: documents
                             }
                         }),
-                    };console.log(`saveToLocalStorage`);
+                    }; console.log(`saveToLocalStorage`);
                     console.log('24')
                     // Send to the server
                     // console.log(`boardState:`, JSON.stringify(boardState, null, 2));
                     console.log('6')
-                    socket.emit('updateBoard', boardState);
+                    socket.emit('updateBoard', boardState, projectId);
                     console.log('7')
                     // Store with project-specific key
-                    localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
+                    //localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
                 }
                 console.log('8')
                 function createDocumentFromSaved(doc) {
@@ -541,19 +546,30 @@
                     return newColumn;
                 }
                 console.log('12')
-                function loadFromLocalStorage() {
+                function loadFromLocalStorage(kanban, projectId) {
+                    kanban = kanban[0]??kanban
                     console.log(`LoadFromLocalStorage`);
                     console.log("kanban")
                     // const savedData = localStorage.getItem(`kanbanBoard-${projectId}`);
-                    console.log('13')   
-                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
-                     if (kanban == true) return;
+                    console.log('13');
+                    // let kanban = JSON.parse(`<%- JSON.stringify(kanban) %>`);
+                    console.log(`projectId`,projectId);
+                    console.log(`kanban`,kanban);
+                    // console.log(`kanban[0]`,kanban[0]);
+                    
+                    // console.log(`kanban[0].kanbanId`,kanban[0].kanbanId);
+                    // console.log(`kanban[0].projectId`,kanban[0].projectId);
+                    console.log(`kanban.projectId`,kanban.projectId);
+                    if (kanban == true) return;
+                    const boardState = kanban
                     // const boardState = JSON.parse(savedData);
-                    const boardState = kanban[0]
+                    // const boardState = kanban[0]
                     // console.log("kanban", kanban, "/n boardstate",boardState)
                     // console.log("kanban", kanban[0].columns, "/n boardstate",boardState.columns)
                     // Only load if the saved state matches the current project
-                    if (boardState.projectId !== projectId) {
+                    
+                    console.log("kanban", kanban.projectId,"projectId",projectId)
+                    if (kanban.projectId !== projectId) {
                         console.log('No saved state for this project');
                         return;
                         console.log('14')
@@ -628,11 +644,15 @@
                     const createColumnForm = document.getElementById('createColumnForm');
                     const createDocumentForm = document.getElementById('createDocumentForm');
                     const dragparent = document.getElementById('dragparent');
+                    let kanban = JSON.parse(`<%- JSON.stringify(kanban) %>`);
+                    // let { projectId } =  kanban; 
+                    console.log("init projectId",projectId)
+                    console.log("init kanban",kanban)
                     let columnDrake;
                     let documentDrake;
                     console.log("init started");
                     // Load saved data first
-                    loadFromLocalStorage();
+                    loadFromLocalStorage(kanban, projectId);
 
                     // Initialize dragula
                     columnDrake = dragula([dragparent], {
@@ -646,14 +666,14 @@
                         direction: 'horizontal'
                     });
 
-                     // Handle the drop event for columns
+                    // Handle the drop event for columns
                     columnDrake.on('drop', (el, target, source, sibling) => {
                         if (source && source !== target) {
                             source.removeChild(el); // Remove the original column from the source
                         }
                         saveToLocalStorage();
                     });
-                    
+
                     // Update listOfColumn
                     listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
                     console.log(listOfColumn);
