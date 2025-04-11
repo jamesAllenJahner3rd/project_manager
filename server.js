@@ -41,13 +41,13 @@ const io = require("socket.io")(server);
     }//explicitly allows requests from your client application
 })*/
 io.on("connection", (socket, roomName, room) => {
- console.log('Server side: User connected', "roomName",roomName,  room)
+  console.log("Server side: User connected", "roomName", roomName, room);
   socket.on("io.on('connection'  project-update", (data) => {
     socket.broadcast.emit("project-update", data);
   });
   socket.on("send-message", (message, room) => {
     socket.to(room).emit("recieve-message", message); // broadcast doesn't send it back to the user
-    console.log('socket.on("send-message"',message);
+    console.log('socket.on("send-message"', message);
     // socket.broadcast.emit('project-update',data);
   });
   socket.on("disconnect", () => {
@@ -55,21 +55,23 @@ io.on("connection", (socket, roomName, room) => {
   });
   socket.on("join-room", (roomName, room) => {
     socket.join(room);
-    console.log(`socket.on("join-room" Server side: User connected ${roomName}`);
+    console.log(
+      `socket.on("join-room" Server side: User connected ${roomName}`
+    );
   });
   socket.on(`updateBoard`, async (boardState) => {
     try {
-        //  console.log(`boardState:`, JSON.stringify(boardState, null, 2));
+      //  console.log(`boardState:`, JSON.stringify(boardState, null, 2));
       const { projectId } = boardState;
-      console.log("projectId",projectId)
+      console.log("projectId", projectId);
       await Kanban.findOneAndUpdate(
         { projectId: projectId },
         { columns: boardState.columns },
         { new: true, upsert: true }
       ).lean();
 
-      socket.broadcast.emit("board-updated");
-      console.log("server socket is trying to loadFromLocalStorage")
+      socket.broadcast.emit("board-updated", boardState);
+      console.log("server socket is trying to loadFromLocalStorage");
     } catch (error) {
       console.error("Error handling board update:", error);
     }

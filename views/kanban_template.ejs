@@ -328,14 +328,16 @@
     </style>
 </head>
 
-<body> 
+<body>
     <!-- onload="init()"> -->
     <!-- Without header: navigation missing -->
     <%- include('partials/header') %>
 
         <!-- Without this form: no way to c
      new columns -->
-     <h1><%= project.name %></h1>
+        <h1>
+            <%= project.name %>
+        </h1>
         <form id="createColumnForm">
             <div class="form-group">
                 <label for="columnContent">Column Content</label>
@@ -387,11 +389,13 @@
 
                 console.log('1')
                 // Global variables
+                let columnDrake;
+                let documentDrake;
                 const socket = io('http://localhost:3000')
                 const room = "chat<%= project._id %>";
                 const roomName = "<%= project.name %>";
                 socket.on('connect', () => {
-                    console.log('2')    
+                    console.log('2')
                     document.addEventListener("DOMContentLoaded", () => {
                         console.log('join-room', roomName, room);
                         socket.emit('join-room', roomName, room);
@@ -399,10 +403,10 @@
                 })
                 let listOfColumn = [];
                 const projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
-                socket.on('updateBoard-${projectId}',(updateBoard) => {
+                socket.on("board-updated", (updatedBoard) => {
                     console.log("Recieved update board state:", updatedBoard);
-                    const dragparent = document.getElementById('dragparent');
-                    dragparent.appendChild(newColumn);
+                    let emitted = true;
+                    init(updatedBoard, emitted)
                     console.log('3')
                 });
                 console.log('Board state updated in the UI');
@@ -426,7 +430,7 @@
                                 documents: documents
                             }
                         }),
-                    };console.log(`saveToLocalStorage`);
+                    }; console.log(`saveToLocalStorage`);
                     console.log('24')
                     // Send to the server
                     // console.log(`boardState:`, JSON.stringify(boardState, null, 2));
@@ -434,7 +438,7 @@
                     socket.emit('updateBoard', boardState);
                     console.log('7')
                     // Store with project-specific key
-                    localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
+                    localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
                 }
                 console.log('8')
                 function createDocumentFromSaved(doc) {
@@ -541,17 +545,19 @@
                     return newColumn;
                 }
                 console.log('12')
-                function loadFromLocalStorage() {
+                function loadFromLocalStorage(emittedBoard, emitted) {
                     console.log(`LoadFromLocalStorage`);
                     console.log("kanban")
-                    // const savedData = localStorage.getItem(`kanbanBoard-${projectId}`);
-                    console.log('13')   
-                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
-                     if (kanban == true) return;
+                    console.log("emittedBoard,emitted", emittedBoard, emitted)
+                    // const savedData = localStorage.getItem(`kanbanBoard`);
+                    console.log('13')
+                    let kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
+                    kanban = kanban[0] ?? kanban
+                    if (kanban == true) return;
                     // const boardState = JSON.parse(savedData);
-                    const boardState = kanban[0]
-                    // console.log("kanban", kanban, "/n boardstate",boardState)
-                    // console.log("kanban", kanban[0].columns, "/n boardstate",boardState.columns)
+                    const boardState = emittedBoard ?? kanban
+                    // console.log("kanban", kanban, "/n boardState",boardState)
+                    // console.log("kanban", kanban[0].columns, "/n boardState",boardState.columns)
                     // Only load if the saved state matches the current project
                     if (boardState.projectId !== projectId) {
                         console.log('No saved state for this project');
@@ -568,7 +574,52 @@
                         dragparent.appendChild(newColumn);
                         listOfColumn.push(newColumn);
                     });
+                    reinitializeDragula(dragparent, listOfColumn)
                 }
+
+                function reinitializeDragula(dragparent, listOfColumn) {
+
+                    if (columnDrake) {
+                        columnDrake.destroy();
+                    }
+
+                    columnDrake = dragula([dragparent], {
+                        moves: function (el, container, handle) {
+                            return el.classList.contains('dragColumn') &&
+                                (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
+                        },
+                        accepts: function (el, target) {
+                            return el.classList.contains('dragColumn') && target === dragparent;
+                        },
+                        direction: 'horizontal',
+                    });
+                    if (documentDrake) {
+                        documentDrake.destroy();
+                    }
+                    documentDrake = dragula(listOfColumn, {
+                        moves: function (el, container, handle) {
+                            return el.classList.contains('dragDocument');
+                        },
+                        accepts: function (el, target) {
+                            return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
+                        },
+                    });
+                    if (!columnDrake.hasListeners) {
+                        columnDrake.on('drop', (el, target, source) => {
+                            if (source && source !== target) {
+                                source.removeChild(el); // Remove the original column from the source
+                            }
+                            saveToLocalStorage();
+                        });
+                        columnDrake.hasListeners = true;
+
+
+                    }
+
+                    documentDrake.on('drop', saveToLocalStorage);
+                }
+
+
                 console.log('16')
                 function deleteDocument(docID) {
                     const theDoomedDocument = document.getElementById(docID);
@@ -624,49 +675,50 @@
                     console.log('23')
                 }
 
-                function init() {
+                function init(emittedBoard = null, emitted = false) {
+
                     const createColumnForm = document.getElementById('createColumnForm');
                     const createDocumentForm = document.getElementById('createDocumentForm');
                     const dragparent = document.getElementById('dragparent');
-                    let columnDrake;
-                    let documentDrake;
+
                     console.log("init started");
                     // Load saved data first
-                    loadFromLocalStorage();
+                    loadFromLocalStorage(emittedBoard, emitted);
 
-                    // Initialize dragula
-                    columnDrake = dragula([dragparent], {
-                        moves: function (el, container, handle) {
-                            return el.classList.contains('dragColumn') &&
-                                (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
-                        },
-                        accepts: function (el, target) {
-                            return el.classList.contains('dragColumn') && target === dragparent;
-                        },
-                        direction: 'horizontal'
-                    });
+                    reinitializeDragula(dragparent, listOfColumn);
+                    // // Initialize dragula
+                    // columnDrake = dragula([dragparent], {
+                    //     moves: function (el, container, handle) {
+                    //         return el.classList.contains('dragColumn') &&
+                    //             (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
+                    //     },
+                    //     accepts: function (el, target) {
+                    //         return el.classList.contains('dragColumn') && target === dragparent;
+                    //     },
+                    //     direction: 'horizontal'
+                    // });
 
-                     // Handle the drop event for columns
+                    // Handle the drop event for columns
                     columnDrake.on('drop', (el, target, source, sibling) => {
                         if (source && source !== target) {
                             source.removeChild(el); // Remove the original column from the source
                         }
                         saveToLocalStorage();
                     });
-                    
+
                     // Update listOfColumn
                     listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
                     console.log(listOfColumn);
 
                     // Initialize dragula for documents
-                    documentDrake = dragula(listOfColumn, {
-                        moves: function (el, container, handle) {
-                            return el.classList.contains('dragDocument');
-                        },
-                        accepts: function (el, target) {
-                            return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
-                        }
-                    });
+                    // documentDrake = dragula(listOfColumn, {
+                    //     moves: function (el, container, handle) {
+                    //         return el.classList.contains('dragDocument');
+                    //     },
+                    //     accepts: function (el, target) {
+                    //         return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
+                    //     }
+                    // });
 
                     // Event Listeners
                     //columnDrake.on('drop', saveToLocalStorage); updated above to 640?
@@ -674,6 +726,7 @@
                     // Handle the drop event for documents
                     documentDrake.on('drop', saveToLocalStorage);
 
+                    createColumnForm.removeEventListener('submit', handleColumnSubmit);
                     createColumnForm.addEventListener('submit', function (event) {
                         event.preventDefault();
                         const columnContent = document.getElementById('columnContent').value;
@@ -703,6 +756,7 @@
                         documentDrake.on('drop', saveToLocalStorage);
                     });
 
+                    createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
                     createDocumentForm.addEventListener('submit', function (event) {
                         event.preventDefault();
                         const columnID = document.getElementById("createDoc").dataset.id;

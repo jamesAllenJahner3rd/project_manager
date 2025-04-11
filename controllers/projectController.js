@@ -76,11 +76,11 @@ module.exports = {
       try {
         await newKanban.save();
         console.log("Kanban saved successfully!");
-    } catch (error) {
+      } catch (error) {
         console.error("Error saving Kanban:", error);
-    }
-    
-      console.log('saved a new kanban')
+      }
+
+      console.log("saved a new kanban");
       res.redirect("/profile");
     } catch (err) {
       console.error(err);
@@ -138,14 +138,14 @@ module.exports = {
   },
   getKanban: async (req, res) => {
     try {
-      const kanban = await Kanban.find({projectId: req.params.id});
+      const kanban = await Kanban.find({ projectId: req.params.id });
       // const kanban = JSON.stringify(await Kanban.find({projectId: req.params.id}));
       const project = await Project.findById(req.params.id);
-        // console.log("req.params.id", req.params.id,"kanban",JSON.stringify(kanban));
+      // console.log("req.params.id", req.params.id,"kanban",JSON.stringify(kanban));
 
       res.render("kanban_template", {
         project,
-       kanban,
+        kanban,
         isAuthenticated: req.isAuthenticated(),
       });
     } catch (err) {
@@ -186,9 +186,9 @@ module.exports = {
       const updatedKanban = await Kanban.findByIdAndUpdate(
         { projectId: projectId },
         { columns: columns },
-        { new: true, upsert: true });
-        req.app.get('socketio').emit(`updateBoard-${projectId}`, updatedKanban);
-
+        { new: true, upsert: true }
+      );
+      req.app.get("socketio").emit(`updateBoard`, updatedKanban);
     } catch (err) {
       console.error("Error updating Kanban:", error);
 
