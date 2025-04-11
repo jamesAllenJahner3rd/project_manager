@@ -153,32 +153,6 @@ module.exports = {
       req.status(500).send("Server Error");
     }
   },
-  /*getProjects: async (req, res) => {
-    try {
-      // Find the profile of the currently authenticated user
-      const userProfile = await Profile.findOne({
-        googleId: req.user.googleId,
-      });
-
-      // Handle case where profile is not found
-      if (!userProfile) {
-        return res.status(404).send("Profile not found. Try logging in again.");
-      }
-      // Find all projects where adminId or userId matches the user's profile _id
-      const projectList = await Project.find({
-        $or: [
-          { adminId: new mongoose.Types.ObjectId(userProfile._id) },
-          { userId: new mongoose.Types.ObjectId(userProfile._id) },
-        ],
-      });
-
-      // console.log(projectList);
-      res.render("project_template", { projectList: projectList });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Server Error");
-    }
-  }, */
   updateKanban: async (req, res) => {
     try {
       const { projectId, columns } = req.body;

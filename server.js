@@ -35,11 +35,7 @@ const app = express();
 const http = require("http"); //Socket.IO requires a raw HTTP server
 const server = http.createServer(app); //creates an HTTP server using your Express application as its request handler.
 const io = require("socket.io")(server);
-/*,{//link socket.io to the server
-    cors:{//
-        origin: ['http://localhost:3000']
-    }//explicitly allows requests from your client application
-})*/
+
 io.on("connection", (socket, roomName, room) => {
   console.log("Server side: User connected", "roomName", roomName, room);
   socket.on("io.on('connection'  project-update", (data) => {
@@ -61,7 +57,6 @@ io.on("connection", (socket, roomName, room) => {
   });
   socket.on(`updateBoard`, async (boardState) => {
     try {
-      //  console.log(`boardState:`, JSON.stringify(boardState, null, 2));
       const { projectId } = boardState;
       console.log("projectId", projectId);
       await Kanban.findOneAndUpdate(

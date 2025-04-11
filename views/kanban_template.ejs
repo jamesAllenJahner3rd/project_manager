@@ -383,36 +383,27 @@
             <script src="/js/dragula.js"></script>
             <script src="/js/socket.io.js"></script>
             <script type="module">
-                document.addEventListener("DOMContentLoaded", function () {
+                document.addEventListener("DOMContentLoaded", () => {
                     init();
                 });
 
-                console.log('1')
-                // Global variables
                 let columnDrake;
                 let documentDrake;
-                const socket = io('http://localhost:3000')
-                const room = "chat<%= project._id %>";
-                const roomName = "<%= project.name %>";
-                socket.on('connect', () => {
-                    console.log('2')
-                    document.addEventListener("DOMContentLoaded", () => {
-                        console.log('join-room', roomName, room);
-                        socket.emit('join-room', roomName, room);
-                    });
-                })
                 let listOfColumn = [];
-                const projectId = '<%= project._id %>'; // Get the current project ID from the server-side data
-                socket.on("board-updated", (updatedBoard) => {
-                    console.log("Recieved update board state:", updatedBoard);
-                    let emitted = true;
-                    init(updatedBoard, emitted)
-                    console.log('3')
+                const projectId = '<%= project._id %>';
+                const socket = io('http://localhost:3000');
+                const room = `chat<%= project._id %>`;
+                const roomName = `<%= project.name %>`;
+
+                socket.on('connect', () => {
+                    socket.emit('join-room', roomName, room);
                 });
-                console.log('Board state updated in the UI');
+
+                socket.on("board-updated", (updatedBoard) => {
+                    init(updatedBoard, true);
+                });
 
                 function saveToLocalStorage() {
-                    console.log('4')
                     const boardState = {
                         projectId: projectId,
                         columns: Array.from(document.querySelectorAll('div ul.dragColumn')).map(column => {
@@ -422,31 +413,26 @@
                                 description: doc.querySelector('p').textContent,
                                 backgroundColor: doc.style.backgroundColor || '#08CF65'
                             }));
-                            console.log('5')
+
                             return {
                                 id: column.id,
                                 title: column.querySelector('.title').textContent,
                                 backgroundColor: column.style.backgroundColor || '#f9f9f9',
                                 documents: documents
-                            }
+                            };
                         }),
-                    }; console.log(`saveToLocalStorage`);
-                    console.log('24')
-                    // Send to the server
-                    // console.log(`boardState:`, JSON.stringify(boardState, null, 2));
-                    console.log('6')
+                    };
+
                     socket.emit('updateBoard', boardState);
-                    console.log('7')
-                    // Store with project-specific key
                     localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
                 }
-                console.log('8')
+                
                 function createDocumentFromSaved(doc) {
                     const documentLineItem = document.createElement('li');
                     documentLineItem.className = 'dragDocument';
                     documentLineItem.id = doc.id;
                     documentLineItem.style.backgroundColor = doc.backgroundColor;
-                    console.log('9')
+
                     const docContainer = document.createElement('div');
                     docContainer.className = 'document-container';
 
@@ -487,18 +473,17 @@
                     documentLineItem.appendChild(docContainer);
                     return documentLineItem;
                 }
-                console.log('10')
+
                 function createColumnFromSaved(column) {
-                    console.log(column)
                     const newColumn = document.createElement('ul');
                     newColumn.className = 'dragColumn';
                     newColumn.id = column.id;
                     newColumn.style.backgroundColor = column.backgroundColor;
-                    console.log('11')
+
                     const columnNav = document.createElement('nav');
                     columnNav.className = 'columnNav';
 
-                    // Create a container for buttons
+                    // Create button container
                     const buttonContainer = document.createElement('div');
                     buttonContainer.className = 'button-container';
 
@@ -520,7 +505,7 @@
                     });
                     buttonContainer.appendChild(colorPicker);
 
-                    // Delete button
+                    // Add delete button
                     const deleteMe = document.createElement("button");
                     deleteMe.className = 'deleteButton';
                     deleteMe.dataset.column = newColumn.id;
@@ -540,93 +525,66 @@
                     column.documents.forEach(document => {
                         const newDocument = createDocumentFromSaved(document);
                         newColumn.appendChild(newDocument);
-                        // listOfColumn.push(newDocument);
                     });
                     return newColumn;
                 }
-                console.log('12')
+
                 function loadFromLocalStorage(emittedBoard, emitted) {
-                    console.log(`LoadFromLocalStorage`);
-                    console.log("kanban")
-                    console.log("emittedBoard,emitted", emittedBoard, emitted)
-                    // const savedData = localStorage.getItem(`kanbanBoard`);
-                    console.log('13')
-                    let kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
-                    kanban = kanban[0] ?? kanban
-                    if (kanban == true) return;
-                    // const boardState = JSON.parse(savedData);
-                    const boardState = emittedBoard ?? kanban
-                    // console.log("kanban", kanban, "/n boardState",boardState)
-                    // console.log("kanban", kanban[0].columns, "/n boardState",boardState.columns)
-                    // Only load if the saved state matches the current project
+                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>')[0] ?? kanban;
+
+                    if (!kanban || kanban === true) return;
+
+                    const boardState = emittedBoard ?? kanban;
+
                     if (boardState.projectId !== projectId) {
                         console.log('No saved state for this project');
                         return;
-                        console.log('14')
                     }
-                    console.log('15')
+
                     const dragparent = document.getElementById('dragparent');
-                    dragparent.innerHTML = ''; // Clear existing columns
+                    dragparent.innerHTML = '';
                     listOfColumn = [];
-                    console.log(boardState.columns)
+
                     boardState.columns.forEach(column => {
                         const newColumn = createColumnFromSaved(column);
                         dragparent.appendChild(newColumn);
                         listOfColumn.push(newColumn);
                     });
-                    reinitializeDragula(dragparent, listOfColumn)
+
+                    reinitializeDragula(dragparent, listOfColumn);
                 }
 
                 function reinitializeDragula(dragparent, listOfColumn) {
-
-                    if (columnDrake) {
-                        columnDrake.destroy();
-                    }
+                    if (columnDrake) columnDrake.destroy();
 
                     columnDrake = dragula([dragparent], {
-                        moves: function (el, container, handle) {
-                            return el.classList.contains('dragColumn') &&
-                                (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
-                        },
-                        accepts: function (el, target) {
-                            return el.classList.contains('dragColumn') && target === dragparent;
-                        },
+                        moves: (el, container, handle) =>
+                            el.classList.contains('dragColumn') &&
+                            (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV'),
+                        accepts: (el, target) => el.classList.contains('dragColumn') && target === dragparent,
                         direction: 'horizontal',
                     });
-                    if (documentDrake) {
-                        documentDrake.destroy();
-                    }
+
+                    if (documentDrake) documentDrake.destroy();
+
                     documentDrake = dragula(listOfColumn, {
-                        moves: function (el, container, handle) {
-                            return el.classList.contains('dragDocument');
-                        },
-                        accepts: function (el, target) {
-                            return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
-                        },
+                        moves: (el, container, handle) => el.classList.contains('dragDocument'),
+                        accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn'),
                     });
-                    if (!columnDrake.hasListeners) {
-                        columnDrake.on('drop', (el, target, source) => {
-                            if (source && source !== target) {
-                                source.removeChild(el); // Remove the original column from the source
-                            }
-                            saveToLocalStorage();
-                        });
-                        columnDrake.hasListeners = true;
 
-
-                    }
+                    columnDrake.on('drop', (el, target, source) => {
+                        if (source && source !== target) source.removeChild(el);
+                        saveToLocalStorage();
+                    });
 
                     documentDrake.on('drop', saveToLocalStorage);
                 }
-
-
-                console.log('16')
+                
                 function deleteDocument(docID) {
                     const theDoomedDocument = document.getElementById(docID);
                     if (theDoomedDocument) {
                         theDoomedDocument.parentNode.removeChild(theDoomedDocument);
                         saveToLocalStorage();
-                        console.log('17')
                     }
                 }
 
@@ -639,30 +597,26 @@
                     rewrite.type = "textbox";
                     rewrite.placeholder = text;
                     rewrite.value = text;
-                    console.log('18')
+
                     rewrite.addEventListener("keydown", function (event) {
                         if (event.key === "Enter") {
                             event.preventDefault();
                             element.textContent = rewrite.value || rewrite.placeholder;
                             rewrite.remove();
                             saveToLocalStorage();
-                            console.log('19')
                         } else if (event.key === "Escape") {
                             element.textContent = text;
                             rewrite.remove();
-                            console.log('20')
                         }
                     });
 
-                    rewrite.addEventListener("blur", function (event) {
+                    rewrite.addEventListener("blur", function () {
                         element.textContent = text;
                         rewrite.remove();
-                        console.log('21')
                     });
 
                     element.appendChild(rewrite);
                     rewrite.focus();
-                    console.log('22')
                 }
 
                 function createDocumentPopup(columnData) {
@@ -672,34 +626,21 @@
                     popupButton.setAttribute('data-id', columnData);
                     const documentTitle = document.getElementById('documentTitle');
                     documentTitle.focus();
-                    console.log('23')
                 }
-
+                
                 function init(emittedBoard = null, emitted = false) {
-
                     const createColumnForm = document.getElementById('createColumnForm');
                     const createDocumentForm = document.getElementById('createDocumentForm');
                     const dragparent = document.getElementById('dragparent');
 
                     console.log("init started");
+
                     // Load saved data first
                     loadFromLocalStorage(emittedBoard, emitted);
-
                     reinitializeDragula(dragparent, listOfColumn);
-                    // // Initialize dragula
-                    // columnDrake = dragula([dragparent], {
-                    //     moves: function (el, container, handle) {
-                    //         return el.classList.contains('dragColumn') &&
-                    //             (handle.tagName === 'NAV' || handle.parentElement.tagName === 'NAV');
-                    //     },
-                    //     accepts: function (el, target) {
-                    //         return el.classList.contains('dragColumn') && target === dragparent;
-                    //     },
-                    //     direction: 'horizontal'
-                    // });
 
                     // Handle the drop event for columns
-                    columnDrake.on('drop', (el, target, source, sibling) => {
+                    columnDrake.on('drop', (el, target, source) => {
                         if (source && source !== target) {
                             source.removeChild(el); // Remove the original column from the source
                         }
@@ -710,24 +651,11 @@
                     listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
                     console.log(listOfColumn);
 
-                    // Initialize dragula for documents
-                    // documentDrake = dragula(listOfColumn, {
-                    //     moves: function (el, container, handle) {
-                    //         return el.classList.contains('dragDocument');
-                    //     },
-                    //     accepts: function (el, target) {
-                    //         return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
-                    //     }
-                    // });
-
-                    // Event Listeners
-                    //columnDrake.on('drop', saveToLocalStorage); updated above to 640?
-
                     // Handle the drop event for documents
                     documentDrake.on('drop', saveToLocalStorage);
 
                     createColumnForm.removeEventListener('submit', handleColumnSubmit);
-                    createColumnForm.addEventListener('submit', function (event) {
+                    createColumnForm.addEventListener('submit', (event) => {
                         event.preventDefault();
                         const columnContent = document.getElementById('columnContent').value;
                         const column = {
@@ -746,18 +674,14 @@
                         documentDrake.destroy();
                         listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
                         documentDrake = dragula(listOfColumn, {
-                            moves: function (el, container, handle) {
-                                return el.classList.contains('dragDocument');
-                            },
-                            accepts: function (el, target) {
-                                return el.classList.contains('dragDocument') && target.classList.contains('dragColumn');
-                            }
+                            moves: (el, container, handle) => el.classList.contains('dragDocument'),
+                            accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn')
                         });
                         documentDrake.on('drop', saveToLocalStorage);
                     });
 
                     createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
-                    createDocumentForm.addEventListener('submit', function (event) {
+                    createDocumentForm.addEventListener('submit', (event) => {
                         event.preventDefault();
                         const columnID = document.getElementById("createDoc").dataset.id;
                         const doc = {
@@ -776,11 +700,11 @@
 
                     // Close button for document form
                     const closeBtn = document.querySelector('.close-btn');
-                    closeBtn.addEventListener('click', function () {
+                    closeBtn.addEventListener('click', () => {
                         createDocumentForm.setAttribute('hidden', '');
                     });
-                }
-            </script>
+                }    
+                 </script>
 </body>
 
 </html>
