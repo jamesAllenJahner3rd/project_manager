@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const ProfileSchema = new mongoose.Schema({
+    provider: {
+        type: String,
+        enum: ['google', 'local'],
+        required: true
+    },
     googleId: {
         type: String,
-        required: true
+        required: false
     },
     displayName: {
         type: String,
@@ -11,11 +16,29 @@ const ProfileSchema = new mongoose.Schema({
     },
     firstName: {
         type: String,
-        required: true
+        required: false 
     },
     lastName: {
         type: String,
-        required: true
+        required: false
+    },
+    email: {             
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,  
+        trim: true       
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
+    password: {
+        type: String,
+        required: false // Only required if provider is 'local' (handled in controller)
     },
     image: {
         type: String
@@ -23,10 +46,6 @@ const ProfileSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now()
-    },
-    username: {
-        type: String,
-        required: true
     }
 });
 

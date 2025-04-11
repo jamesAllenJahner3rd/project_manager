@@ -11,10 +11,11 @@
       <li><a href="#">Pricing</a></li>
       <li><a href="#">Guide</a></li>
       <% if (isAuthenticated) { %>
-        <li><a href="/profile/">Profile</a></li>
+        <li><a href="/profile">Profile</a></li>
         <li><a href="/auth/logout">Logout</a></li>
       <% } else { %>
         <li><a href="/login">Login</a></li>
+        <li><a href="/signup">Sign Up</a></li>
       <% } %>
       <!-- this allows you to logout if you are logged in and   if you're logged in, you can log out-->
     </ul>
