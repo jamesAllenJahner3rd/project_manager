@@ -11,6 +11,7 @@ router.put("/kanban:id", projectController.updateKanban);
 // router.get("/new", projectController.newProject);
 router.post("/createProject", projectController.createProject);
 router.get("/:id", projectController.getProject);
+router.get("/addUser", projectController.addUser);
 router.get("/:id/edit", async (req, res) => {
   try {
     const project = await Project.findById(req.params.id);

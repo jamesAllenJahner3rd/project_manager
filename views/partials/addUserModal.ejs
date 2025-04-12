@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+    <div id="addUserModal" <!--class="modal"--> hidden>
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="UserName">Title</label>
+                    <input type="text" id="UserName" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentContent">Content</label>
+                    <select id="UserORAdmin" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+
+                </div>
+                <button type="submit">Add Document</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

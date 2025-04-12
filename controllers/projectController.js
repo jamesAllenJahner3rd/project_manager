@@ -169,4 +169,14 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
+  addUser: async (req, res) => {
+    try{
+      getUser = await Profile.find({
+        googleId: req.user.googleId,
+      })
+      console.log('hi',getUser)
+    }catch (err) {
+      console.error(` ${err} I Can't connect to find users.`)
+    }
+  }
 };
