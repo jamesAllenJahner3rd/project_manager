@@ -171,9 +171,10 @@
                 <form class="project-button" action="/project/taskAging" method="POST">
                   <button type="submit" class="btn btn-primary">Task Aging Graph</button>
                 </form>
-                <form class="project-button" action="/project/addUser" method="GET">
-                    <button type="submit" class="btn btn-primary">Add a User</button>
+                <form class="project-button" id="addUserModalTrigger"> <!-- action="/project/addUser" method="GET"> -->
+                    <button type="button" class="btn btn-primary" >Add a User</button>
                   </form>
+                  
             </fieldset>
             
             <%- include('partials/chat') %>
@@ -183,13 +184,19 @@
       <!-- footer -->
       <%- include('partials/footer') %>
     <script>
+        console.log(`=project._id <%= project._id %> -project._id <%- project._id %> `)
+        let projectId ='<%= project._id%>'
       document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('editModal');
         const addDocumentModal = document.getElementById('addDocumentModal');
         const span = document.getElementsByClassName('close')[0];
         const editProjectForm = document.getElementById('editProjectForm');
         let currentProjectId = null;
-
+        let addUserbutton = document.getElementById("addUserModalTrigger")
+        addUserbutton.addEventListener('click', showaddUserModal)
+        function showaddUserModal (){
+            addUserModal.style.display = 'block';
+        }
 
        
        
