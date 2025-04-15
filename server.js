@@ -41,19 +41,15 @@ const app = express();
 const http = require("http"); //Socket.IO requires a raw HTTP server
 const server = http.createServer(app); //creates an HTTP server using your Express application as its request handler.
 const io = require("socket.io")(server);
-/*,{//link socket.io to the server
-    cors:{//
-        origin: ['http://localhost:3000']
-    }//explicitly allows requests from your client application
-})*/
+
 io.on("connection", (socket, roomName, room) => {
- console.log('Server side: User connected', "roomName",roomName,  room)
+  console.log("Server side: User connected", "roomName", roomName, room);
   socket.on("io.on('connection'  project-update", (data) => {
     socket.broadcast.emit("project-update", data);
   });
   socket.on("send-message", (message, room) => {
     socket.to(room).emit("recieve-message", message); // broadcast doesn't send it back to the user
-    console.log('socket.on("send-message"',message);
+    console.log('socket.on("send-message"', message);
     // socket.broadcast.emit('project-update',data);
   });
   socket.on("disconnect", () => {
@@ -61,21 +57,22 @@ io.on("connection", (socket, roomName, room) => {
   });
   socket.on("join-room", (roomName, room) => {
     socket.join(room);
-    console.log(`socket.on("join-room" Server side: User connected ${roomName}`);
+    console.log(
+      `socket.on("join-room" Server side: User connected ${roomName}`
+    );
   });
-  socket.on(`updateBoard`, async (boardState,projectId) => {
+  socket.on(`updateBoard`, async (boardState) => {
     try {
-         console.log(`boardState:`, JSON.stringify(boardState, null, 2));
       const { projectId } = boardState;
-      console.log("projectId",projectId)
+      console.log("projectId", projectId);
       await Kanban.findOneAndUpdate(
-        { kanbanId: projectId },
+        { projectId: projectId },
         { columns: boardState.columns },
         { new: true, upsert: true }
       ).lean();
 
-      socket.broadcast.emit(`board-updated`,boardState);
-      console.log("server socket is trying to loadFromLocalStorage")
+      socket.broadcast.emit("board-updated", boardState);
+      console.log("server socket is trying to loadFromLocalStorage");
     } catch (error) {
       console.error("Error handling board update:", error);
     }

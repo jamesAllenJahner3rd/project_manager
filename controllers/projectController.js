@@ -76,11 +76,11 @@ module.exports = {
       try {
         await newKanban.save();
         console.log("Kanban saved successfully!");
-    } catch (error) {
+      } catch (error) {
         console.error("Error saving Kanban:", error);
-    }
-    
-      console.log('saved a new kanban')
+      }
+
+      console.log("saved a new kanban");
       res.redirect("/profile");
     } catch (err) {
       console.error(err);
@@ -138,14 +138,14 @@ module.exports = {
   },
   getKanban: async (req, res) => {
     try {
-      const kanban = await Kanban.find({projectId: req.params.id});
+      const kanban = await Kanban.find({ projectId: req.params.id });
       // const kanban = JSON.stringify(await Kanban.find({projectId: req.params.id}));
       const project = await Project.findById(req.params.id);
-        // console.log("req.params.id", req.params.id,"kanban",JSON.stringify(kanban));
+      // console.log("req.params.id", req.params.id,"kanban",JSON.stringify(kanban));
 
       res.render("kanban_template", {
         project,
-       kanban,
+        kanban,
         isAuthenticated: req.isAuthenticated(),
       });
     } catch (err) {
@@ -153,32 +153,6 @@ module.exports = {
       req.status(500).send("Server Error");
     }
   },
-  /*getProjects: async (req, res) => {
-    try {
-      // Find the profile of the currently authenticated user
-      const userProfile = await Profile.findOne({
-        googleId: req.user.googleId,
-      });
-
-      // Handle case where profile is not found
-      if (!userProfile) {
-        return res.status(404).send("Profile not found. Try logging in again.");
-      }
-      // Find all projects where adminId or userId matches the user's profile _id
-      const projectList = await Project.find({
-        $or: [
-          { adminId: new mongoose.Types.ObjectId(userProfile._id) },
-          { userId: new mongoose.Types.ObjectId(userProfile._id) },
-        ],
-      });
-
-      // console.log(projectList);
-      res.render("project_template", { projectList: projectList });
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Server Error");
-    }
-  }, */
   updateKanban: async (req, res) => {
     try {
       const { projectId, columns } = req.body;
@@ -186,13 +160,44 @@ module.exports = {
       const updatedKanban = await Kanban.findByIdAndUpdate(
         { projectId: projectId },
         { columns: columns },
-        { new: true, upsert: true });
-        req.app.get('socketio').emit(`updateBoard-${projectId}`, updatedKanban);
-
+        { new: true, upsert: true }
+      );
+      req.app.get("socketio").emit(`updateBoard`, updatedKanban);
     } catch (err) {
       console.error("Error updating Kanban:", error);
 
       res.status(500).send("Server Error");
     }
   },
+  addUser: async (req, res) => {
+    console.log("req",req)
+    try{
+      const { userName, userType, projectId} = req.body;
+      const projectObjectId = new mongoose.Types.ObjectId(projectId);
+
+      console.log("userName, userType",userName, userType)
+      const getUser = await Profile.findOne(
+        {displayName: userName}
+      )
+      console.log("getUser",getUser)
+      if (!getUser) {
+        return res.status(404).json({ error: "User not found" });
+    }
+    const updateField = userType === "adminId" ? { $addToSet: { adminId: getUser._id } } : { $addToSet: { userId: getUser._id } };
+    const updatedProjectUsers = await Project.findOneAndUpdate(
+      {_id: projectObjectId},
+      updateField,
+      {new: true, upsert: false}
+    )
+    if (!updatedProjectUsers) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+    console.log ('Updated Project',updatedProjectUsers)
+    res.status(200).json({ message: `User added as ${userType}`, project: updatedProjectUsers });
+  
+    }catch (err) {
+      console.error(` ${err} I Can't connect to find users.`)
+      res.status(500).json({ error: "Server error. Unable to add user to project." });
+    }
+  }
 };
