@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    #addUserModal{
+position: fixed;
+    }
+    .close-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+</style>
+<body>
+ 
+    <div id="addUserModal" class="modal" >
+        <h2> Add new users to your project.</h2>
+        <form id="addUserForm" class="modal-content" >
+            <span class="close">&times;</span>
+            <div class="form-group">
+                <label for="userName">Name:</label>
+                <input type="text" id="userName" required>
+            </div>
+            <div class="form-group">
+                <label for="documentContent">User Type:</label>
+                <select id="UserORAdmin" required>
+                    <option value="userId">User</option>
+                    <option value="adminId">Admin</option>
+                </select>
+            </div>
+            <button type="submit">Add Colleage</button>
+        </form>
+    </div>
+    <script type="module">
+
+        const addUserModal = document.getElementById('addUserModal')
+        // addUserModal.addEventListener("submit", function (event) {
+        //         event.preventDefault();
+        //         console.log("Submit event triggered");
+        // })        
+        const addUserWindow = document.querySelector('#addUserForm')
+        addUserModal.addEventListener("click", function (event) {
+            if (!addUserWindow.contains(event.target)) {
+                addUserModal.style.display ='none'
+            }
+        });
+        console.log("Listeners:", addUserWindow.eventListeners);
+        addUserWindow.addEventListener("submit", async function (event){
+            event.preventDefault();
+            let userName = document.getElementById("userName").value
+            let userType = document.getElementById("UserORAdmin").value
+            console.error("userType userName", userName,userType);
+            try{
+                let newUser = await fetch(`/project/addUser`,{
+                    method: 'PUT',
+                    headers: {
+                    'Content-Type': 'application/json'
+                  },          
+                  body: JSON.stringify({ userName, userType, projectId}),
+
+                }) // Handle server response
+                const responseData = await newUser.json();
+                if (newUser.ok) {
+                    console.log("User added successfully:", responseData);
+                } else {
+                    console.error("Error adding user:", responseData);
+                }
+            } catch (error) {
+                console.error(error, "User not found");
+            }
+        });
+
+        /*if (confirm('Are you sure you want to delete this project?')) {
+              const projectId = this.getAttribute('data-id');
+              try {
+                const response = await fetch(`/profile/project/${projectId}/delete`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                });*/
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && addUserModal.style.display === "block") {
+                addUserModal.style.display = "none";
+            }
+        });
+     
+         // Close button for document form
+        const closeBtn = document.querySelector('.close');
+        closeBtn.addEventListener('click', () => {
+            addUserModal.style.display ='none'
+        });
+
+ 
+
+        // // Handle form submission
+        // editProjectForm.addEventListener('submit', async function (event) {
+        //   event.preventDefault();
+
+        //   const formData = {
+        //     name: document.getElementById('editName').value,
+        //     description: document.getElementById('editDescription').value,
+        //     startDate: document.getElementById('editStartDate').value,
+        //     endDate: document.getElementById('editEndDate').value,
+        //     status: document.getElementById('editStatus').value
+        //   };
+
+        //   try {
+        //     const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
+        //       method: 'POST',
+        //       headers: {
+        //         'Content-Type': 'application/json'
+        //       },
+        //       body: JSON.stringify(formData)
+        //     });
+
+        //     if (response.ok) {
+        //       window.location.reload();
+        //     } else {
+        //       alert('Failed to update project');
+        //     }
+        //   } catch (error) {
+        //     console.error('Error:', error);
+        //     alert('Failed to update project');
+        //   }
+        // });
+           
+        //         if (event.key === "Enter") {
+                    
+        //             element.textContent = rewrite.value || rewrite.placeholder;
+        //             rewrite.remove();
+        //             saveToLocalStorage();
+        //         } else if (event.key === "Escape") {
+        //             element.textContent = text;
+        //             rewrite.remove();
+        //         }
+        //     });
+        // })
+                    
+
+        //             element.appendChild(rewrite);
+        //             rewrite.focus();
+            
+        
+    </script>
+</body>
+
+</html>
