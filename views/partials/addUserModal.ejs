@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <style>
     #addUserModal{
@@ -98,57 +97,6 @@ position: fixed;
         closeBtn.addEventListener('click', () => {
             addUserModal.style.display ='none'
         });
-
- 
-
-        // // Handle form submission
-        // editProjectForm.addEventListener('submit', async function (event) {
-        //   event.preventDefault();
-
-        //   const formData = {
-        //     name: document.getElementById('editName').value,
-        //     description: document.getElementById('editDescription').value,
-        //     startDate: document.getElementById('editStartDate').value,
-        //     endDate: document.getElementById('editEndDate').value,
-        //     status: document.getElementById('editStatus').value
-        //   };
-
-        //   try {
-        //     const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
-        //       method: 'POST',
-        //       headers: {
-        //         'Content-Type': 'application/json'
-        //       },
-        //       body: JSON.stringify(formData)
-        //     });
-
-        //     if (response.ok) {
-        //       window.location.reload();
-        //     } else {
-        //       alert('Failed to update project');
-        //     }
-        //   } catch (error) {
-        //     console.error('Error:', error);
-        //     alert('Failed to update project');
-        //   }
-        // });
-           
-        //         if (event.key === "Enter") {
-                    
-        //             element.textContent = rewrite.value || rewrite.placeholder;
-        //             rewrite.remove();
-        //             saveToLocalStorage();
-        //         } else if (event.key === "Escape") {
-        //             element.textContent = text;
-        //             rewrite.remove();
-        //         }
-        //     });
-        // })
-                    
-
-        //             element.appendChild(rewrite);
-        //             rewrite.focus();
-            
         
     </script>
 </body>
