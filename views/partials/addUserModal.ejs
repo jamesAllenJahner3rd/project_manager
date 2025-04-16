@@ -19,10 +19,11 @@ position: fixed;
 
 </style>
 <body>
- 
+
+    <button type="button" class="btn btn-primary" id="addUserModalTrigger">>Add a User</button>
     <div id="addUserModal" class="modal" >
-        <h2> Add new users to your project.</h2>
-        <form id="addUserForm" class="modal-content" >
+        <form id="addUserForm" action="/project/addUser"  method="GET" class="modal-content"  >
+            <h2> Add new users to your project.</h2>
             <span class="close">&times;</span>
             <div class="form-group">
                 <label for="userName">Name:</label>
@@ -38,19 +39,9 @@ position: fixed;
             <button type="submit">Add Colleage</button>
         </form>
     </div>
+    
     <script type="module">
-
-        const addUserModal = document.getElementById('addUserModal')
-        // addUserModal.addEventListener("submit", function (event) {
-        //         event.preventDefault();
-        //         console.log("Submit event triggered");
-        // })        
         const addUserWindow = document.querySelector('#addUserForm')
-        addUserModal.addEventListener("click", function (event) {
-            if (!addUserWindow.contains(event.target)) {
-                addUserModal.style.display ='none'
-            }
-        });
         console.log("Listeners:", addUserWindow.eventListeners);
         addUserWindow.addEventListener("submit", async function (event){
             event.preventDefault();
@@ -62,7 +53,7 @@ position: fixed;
                     method: 'PUT',
                     headers: {
                     'Content-Type': 'application/json'
-                  },          
+                  },
                   body: JSON.stringify({ userName, userType, projectId}),
 
                 }) // Handle server response
@@ -76,28 +67,6 @@ position: fixed;
                 console.error(error, "User not found");
             }
         });
-
-        /*if (confirm('Are you sure you want to delete this project?')) {
-              const projectId = this.getAttribute('data-id');
-              try {
-                const response = await fetch(`/profile/project/${projectId}/delete`, {
-                  method: 'DELETE',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  }
-                });*/
-        document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape" && addUserModal.style.display === "block") {
-                addUserModal.style.display = "none";
-            }
-        });
-     
-         // Close button for document form
-        const closeBtn = document.querySelector('.close');
-        closeBtn.addEventListener('click', () => {
-            addUserModal.style.display ='none'
-        });
-        
     </script>
 </body>
 

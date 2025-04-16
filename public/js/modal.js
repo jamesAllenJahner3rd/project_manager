@@ -26,3 +26,6 @@ openCPbutton.addEventListener('click', openModal)
 //Notification modal specific
 const Notificationbutton = document.getElementById('openNotiModalButton');
 openNotibutton.addEventListener('click', openModal)
+//Add User modal specific
+const openAddUserbutton = document.getElementById('addUserModalTrigger');
+openAddUserbutton.addEventListener('click', openModal)
