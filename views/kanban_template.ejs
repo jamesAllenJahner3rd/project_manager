@@ -467,6 +467,36 @@
                 /* One column on small screens */
             }
         }
+
+        .column-footer {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin-top: 8px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+            z-index: 5;
+        }
+
+        .documents-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 100px;
+        }
+
+        .document-count {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -568,6 +598,11 @@
                         }),
                     };
 
+                    // Update document counts
+                    document.querySelectorAll('.dragColumn').forEach(column => {
+                        updateDocumentCount(column);
+                    });
+
                     socket.emit('updateBoard', boardState);
                     localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
                 }
@@ -667,11 +702,38 @@
                     columnNav.appendChild(title);
 
                     newColumn.appendChild(columnNav);
+
+                    // Create documents container
+                    const documentsContainer = document.createElement('div');
+                    documentsContainer.className = 'documents-container';
+                    newColumn.appendChild(documentsContainer);
+                    
+                    // Add documents to the container
                     column.documents.forEach(document => {
                         const newDocument = createDocumentFromSaved(document);
-                        newColumn.appendChild(newDocument);
+                        documentsContainer.appendChild(newDocument);
                     });
+
+                    // Add column footer with document count
+                    const columnFooter = document.createElement('div');
+                    columnFooter.className = 'column-footer';
+                    
+                    const documentCount = document.createElement('span');
+                    documentCount.className = 'document-count';
+                    documentCount.textContent = `Documents: ${column.documents.length}`;
+                    columnFooter.appendChild(documentCount);
+                    
+                    newColumn.appendChild(columnFooter);
+
                     return newColumn;
+                }
+
+                function updateDocumentCount(column) {
+                    const documentCount = column.querySelector('.document-count');
+                    if (documentCount) {
+                        const count = column.querySelectorAll('.dragDocument').length;
+                        documentCount.textContent = `Documents: ${count}`;
+                    }
                 }
 
                 function loadFromLocalStorage(emittedBoard, emitted) {
@@ -712,9 +774,14 @@
 
                     if (documentDrake) documentDrake.destroy();
 
-                    documentDrake = dragula(listOfColumn, {
+                    // Update to use document containers
+                    const documentContainers = listOfColumn.map(column => 
+                        column.querySelector('.documents-container')
+                    ).filter(container => container !== null);
+
+                    documentDrake = dragula(documentContainers, {
                         moves: (el, container, handle) => el.classList.contains('dragDocument'),
-                        accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn'),
+                        accepts: (el, target) => el.classList.contains('documents-container'),
                     });
 
                     columnDrake.on('drop', (el, target, source) => {
@@ -838,7 +905,8 @@
                         };
                         const documentLineItem = createDocumentFromSaved(doc);
                         const parentColumn = document.getElementById(columnID);
-                        parentColumn.appendChild(documentLineItem);
+                        const documentsContainer = parentColumn.querySelector('.documents-container');
+                        documentsContainer.appendChild(documentLineItem);
                         createDocumentForm.reset();
                         
                         // Hide form and backdrop, restore body scrolling
