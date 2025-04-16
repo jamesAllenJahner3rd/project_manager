@@ -1,13 +1,32 @@
 <html lang="en">
-<button type="button" class="btn btn-primary">Notifications</button>
+<button type="button" class="btn btn-primary" id="openNotiModalButton"><%= NotificationList.length %>Notifications</button>
 <div hidden>
     <h2>New Notifications</h2>
     <nav>
-      <ul>
-        <li><a href="#"><img src="https://placehold.co/45"/></a></li>
-        <li><a href="#"><img src="https://placehold.co/45"/></a></li>
-        <li><a href="#"><img src="https://placehold.co/45"/></a></li>
-        <li><a href="#"><img src="https://placehold.co/45"/></a></li>
+      
+      <ul class="notification-list">
+        <% if (typeof notificationList !=='undefined' && notificationList.length> 0) { %>
+          <% notificationList.forEach(notification=> { %>
+            <li class="notification-item">
+              <div class="notification-header">
+                <a href="/notification/<%= notification._id %>">
+                  <%= notification.name %>
+                </a>
+                <div class="notification-actions">
+                  <button class="delete-btn" data-id="<%= notification._id %>">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                  <a href="/profile/notification/<%= notification._id %>/edit" class="edit-btn">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                </div>
+              </div>
+
+            </li>
+            <% }) %>
+              <% } else { %>
+                <li>No notifications found</li>
+                <% } %>
       </ul>
     </nav>
   </div>

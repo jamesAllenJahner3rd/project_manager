@@ -1,4 +1,5 @@
-  //Functions to handle general modal behavior
+ console.log("Modal.js loaded")
+ //Functions to handle general modal behavior
 const span = document.getElementsByClassName('close')[0];
 let openedModal = null;
 function openModal(event){
@@ -22,10 +23,12 @@ span.onclick = function () {
 }
 //Create project modal specific
 const openCPbutton = document.getElementById('openCPModalButton');
-openCPbutton.addEventListener('click', openModal)
+openCPbutton?.addEventListener('click', openModal)
+
 //Notification modal specific
 const Notificationbutton = document.getElementById('openNotiModalButton');
-openNotibutton.addEventListener('click', openModal)
+Notificationbutton?.addEventListener('click', openModal)
+
 //Add User modal specific
 const openAddUserbutton = document.getElementById('addUserModalTrigger');
-openAddUserbutton.addEventListener('click', openModal)
+openAddUserbutton?.addEventListener('click', openModal)

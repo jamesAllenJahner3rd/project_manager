@@ -184,8 +184,9 @@
     
       <!-- footer -->
       <%- include('partials/footer') %>
-    <script> src="/js/modal.js"</script> 
+    <script src="../public/js/modal.js"></script> 
     <script>
+        console.log('script is loaded')
         console.log(`=project._id <%= project._id %> -project._id <%- project._id %> `)
         let projectId ='<%= project._id%>'
       document.addEventListener('DOMContentLoaded', function() {
