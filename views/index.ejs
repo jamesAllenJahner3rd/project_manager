@@ -13,6 +13,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>DevSync - Project Management Tool</title>
+    <style>
+      /* Reveal on scroll animation styles */
+      .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.4s ease-out;
+      }
+
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Delay animations for different elements */
+      .hero-title {
+        transition-delay: 0.1s;
+      }
+
+      .hero-subtitle {
+        transition-delay: 0.2s;
+      }
+
+      .cta-button {
+        transition-delay: 0.3s;
+      }
+
+      .feature-card {
+        transition-delay: calc(0.1s * var(--delay));
+      }
+
+      .testimonial-card {
+        transition-delay: 0.2s;
+      }
+
+      .contact-us {
+        transition-delay: 0.3s;
+      }
+    </style>
   </head>
 
   <!-- TODO: inspiration from wrike -->
@@ -23,28 +61,28 @@
 
     <main>
       <section class="hero">
-        <div class="logo-container">
+        <div class="logo-container reveal">
           <img src="/images/vectorlgo.png" alt="" class="">
         </div>
-        <h1 class="hero-title">Welcome to DevSync</h1>
-        <p class="hero-subtitle">Streamline Your Development Workflow</p>
+        <h1 class="hero-title reveal">Welcome to DevSync</h1>
+        <p class="hero-subtitle reveal">Streamline Your Development Workflow</p>
         <% if (typeof user !== 'undefined' && user) { %>
-          <a href="/profile" class="cta-button">View Your Projects</a>
+          <a href="/profile" class="cta-button reveal">View Your Projects</a>
         <% } else { %>
-          <a href="/login" class="cta-button">Get Started</a>
+          <a href="/login" class="cta-button reveal">Get Started</a>
         <% } %>
       </section>
 
       <section class="features">
-        <div class="feature-card">
+        <div class="feature-card reveal" style="--delay: 1">
           <h3>Project Management</h3>
           <p>Organize and track your development projects with ease using our intuitive kanban board system.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal" style="--delay: 2">
           <h3>Team Collaboration</h3>
           <p>Work seamlessly with your team members, share updates, and track progress in real-time.</p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card reveal" style="--delay: 3">
           <h3>Task Tracking</h3>
           <p>Keep track of tasks, set priorities, and monitor deadlines to ensure project success.</p>
         </div>
@@ -53,9 +91,9 @@
 
     <!-- testimonials section -->
     <section class="testimonials">
-      <h1>Testimonials from our customer</h1>
+      <h1 class="reveal">Testimonials from our customer</h1>
       <div>
-        <div class="testimonial-card">
+        <div class="testimonial-card reveal">
           <div>
             <p>"Innovation starts with organization."</p>
             <span></span>
@@ -67,7 +105,7 @@
       </div>
     </section>
     <!-- contact-us section -->
-    <section class="contact-us">
+    <section class="contact-us reveal">
       <h1>Contact Us</h1>
       <p>Try our powerful project management software for free</p>
       <form>
@@ -77,5 +115,30 @@
     </section>
     <!-- footer -->
     <%- include('partials/footer') %>
+
+    <script>
+      // Reveal on scroll functionality
+      function reveal() {
+        const reveals = document.querySelectorAll('.reveal');
+        
+        for (let i = 0; i < reveals.length; i++) {
+          const windowHeight = window.innerHeight;
+          const elementTop = reveals[i].getBoundingClientRect().top;
+          const elementVisible = 150;
+          
+          if (elementTop < windowHeight - elementVisible) {
+            reveals[i].classList.add('active');
+          } else {
+            reveals[i].classList.remove('active');
+          }
+        }
+      }
+
+      // Add scroll event listener
+      window.addEventListener('scroll', reveal);
+      
+      // Initial check for elements in view
+      reveal();
+    </script>
   </body>
 </html>

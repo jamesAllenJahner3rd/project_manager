@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <!-- Link to your CSS file if you have one -->
+    <link rel="stylesheet" href="/public/css/style.css"> 
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="email"], input[type="password"] { 
+            width: 100%; 
+            padding: 8px;
+            margin-bottom: 5px; 
+            box-sizing: border-box; 
+        }
+        .error { color: red; font-size: 0.9em; margin-bottom: 10px; }
+        .error li { margin-bottom: 5px; }
+        button { padding: 10px 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Sign Up</h1>
+
+    <%# Display Validation Errors %>
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+        <div class="error">
+            <strong>Please correct the following errors:</strong>
+            <ul>
+                <% errors.forEach(function(error) { %>
+                    <% if(typeof error === 'string') { %>
+                        <li><%= error %></li>
+                    <% } else if (typeof error === 'object' && error.msg) { %>
+                        <li><%= error.msg %></li>
+                    <% } %> 
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
+
+    <%# Signup Form %>
+    <form action="/signup" method="POST">
+        <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" value="<%= typeof formData !== 'undefined' ? formData.firstName : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" value="<%= typeof formData !== 'undefined' ? formData.lastName : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<%= typeof formData !== 'undefined' ? formData.username : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= typeof formData !== 'undefined' ? formData.email : '' %>" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <p>Already have an account? <a href="/login">Login here</a></p>
+
+</body>
+</html> 

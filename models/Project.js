@@ -38,6 +38,7 @@ const ProjectSchema = new mongoose.Schema({
   }],
   adminId: [{
     type: mongoose.Schema.Types.ObjectId,
+    ref:'Profile',
     required: true,
   }],
 });

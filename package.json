@@ -1,10 +1,7 @@
-{"dependencies": {
+{
+  "dependencies": {
     "are-we-there-yet": "^4.0.2",
-    "bcrypt": "^5.1.1",    
-    "gauge": "^5.0.2",
-    "lru-cache": "^11.1.0",    
-    "npmlog": "^7.0.1",
-    "passport-local": "^1.0.0",
+    "bcrypt": "^5.1.1",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.4.7",
@@ -12,12 +9,16 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "gauge": "^5.0.2",
+    "lru-cache": "^11.1.0",
     "method-override": "^3.0.0",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "npmlog": "^7.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },
