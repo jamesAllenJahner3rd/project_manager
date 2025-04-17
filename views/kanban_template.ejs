@@ -846,26 +846,36 @@
                     documentTitle.focus();
                 }
                 
-                function init(emittedBoard = null, emitted = false) {
+                 function init(emittedBoard = null, emitted = false) {
                     const createColumnForm = document.getElementById('createColumnForm');
                     const createDocumentForm = document.getElementById('createDocumentForm');
                     const dragparent = document.getElementById('dragparent');
 
-                    // Ensure form is hidden at startup
-                    createDocumentForm.style.display = 'none';
-                    
                     console.log("init started");
 
                     // Load saved data first
                     loadFromLocalStorage(emittedBoard, emitted);
                     reinitializeDragula(dragparent, listOfColumn);
 
-                    // Column creation
-                    createColumnForm.onsubmit = function(event) {
+                    // Handle the drop event for columns
+                    columnDrake.on('drop', (el, target, source) => {
+                        if (source && source !== target) {
+                            source.removeChild(el); // Remove the original column from the source
+                        }
+                        saveToLocalStorage();
+                    });
+
+                    // Update listOfColumn
+                    listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
+                    console.log(listOfColumn);
+
+                    // Handle the drop event for documents
+                    documentDrake.on('drop', saveToLocalStorage);
+
+                    createColumnForm.removeEventListener('submit', handleColumnSubmit);
+                    createColumnForm.addEventListener('submit', (event) => {
                         event.preventDefault();
                         const columnContent = document.getElementById('columnContent').value;
-                        if (!columnContent) return;
-
                         const column = {
                             id: `column-${Date.now()}`,
                             title: columnContent,
@@ -878,6 +888,7 @@
                         createColumnForm.reset();
                         saveToLocalStorage();
 
+
                         // Reinitialize dragula for documents with new column
                         documentDrake.destroy();
                         listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
@@ -887,49 +898,29 @@
                         });
                         documentDrake.on('drop', saveToLocalStorage);
                     };
-
-                    // Document creation
-                    createDocumentForm.onsubmit = function(event) {
+                    createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
+                    createDocumentForm.addEventListener('submit', (event) => {
                         event.preventDefault();
                         const columnID = document.getElementById("createDoc").dataset.id;
-                        const documentTitle = document.getElementById('documentTitle').value;
-                        const documentDescription = document.getElementById('documentDescription').value;
-
-                        if (!columnID || !documentTitle) return;
-
                         const doc = {
                             id: `doc-${Date.now()}`,
-                            title: documentTitle,
-                            description: documentDescription,
+                            title: document.getElementById('documentTitle').value,
+                            description: document.getElementById('documentDescription').value,
                             backgroundColor: '#08CF65'
                         };
                         const documentLineItem = createDocumentFromSaved(doc);
                         const parentColumn = document.getElementById(columnID);
-                        const documentsContainer = parentColumn.querySelector('.documents-container');
-                        documentsContainer.appendChild(documentLineItem);
+                        parentColumn.appendChild(documentLineItem);
                         createDocumentForm.reset();
-                        
-                        // Hide form and backdrop, restore body scrolling
-                        createDocumentForm.style.display = 'none';
-                        const backdrop = document.querySelector('.modal-backdrop');
-                        if (backdrop) {
-                            backdrop.remove();
-                        }
-                        document.body.classList.remove('modal-open');
-                        
+                        createDocumentForm.setAttribute('hidden', '');
                         saveToLocalStorage();
-                    };
+                    });
 
                     // Close button for document form
                     const closeBtn = document.querySelector('.close-btn');
-                    closeBtn.onclick = function() {
-                        createDocumentForm.style.display = 'none';
-                        const backdrop = document.querySelector('.modal-backdrop');
-                        if (backdrop) {
-                            backdrop.remove();
-                        }
-                        document.body.classList.remove('modal-open');
-                    };
+                    closeBtn.addEventListener('click', () => {
+                        createDocumentForm.setAttribute('hidden', '');
+                    });
                 }    
                  </script>
 </body>
