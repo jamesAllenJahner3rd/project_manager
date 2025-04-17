@@ -655,7 +655,8 @@
                     documentDrake.on('drop', saveToLocalStorage);
 
                     createColumnForm.removeEventListener('submit', handleColumnSubmit);
-                    createColumnForm.addEventListener('submit', (event) => {
+                    createColumnForm.addEventListener('submit', handleColumnSubmit);
+                    function handleColumnSubmit (event){
                         event.preventDefault();
                         const columnContent = document.getElementById('columnContent').value;
                         const column = {
@@ -678,10 +679,11 @@
                             accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn')
                         });
                         documentDrake.on('drop', saveToLocalStorage);
-                    });
+                    };
 
                     createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
-                    createDocumentForm.addEventListener('submit', (event) => {
+                    createDocumentForm.addEventListener('submit',  handleDocumentSubmit);
+                    function handleDocumentSubmit (event) {
                         event.preventDefault();
                         const columnID = document.getElementById("createDoc").dataset.id;
                         const doc = {
@@ -696,7 +698,7 @@
                         createDocumentForm.reset();
                         createDocumentForm.setAttribute('hidden', '');
                         saveToLocalStorage();
-                    });
+                    };
 
                     // Close button for document form
                     const closeBtn = document.querySelector('.close-btn');
