@@ -1,13 +1,11 @@
 const bcrypt = require('bcrypt');
 const passport = require('passport');
-const User = require('../models/Profile'); // Adjust path if necessary
+const User = require('../models/Profile'); 
 
 const saltRounds = 10;
 
 module.exports = {
     getSignup: (req, res) => {
-        // Render the signup page (you'll need to create signup.ejs)
-        // Make sure to pass any necessary variables if needed, like flash messages
         res.render('signup.ejs', { 
             errors: req.flash ? req.flash('error') : [], // Handle case where flash might not be configured
             formData: req.flash ? req.flash('formData')[0] : {} // Pass back form data on error
