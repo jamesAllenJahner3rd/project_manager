@@ -1,0 +1,33 @@
+<button type="button" class="btn btn-primary" id="openNotiModalButton">
+  <%= notificationList.length %> Notifications
+</button>
+<div class="modal">
+  <h2>New Notifications</h2>
+  <nav>
+    <ul class="notification-list">
+      <% if (typeof notificationList !=='undefined' && notificationList.length> 0) { %>
+        <% notificationList.forEach(notification=> { %>
+          <li class="project-item">
+            <div class="project-header">
+              <span>Hi <%=userProfile.displayName %>, Would you like to join the project <%= notification.projectName %>
+                    ?</span>
+              <button class="btn btn-primary" id='affirmativeButton'> Yes </button>
+              <button class="btn btn-primary" id='negativeButton'> No </button>
+              <div class="notification-actions">
+                <button class="delete-btn" data-id="<%= notification._id %>">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+                <a href="/profile/notification/<%= notification._id %>/edit" class="edit-btn">
+                  <i class="fas fa-edit"></i>
+                </a>
+              </div>
+            </div>
+
+          </li>
+          <% }) %>
+            <% } else { %>
+              <li>No notifications found</li>
+              <% } %>
+    </ul>
+  </nav>
+</div>

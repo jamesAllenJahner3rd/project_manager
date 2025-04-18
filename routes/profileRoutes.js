@@ -13,10 +13,12 @@ router.put('/project/:id', ensureAuth, profileController.updateProject);
 router.delete('/project/:id/delete', ensureAuth, profileController.deleteProject);
 router.get('/project/:id/data', ensureAuth, profileController.getProjectData);
 
+//routes for profile control
+// router.get('/openNotifications', ensureAuth, profileController.getProfile);
 // Document routes
-router.post('/project/:id/document', ensureAuth, profileController.createDocument);
-router.put('/document/:id', ensureAuth, profileController.updateDocument);
-router.delete('/document/:id', ensureAuth, profileController.deleteDocument);
-router.put('/document/:id/order', ensureAuth, profileController.updateDocumentOrder);
+// router.post('/project/:id/document', ensureAuth, profileController.createDocument);
+// router.put('/document/:id', ensureAuth, profileController.updateDocument);
+// router.delete('/document/:id', ensureAuth, profileController.deleteDocument);
+// router.put('/document/:id/order', ensureAuth, profileController.updateDocumentOrder);
 
 module.exports = router;
