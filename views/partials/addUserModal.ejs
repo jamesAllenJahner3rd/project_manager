@@ -1,28 +1,29 @@
 <html lang="en">
 <style>
-    #addUserModal{
-position: fixed;
+    #addUserModal {
+        position: fixed;
     }
+
     .close-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-            transition: color 0.2s;
-        }
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s;
+    }
 
-        .close-btn:hover {
-            color: #000;
-        }
-
+    .close-btn:hover {
+        color: #000;
+    }
 </style>
+
 <body>
 
     <button type="button" class="btn btn-primary" id="addUserModalTrigger">>Add a User</button>
-    <div id="addUserModal" class="modal" >
-        <form id="addUserForm" action="/project/addUser"  method="GET" class="modal-content"  >
+    <div id="addUserModal" class="modal">
+        <form id="addUserForm" action="/project/addUser" method="GET" class="modal-content">
             <h2> Add new users to your project.</h2>
             <span class="close">&times;</span>
             <div class="form-group">
@@ -36,25 +37,25 @@ position: fixed;
                     <option value="adminId">Admin</option>
                 </select>
             </div>
-            <button type="submit">Add Colleage</button>
+            <button type="submit">Add Colleague</button>
         </form>
     </div>
-    
+
     <script type="module">
         const addUserWindow = document.querySelector('#addUserForm')
         console.log("Listeners:", addUserWindow.eventListeners);
-        addUserWindow.addEventListener("submit", async function (event){
+        addUserWindow.addEventListener("submit", async function (event) {
             event.preventDefault();
             let userName = document.getElementById("userName").value
             let userType = document.getElementById("UserORAdmin").value
-            console.error("userType userName", userName,userType);
-            try{
-                let newUser = await fetch(`/project/addUser`,{
+            console.error("userType userName", userName, userType);
+            try {
+                let newUser = await fetch(`/project/addUser`, {
                     method: 'PUT',
                     headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({ userName, userType, projectId}),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userName, userType, projectId }),
 
                 }) // Handle server response
                 const responseData = await newUser.json();
