@@ -1,4 +1,4 @@
-import { currentProject } from '/js/profile.js';
+import { currentProject } from '/js/chat.js';
 console.log("addUserModal.js is loaded");
 
 const addUserWindow = document.querySelector("#addUserForm");

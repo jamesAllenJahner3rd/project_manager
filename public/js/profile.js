@@ -207,4 +207,3 @@ try {
     console.error(error, "User not found");
 }}
 console.log('end profile',currentProject)
-export { currentProject };

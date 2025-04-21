@@ -58,3 +58,4 @@ function displayMessage(message) {
   div.textContent = message;
   document.getElementById("message-container").append(div);
 }
+export { currentProject };
