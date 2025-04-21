@@ -1,61 +1,60 @@
 let currentProject = null;
- const url = window.location.href;
- 
-let currentProjectId = url.split('/project/')[1];
+const currentUrl = window.location.href;
+
+let currentProjectId = currentUrl.split("/project/")[1]?.split("?")[0];
+if (!currentProjectId) {
+  console.error("Project ID not found in URL");
+}
 console.log(currentProjectId);
-(async function getProjectInfo(){
-    try{
-        const response = await fetch ('/project/getProjectInfo');
-        currentProject = await response.json()
-        console.log( "inside",currentProject);
-
-
-    }catch(err){
-    console.log(err,"ERROR chat.js line 13 ")}
-
-})()
-
-console.log("after",currentProject);
+console.log("Fetching project info for ID:", currentProjectId);
 
 const messageInput = document.getElementById("message-input");
 const chatform = document.getElementById("chatForm");
-const socket = io('http://localhost:3000')
-const room = `chat`//${currentProject._id}`;
- console.log(`currentProject: ${currentProject}`);
-// const project = JSON.parse('<%- JSON.stringify(project) %>');
-// console.log(project);
-// console.log({"columns":[],"_id":"67a1b983250ece3eb3b2e11f","name":"another","description":"testtest"  });
-const roomName =currentProject.name
+const socket = io("http://localhost:3000");
 
+socket.on("connect", () => {
+  console.log("Socket connected");
 
-console.log("roomName", roomName, "room", room)
-socket.on('connect', () => {
+  // Request project info via socket.io
+  socket.emit("get-project-info", currentProjectId);
 
-    displayMessage(`Client side: You connected with id: ${roomName}`);
-    console.log(`Client side: User connected ${roomName}`);
+  // Listen for the project info response
+  socket.on("project-info", (project) => {
+    if (!project || !project.name) {
+      console.error("Invalid project data received");
+      return;
+    }
+
+    currentProject = project;
+    console.log("Project info received:", currentProject);
+
+    // Set roomName dynamically
+    const roomName = currentProject.name;
+    console.log("roomName", roomName);
+
+    // Join the room after receiving project info
+    socket.emit("join-room", roomName, `chat${currentProject._id}`);
+    displayMessage(`Client side: You connected with room: ${roomName}`);
+  });
 });
-document.addEventListener("DOMContentLoaded", () => {
-    const getProject = param.id
-    console.log('join-room', roomName, room);
-    socket.emit('join-room', roomName, room);
-});
-socket.on('receive-message', message => displayMessage(message));
-chatForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const message = messageInput.value;
 
-    if (message === "") return
-    displayMessage(message)
-    socket.emit('send-message', message, room)//server  socket.on('send-message',...
-    messageInput.value = ""
-})
-// joinRoomButtom.addEventListener("click", () =>{
-//     const room =roomInput.value
-// })
+// Handle incoming messages
+socket.on("receive-message", (message) => displayMessage(message));
+
+// Handle form submission for sending messages
+chatForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const message = messageInput.value;
+
+  if (message === "") return;
+  displayMessage(message);
+  socket.emit("send-message", message, `chat${currentProject._id}`);
+  messageInput.value = "";
+});
+
 function displayMessage(message) {
-    console.log(message)
-    const div = document.createElement("div")
-    div.textContent = message
-    console.log(div)
-    document.getElementById("message-container").append(div)
+  console.log(message);
+  const div = document.createElement("div");
+  div.textContent = message;
+  document.getElementById("message-container").append(div);
 }
