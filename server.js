@@ -32,7 +32,7 @@ const path = require("path");
 dotenv.config({ path: "./config/.env" });
 
 //Passport config
-require("./config/passport")(passport); //i'm passing variable passport as an arguement
+require("./config/passport")(passport); //i'm passing variable passport as an argument
 
 connectDB();
 const PORT = process.env.PORT || 8000;
@@ -44,13 +44,13 @@ const server = http.createServer(app); //creates an HTTP server using your Expre
 const io = require("socket.io")(server);
 
 io.on("connection", (socket, roomName, room) => {
-  console.log("Server side: User connected", "roomName", roomName, room);
-  socket.on("io.on('connection'  project-update", (data) => {
+  console.log("line 47 server.js Server side: User connected", "roomName", roomName, room);
+  socket.on("project-update", (data) => {
     socket.broadcast.emit("project-update", data);
   });
   socket.on("send-message", (message, room) => {
-    socket.to(room).emit("recieve-message", message); // broadcast doesn't send it back to the user
-    console.log('socket.on("send-message"', message);
+    socket.to(room).emit("receive-message", message); // broadcast doesn't send it back to the user
+    console.log('socket.on("line 53 server.js send-message"', message);
     // socket.broadcast.emit('project-update',data);
   });
   socket.on("disconnect", () => {
@@ -59,7 +59,7 @@ io.on("connection", (socket, roomName, room) => {
   socket.on("join-room", (roomName, room) => {
     socket.join(room);
     console.log(
-      `socket.on("join-room" Server side: User connected ${roomName}`
+      `socket.on("join-room" Server side: User connected ${roomName}, line 62 server.ejs`
     );
   });
   socket.on(`updateBoard`, async (boardState) => {
@@ -88,7 +88,7 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride("_method"));
-app.use("/public", express.static("public"));
+// app.use("/public", express.static("public"));
 
 // Log each request to see the flow
 app.use((req, res, next) => {
@@ -131,7 +131,12 @@ app.use((req, res, next) => {
 
 //static folder
 app.use(express.static(path.join(__dirname, "public")));
-
+app.use((req, res, next) => {
+  if (req.url.endsWith(".js")) {
+    res.setHeader("Content-Type", "application/javascript");
+  }
+  next();
+});
 // Routes
 app.use('/', indexRoutes);
 app.use('/auth',authRoutes);

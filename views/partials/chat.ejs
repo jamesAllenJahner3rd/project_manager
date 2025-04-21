@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
 <style>
     fieldset.column {
         margin: auto;
@@ -88,74 +86,31 @@
     }
 </style>
 
-<body>
-    <aside id='chat-box'>
-        <h2>chat</h2>
-        <section id="message-container">
 
-        </section>
-        <fieldset>
+<aside id='chat-box'>
+    <h2>chat</h2>
+    <section id="message-container">
 
-            <form id="chatForm">
-                <!-- action="/project/chat<%= project._id %>"method='POST'> -->
-                <label for="message">
-                    Message
-                </label>
-                <input type="text" id='message-input'>
-                <button #id='send-button' type='submit' class='btn-primary btn'>Send</button>
-                <!-- <input type='text' id="room-input"> ,<button type='button' id='room-button'>Join</button> -->
-            </form>
+    </section>
+    <fieldset>
 
-        </fieldset>
-    </aside>
-    <script src="/js/socket.io.js"></script>
-    <!-- this what have to be it's own script. -->
-    <script type="module">
+        <form id="chatForm">
+            <!-- action="/project/chat<%= project._id %>"method='POST'> -->
+            <label for="message">
+                Message
+            </label>
+            <input type="text" id='message-input'>
+            <button #id='send-button' type='submit' class='btn-primary btn'>Send</button>
+            <!-- <input type='text' id="room-input"> ,<button type='button' id='room-button'>Join</button> -->
+        </form>
 
-        const messageInput = document.getElementById("message-input");
-        const chatform = document.getElementById("chatForm");
-        const socket = io('http://localhost:3000')
-        const room = "chat<%= project._id %>";
-         console.log('<%- JSON.stringify(project) %>');
-        // const project = JSON.parse('<%- JSON.stringify(project) %>');
-        // console.log(project);
-        // console.log({"columns":[],"_id":"67a1b983250ece3eb3b2e11f","name":"another","description":"testtest"  });
-       
+    </fieldset>
+</aside>
+<script>
+    const roomName = "<%= project.name %>";
+</script>
 
-        const roomName = "<%= project.name %>";
-        console.log("roomName", roomName, "room", room)
-        socket.on('connect', () => {
-
-            displayMessage(`Client side: You connected with id: ${roomName}`);
-            console.log(`Client side: User connected ${roomName}`);
-        });
-        document.addEventListener("DOMContentLoaded", () => {
-            console.log('join-room', roomName, room);
-            socket.emit('join-room', roomName, room);
-        });
-        socket.on('recieve-message', message => displayMessage(message));
-        chatForm.addEventListener("submit", e => {
-            e.preventDefault();
-            const message = messageInput.value;
-
-            if (message === "") return
-            displayMessage(message)
-            socket.emit('send-message', message, room)//server  socket.on('send-message',...
-            messageInput.value = ""
-        })
-        // joinRoomButtom.addEventListener("click", () =>{
-        //     const room =roomInput.value
-        // })
-        function displayMessage(message) {
-            console.log(message)
-            const div = document.createElement("div")
-            div.textContent = message
-            console.log(div)
-            document.getElementById("message-container").append(div)
-        }
-
-
-    </script>
-</body>
-
-</html>
+<script src="/js/socket.io.js"></script>
+<script src='/js/addUserModal.js' type='module'></script>
+<!-- this what have to be it's own script. -->
+<script src='/js/chat.js' type="module"></script>

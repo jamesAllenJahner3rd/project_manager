@@ -178,4 +178,37 @@ module.exports = {
       res.status(500).json({ error: "Server Error" });
     }
   },
+  addNotification: async (req,res) =>{
+    console.log("addNotification profileController.js line 182")
+    try{
+      const {
+        status,
+        projectName,
+        createdAt,
+        userId,
+        projectId,
+        userName,
+        userType,
+        sender
+      } = req.body;
+
+      const newNotification = new Notification({
+        status,
+        projectName,
+        createdAt,
+        userId,
+        projectId,
+        userName,
+        userType,
+        sender,
+      });
+      await newNotification.save();
+res.status(201).json({ success: true, message: "Notification added successfully" });
+      // res.redirect("/project", { isAuthenticated: req.isAuthenticated() });
+    }catch(err){
+      console.error(err);
+      req.status(500).json({error: "Server Error" });
+
+    }
+  }
 };

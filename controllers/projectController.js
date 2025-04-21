@@ -85,6 +85,7 @@ module.exports = {
     }
   },
   getProject: async (req, res) => {
+    console.log(`projectcontroller getproject line 88`)
     try {
       const project = await Project.findById(req.params.id);
       console.log(
@@ -102,6 +103,25 @@ module.exports = {
       console.error(err);
       res.status(500).send("Server Error");
     }
+  },
+  getProjectInfo: async (req,res) => {
+    console.log(
+      " projectController getProjectInfo line 110", "req.params.id ", req.params,
+    )
+    try{
+      const response = await Project.findById(res.params.id);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch  project info: ${response.status}`)
+      };
+      const projectInfo = response.json();
+      console.log(" projectController getProjectInfo line 110", project, "req.params.id ", req.params.id,)
+
+      res.json(projectInfo)
+    } catch (err) {
+      console.error(err, "ERROR chat.js line 13"); // Log for debugging
+      res.status(500).send("Server Error"); // Inform client of the issue
+    }
+    
   },
   updateProject: async (req, res) => {
     try {
@@ -159,7 +179,7 @@ module.exports = {
         { columns: columns },
         { new: true, upsert: true }
       );
-      req.app.get("socketio").emit(`updateBoard`, updatedKanban);
+      req.app.get("socket.io").emit(`updateBoard`, updatedKanban);
     } catch (err) {
       console.error("Error updating Kanban:", error);
 
@@ -167,7 +187,7 @@ module.exports = {
     }
   },
   addUser: async (req, res) => {
-    console.log("req", req);
+    console.log("addUser  req.body",  req.body);
     try {
       const { userName, userType, projectId } = req.body;
       const projectObjectId = new mongoose.Types.ObjectId(projectId);
@@ -191,12 +211,10 @@ module.exports = {
         return res.status(404).json({ error: "Project not found" });
       }
       console.log("Updated Project", updatedProjectUsers);
-      res
-        .status(200)
-        .json({
-          message: `User added as ${userType}`,
-          project: updatedProjectUsers,
-        });
+      res.status(200).json({
+        message: `User added as ${userType}`,
+        project: updatedProjectUsers,
+      });
     } catch (err) {
       console.error(` ${err} I Can't connect to find users.`);
       res

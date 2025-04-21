@@ -1,13 +1,8 @@
 const mongoose = require("mongoose");
 
 const NotificationSchema = new mongoose.Schema({
-  receivedDate: {
-    type: Date,
-    required: true,
-  },
   viewedDate: {
     type: Date,
-    required: true,
   },
   status: {
     type: String,
@@ -33,13 +28,26 @@ const NotificationSchema = new mongoose.Schema({
       ref: "Profile",
     },
   ],
-  projectId: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Profile",
-      required: true,
-    },
-  ],
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Profile",
+    required: true,
+  },
+   userName: {
+    type: String,
+    ref: "Profile",
+    required: true,
+  },
+  userType: {
+    type: String,
+    enum: ["userId", "AdminId"],
+    default: "userId",
+  },
+  sender: {
+    type: String,
+    ref: "Profile",
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Notification", NotificationSchema);

@@ -19,11 +19,11 @@
     }
 </style>
 
-<body>
+
 
     <button type="button" class="btn btn-primary" id="addUserModalTrigger">>Add a User</button>
     <div id="addUserModal" class="modal">
-        <form id="addUserForm" action="/project/addUser" method="GET" class="modal-content">
+        <form id="addUserForm" class="modal-content">
             <h2> Add new users to your project.</h2>
             <span class="close">&times;</span>
             <div class="form-group">
@@ -41,34 +41,4 @@
         </form>
     </div>
 
-    <script type="module">
-        const addUserWindow = document.querySelector('#addUserForm')
-        console.log("Listeners:", addUserWindow.eventListeners);
-        addUserWindow.addEventListener("submit", async function (event) {
-            event.preventDefault();
-            let userName = document.getElementById("userName").value
-            let userType = document.getElementById("UserORAdmin").value
-            console.error("userType userName", userName, userType);
-            try {
-                let newUser = await fetch(`/project/addUser`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ userName, userType, projectId }),
-
-                }) // Handle server response
-                const responseData = await newUser.json();
-                if (newUser.ok) {
-                    console.log("User added successfully:", responseData);
-                } else {
-                    console.error("Error adding user:", responseData);
-                }
-            } catch (error) {
-                console.error(error, "User not found");
-            }
-        });
-    </script>
-</body>
-
-</html>
+    

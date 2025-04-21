@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,16 @@
     <!-- fonts link -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
     <!-- Font Awesome link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Project Template</title>
     <style>
         /* ... existing styles ... */
-        
+
         .edit-btn {
             display: inline-flex;
             align-items: center;
@@ -56,7 +59,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .project-header {
@@ -138,77 +141,55 @@
         .add-document-btn:hover {
             background: #0056b3;
         }
-        .project-layout{
+
+        .project-layout {
             flex-direction: column;
             position: relative;
             display: flex;
             justify-items: left;
-           
+
         }
-        
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <!-- header -->
     <%- include('partials/header') %>
-    <h1>Project <%-project.name%></h1>
-    <a href="/profile">Return to Profile Page</a>
-    <section class="project-layout">
-        <section class="crosswise">
-            <!-- Project Creation Form -->
-            <fieldset class="column">
-                <form class="project-button" action="/project/kanban<%= project._id %>" method="GET">
-                  <button type="submit" class="btn btn-primary">Kanban Board</button>
-                </form>
-                <form class="project-button" action="/project/CFD" method="POST">
-                  <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
-                </form>
-            </fieldset>
-            <fieldset class="column">
-                <form class="project-button" action="/project/burnup" method="POST">
-                  <button type="submit" class="btn btn-primary">Burnup Chart</button>
-                </form>
-                <form class="project-button" action="/project/taskAging" method="POST">
-                  <button type="submit" class="btn btn-primary">Task Aging Graph</button>
-                </form>
-                <%- include('partials/addUserModal') %>
-                <!-- <form class="project-button" id="addUserModalTrigger"> <!-- action="/project/addUser" method="GET"> -->
-                    <!-- <button type="button" class="btn btn-primary" >Add a User</button>
-                  </form> --> 
-                  
-            </fieldset>
-            
-            <%- include('partials/chat') %>
+        <h1>Project <%-project.name%></h1>
+        <a href="/profile">Return to Profile Page</a>
+        <section class="project-layout">
+            <section class="crosswise">
+                <!-- Project Creation Form -->
+                <fieldset class="column">
+                    <form class="project-button" action="/project/kanban<%= project._id %>" method="GET">
+                        <button type="submit" class="btn btn-primary">Kanban Board</button>
+                    </form>
+                    <form class="project-button" action="/project/CFD" method="POST">
+                        <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
+                    </form>
+                </fieldset>
+                <fieldset class="column">
+                    <form class="project-button" action="/project/burnup" method="POST">
+                        <button type="submit" class="btn btn-primary">Burnup Chart</button>
+                    </form>
+                    <form class="project-button" action="/project/taskAging" method="POST">
+                        <button type="submit" class="btn btn-primary">Task Aging Graph</button>
+                    </form>
+                    <%- include('partials/addUserModal') %>
+                  </form> -->
+
+                </fieldset>
+
+                <%- include('partials/chat') %>
+            </section>
         </section>
-    </section>
-    
-      <!-- footer -->
-      <%- include('partials/footer') %>
-    <script src="../public/js/modal.js"></script> 
-    <script>
-        console.log('script is loaded')
-        console.log(`=project._id <%= project._id %> -project._id <%- project._id %> `)
-        let projectId ='<%= project._id%>'
-      document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('editModal');
-        const addDocumentModal = document.getElementById('addDocumentModal');
-        const span = document.getElementsByClassName('close')[0];
-        const editProjectForm = document.getElementById('editProjectForm');
-        let currentProjectId = null;
-        let addUserbutton = document.getElementById("addUserModalTrigger")
-        addUserbutton.addEventListener('click', showaddUserModal)
-        function showaddUserModal (){
-            addUserModal.style.display = 'block';
-        }
 
-       
-       
+        <!-- footer -->
+        <%- include('partials/footer') %>
 
-        
+            <script src="/js/modal.js" type='module'></script>
+            <script src="/js/projectTemplate.js" type='module'></script>
+            <script src="/js/addUserModal.js" type='module'></script>
+</body>
 
-       
-        
-    });  
-    </script>
-  </body>
-</html> 
+</html>
