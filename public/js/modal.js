@@ -1,5 +1,6 @@
  console.log("Modal.js loaded")
  //Functions to handle general modal behavior
+ const modal = document.getElementById("editModal");
 const span = document.getElementsByClassName('close')[0];
 let openedModal = null;
 function openModal(event){

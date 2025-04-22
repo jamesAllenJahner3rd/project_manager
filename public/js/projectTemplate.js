@@ -9,6 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let addUserbutton = document.getElementById("addUserModalTrigger");
   addUserbutton.addEventListener("click", showaddUserModal);
   function showaddUserModal() {
-    addUserModal.style.display = "block";
+    editModal.style.display = "block";
   }
 });
