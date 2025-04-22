@@ -9,6 +9,11 @@ const NotificationSchema = new mongoose.Schema({
     enum: ["New", "Old"],
     default: "New",
   },
+  projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Profile",
+    required: true,
+  },
   projectName: {
     type: String,
     required: true,
@@ -20,20 +25,8 @@ const NotificationSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Profile",
-    required: true,
   },
-  blockedIds: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Profile",
-    },
-  ],
-  projectId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Profile",
-    required: true,
-  },
-   userName: {
+  userEmail: {
     type: String,
     ref: "Profile",
     required: true,
@@ -43,6 +36,12 @@ const NotificationSchema = new mongoose.Schema({
     enum: ["userId", "AdminId"],
     default: "userId",
   },
+  blockedIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Profile",
+    },
+  ],
   sender: {
     type: String,
     ref: "Profile",

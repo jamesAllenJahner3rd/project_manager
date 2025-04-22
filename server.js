@@ -60,10 +60,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("join-room", (roomName, roomId) => {
-    console.log(`User joined room: ${roomName}`);
-    socket.join(roomId);
-  });
+  // socket.on("join-room", (roomName, roomId) => {
+  //   console.log(`User joined room: ${roomName}`);
+  //   socket.join(roomId);
+  // });
 
   socket.on("project-update", (data) => {
     socket.broadcast.emit("project-update", data);
@@ -78,11 +78,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`socket.on("disconnect"User disconnected: ${socket.id}`);
   });
-  socket.on("join-room", (roomName, room) => {
-    socket.join(room);
-    console.log(
-      `socket.on("join-room" Server side: User connected ${roomName}, line 62 server.ejs`
-    );
+  socket.on("join-room", (roomName, roomId) => {
+    if (!socket.rooms.has(roomId)) {
+      // Prevent joining multiple times
+      socket.join(roomId);
+      console.log(`User joined room: ${roomName}`);
+    }
   });
   socket.on(`updateBoard`, async (boardState) => {
     try {

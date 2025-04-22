@@ -24,17 +24,22 @@ socket.on("connect", () => {
       console.error("Invalid project data received");
       return;
     }
-
-    currentProject = project;
-    console.log("Project info received:", currentProject);
+    //the if statement was add to stop repeated joining the room.
+    if (!currentProject) {
+      currentProject = project;
+      console.log("Project info received:", currentProject);
+    }
 
     // Set roomName dynamically
     const roomName = currentProject.name;
     console.log("roomName", roomName);
 
     // Join the room after receiving project info
-    socket.emit("join-room", roomName, `chat${currentProject._id}`);
-    displayMessage(`Client side: You connected with room: ${roomName}`);
+    if (!socket.joinedRoom) {
+      socket.emit("join-room", roomName, `chat${currentProject._id}`);
+      socket.joinedRoom = true; // Mark room as joined
+      displayMessage(`Client side: You connected with room: ${roomName}`);
+    }
   });
 });
 

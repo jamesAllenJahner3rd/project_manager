@@ -17,7 +17,7 @@ router.delete(
 );
 router.get("/project/:id/data", ensureAuth, profileController.getProjectData);
 
-router.put("/notifyUser", ensureAuth, profileController.addNotification);
+router.put("/notifyUser/:id", ensureAuth, profileController.addNotification);
 //routes for profile control
 // router.get('/openNotifications', ensureAuth, profileController.getProfile);
 // Document routes
