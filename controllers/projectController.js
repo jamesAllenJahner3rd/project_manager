@@ -1,6 +1,7 @@
 const Profile = require("../models/Profile");
 const Project = require("../models/Project");
 const Kanban = require("../models/Kanban");
+const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 module.exports = {
   getProjects: async (req, res) => {
@@ -49,7 +50,7 @@ module.exports = {
           .send("Profile not found. Try logining in again.");
       }
       const newProject = new Project({
-        projectName,
+        name,
         description,
         startDate,
         endDate,
@@ -59,6 +60,8 @@ module.exports = {
       console.log(
         "create project newProject:",
         newProject._id,
+        "name",
+        newProject.name,
         "********************************************projectController createProject"
       );
       await newProject.save();
@@ -85,6 +88,7 @@ module.exports = {
     }
   },
   getProject: async (req, res) => {
+    console.log(`projectcontroller getproject line 88`);
     try {
       const project = await Project.findById(req.params.id);
       console.log(
@@ -159,7 +163,7 @@ module.exports = {
         { columns: columns },
         { new: true, upsert: true }
       );
-      req.app.get("socketio").emit(`updateBoard`, updatedKanban);
+      req.app.get("socket.io").emit(`updateBoard`, updatedKanban);
     } catch (err) {
       console.error("Error updating Kanban:", error);
 
@@ -167,38 +171,49 @@ module.exports = {
     }
   },
   addUser: async (req, res) => {
-    console.log("req", req);
+    let notificationObjectId = null;
+    const { notificationId } = req.body; // Extract from request
+    console.log(
+      `adduser projectController.js line 172 ${JSON.stringify(req.body)}`
+    );
+    if (mongoose.Types.ObjectId.isValid(notificationId)) {
+      notificationObjectId = new mongoose.Types.ObjectId(notificationId);
+      console.log("Converted ObjectId:", notificationObjectId);
+    } else {
+      console.error("Invalid ObjectId:", notificationId);
+    }
     try {
-      const { userName, userType, projectId } = req.body;
-      const projectObjectId = new mongoose.Types.ObjectId(projectId);
+      const notificationDocument = await Notification.findOne({
+        _id: notificationObjectId,
+      });
 
-      console.log("userName, userType", userName, userType);
-      const getUser = await Profile.findOne({ displayName: userName });
-      console.log("getUser", getUser);
-      if (!getUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
+      // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
+      // const projectObjectId = new mongoose.Types.ObjectId(projectId);
+
+      // const {status, projectId ,projectName, userId, userType} = notificationDocument;
+      // console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
+
       const updateField =
         userType === "adminId"
-          ? { $addToSet: { adminId: getUser._id } }
-          : { $addToSet: { userId: getUser._id } };
+          ? { $addToSet: { adminId: userId } }
+          : { $addToSet: { userId: userId } };
       const updatedProjectUsers = await Project.findOneAndUpdate(
-        { _id: projectObjectId },
+        { _id: projectId },
         updateField,
         { new: true, upsert: false }
       );
       if (!updatedProjectUsers) {
         return res.status(404).json({ error: "Project not found" });
       }
-      console.log("Updated Project", updatedProjectUsers);
-      res
-        .status(200)
-        .json({
-          message: `User added as ${userType}`,
-          project: updatedProjectUsers,
-        });
+      console.log("Updated Project", updatedProjectUsers.name);
+      res.status(200).json({
+        message: `User added as ${userType}`,
+        project: updatedProjectUsers,
+      });
     } catch (err) {
-      console.error(` ${err} I Can't connect to find users.`);
+      console.error(
+        ` ${err} I Can't connect to find users. projectController.js line 211`
+      );
       res
         .status(500)
         .json({ error: "Server error. Unable to add user to project." });

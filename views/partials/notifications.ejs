@@ -11,8 +11,8 @@
             <div class="project-header">
               <span>Hi <%=userProfile.displayName %>, Would you like to join the project <%= notification.projectName %>
                     ?</span>
-              <button class="btn btn-primary" id='affirmativeButton'> Yes </button>
-              <button class="btn btn-primary" id='negativeButton'> No </button>
+              <button class="btn btn-primary affirmativeButton" data-id="<%= notification._id %>"> Yes sir</button>
+              <button class="btn btn-primary negativeButton"> No </button>
               <div class="notification-actions">
                 <button class="delete-btn" data-id="<%= notification._id %>">
                   <i class="fas fa-trash-alt"></i>

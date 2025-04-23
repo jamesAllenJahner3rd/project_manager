@@ -178,4 +178,43 @@ module.exports = {
       res.status(500).json({ error: "Server Error" });
     }
   },
+  addNotification: async (req, res) => {
+    console.log("addNotification profileController.js line 182", req.params.id);
+    try {
+      const {
+        status,
+        projectName,
+        createdAt,
+        userId,
+        projectId,
+        userEmail: requestedUserEmail,
+        userType,
+        sender,
+      } = req.body;
+      let user = await Profile.findOne({ email: req.params.id });
+      console.log(user);
+      if (!user) {
+        throw new Error("Can't find user profile Controler.js line 197");
+      }
+      const newNotification = new Notification({
+        status,
+        projectName,
+        createdAt,
+        userId: user._id,
+        projectId,
+        userName: user.username,
+        userEmail: req.params.id,
+        userType,
+        sender,
+      });
+      await newNotification.save();
+      res
+        .status(201)
+        .json({ success: true, message: "Notification added successfully" });
+      // res.redirect("/project", { isAuthenticated: req.isAuthenticated() });
+    } catch (err) {
+      console.error(err);
+      req.status(500).json({ error: "Server Error" });
+    }
+  },
 };
