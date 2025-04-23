@@ -29,9 +29,6 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
-  // newProject: (req, res) => {
-  //   res.render("project_template.ejs");
-  // },
   createProject: async (req, res) => {
     try {
       console.log(
@@ -52,7 +49,7 @@ module.exports = {
           .send("Profile not found. Try logining in again.");
       }
       const newProject = new Project({
-        name,
+        projectName,
         description,
         startDate,
         endDate,
@@ -170,34 +167,41 @@ module.exports = {
     }
   },
   addUser: async (req, res) => {
-    console.log("req",req)
-    try{
-      const { userName, userType, projectId} = req.body;
+    console.log("req", req);
+    try {
+      const { userName, userType, projectId } = req.body;
       const projectObjectId = new mongoose.Types.ObjectId(projectId);
 
-      console.log("userName, userType",userName, userType)
-      const getUser = await Profile.findOne(
-        {displayName: userName}
-      )
-      console.log("getUser",getUser)
+      console.log("userName, userType", userName, userType);
+      const getUser = await Profile.findOne({ displayName: userName });
+      console.log("getUser", getUser);
       if (!getUser) {
         return res.status(404).json({ error: "User not found" });
+      }
+      const updateField =
+        userType === "adminId"
+          ? { $addToSet: { adminId: getUser._id } }
+          : { $addToSet: { userId: getUser._id } };
+      const updatedProjectUsers = await Project.findOneAndUpdate(
+        { _id: projectObjectId },
+        updateField,
+        { new: true, upsert: false }
+      );
+      if (!updatedProjectUsers) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      console.log("Updated Project", updatedProjectUsers);
+      res
+        .status(200)
+        .json({
+          message: `User added as ${userType}`,
+          project: updatedProjectUsers,
+        });
+    } catch (err) {
+      console.error(` ${err} I Can't connect to find users.`);
+      res
+        .status(500)
+        .json({ error: "Server error. Unable to add user to project." });
     }
-    const updateField = userType === "adminId" ? { $addToSet: { adminId: getUser._id } } : { $addToSet: { userId: getUser._id } };
-    const updatedProjectUsers = await Project.findOneAndUpdate(
-      {_id: projectObjectId},
-      updateField,
-      {new: true, upsert: false}
-    )
-    if (!updatedProjectUsers) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-    console.log ('Updated Project',updatedProjectUsers)
-    res.status(200).json({ message: `User added as ${userType}`, project: updatedProjectUsers });
-  
-    }catch (err) {
-      console.error(` ${err} I Can't connect to find users.`)
-      res.status(500).json({ error: "Server error. Unable to add user to project." });
-    }
-  }
+  },
 };

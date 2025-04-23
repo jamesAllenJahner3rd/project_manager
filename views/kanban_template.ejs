@@ -606,7 +606,7 @@
                     socket.emit('updateBoard', boardState);
                     localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
                 }
-                
+
                 function createDocumentFromSaved(doc) {
                     const documentLineItem = document.createElement('li');
                     documentLineItem.className = 'dragDocument';
@@ -791,7 +791,7 @@
 
                     documentDrake.on('drop', saveToLocalStorage);
                 }
-                
+
                 function deleteDocument(docID) {
                     const theDoomedDocument = document.getElementById(docID);
                     if (theDoomedDocument) {
@@ -845,8 +845,7 @@
                     const documentTitle = document.getElementById('documentTitle');
                     documentTitle.focus();
                 }
-                
-                 function init(emittedBoard = null, emitted = false) {
+                function init(emittedBoard = null, emitted = false) {
                     const createColumnForm = document.getElementById('createColumnForm');
                     const createDocumentForm = document.getElementById('createDocumentForm');
                     const dragparent = document.getElementById('dragparent');
@@ -873,7 +872,8 @@
                     documentDrake.on('drop', saveToLocalStorage);
 
                     createColumnForm.removeEventListener('submit', handleColumnSubmit);
-                    createColumnForm.addEventListener('submit', (event) => {
+                    createColumnForm.addEventListener('submit', handleColumnSubmit)
+                    function handleColumnSubmit(event){
                         event.preventDefault();
                         const columnContent = document.getElementById('columnContent').value;
                         const column = {
@@ -899,7 +899,8 @@
                         documentDrake.on('drop', saveToLocalStorage);
                     };
                     createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
-                    createDocumentForm.addEventListener('submit', (event) => {
+                    createDocumentForm.addEventListener('submit', handleDocumentSubmit)
+                    function handleDocumentSubmit (event) {
                         event.preventDefault();
                         const columnID = document.getElementById("createDoc").dataset.id;
                         const doc = {
@@ -914,15 +915,15 @@
                         createDocumentForm.reset();
                         createDocumentForm.setAttribute('hidden', '');
                         saveToLocalStorage();
-                    });
+                    };
 
                     // Close button for document form
                     const closeBtn = document.querySelector('.close-btn');
                     closeBtn.addEventListener('click', () => {
                         createDocumentForm.setAttribute('hidden', '');
                     });
-                }    
-                 </script>
+                }  
+            </script>
 </body>
 
 </html>

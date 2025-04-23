@@ -163,7 +163,7 @@
                 <form class="project-button" action="/project/CFD" method="POST">
                   <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
                 </form>
-            </fieldset><%- include('partials/addUserModal') %>
+            </fieldset>
             <fieldset class="column">
                 <form class="project-button" action="/project/burnup" method="POST">
                   <button type="submit" class="btn btn-primary">Burnup Chart</button>
@@ -171,9 +171,10 @@
                 <form class="project-button" action="/project/taskAging" method="POST">
                   <button type="submit" class="btn btn-primary">Task Aging Graph</button>
                 </form>
-                <form class="project-button" id="addUserModalTrigger"> <!-- action="/project/addUser" method="GET"> -->
-                    <button type="button" class="btn btn-primary" >Add a User</button>
-                  </form>
+                <%- include('partials/addUserModal') %>
+                <!-- <form class="project-button" id="addUserModalTrigger"> <!-- action="/project/addUser" method="GET"> -->
+                    <!-- <button type="button" class="btn btn-primary" >Add a User</button>
+                  </form> --> 
                   
             </fieldset>
             
@@ -183,7 +184,9 @@
     
       <!-- footer -->
       <%- include('partials/footer') %>
+    <script src="../public/js/modal.js"></script> 
     <script>
+        console.log('script is loaded')
         console.log(`=project._id <%= project._id %> -project._id <%- project._id %> `)
         let projectId ='<%= project._id%>'
       document.addEventListener('DOMContentLoaded', function() {
