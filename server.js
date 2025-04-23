@@ -1,7 +1,10 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const dotenv = require("dotenv");
+
+
 
 // Apply patches to fix deprecation warnings
 require("./patches/apply-patches");
@@ -14,6 +17,7 @@ const Kanban = require("./models/Kanban");
 const Project = require("./models/Project");
 // const dragula = require("dragula");
 
+
 const indexRoutes = require("./routes/indexRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const loginRoutes = require("./routes/loginRoutes");
@@ -21,6 +25,7 @@ const postRoutes = require("./routes/postRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const signupRoutes = require("./routes/signupRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+
 
 const morgan = require("morgan");
 const connectDB = require("./config/database");
@@ -161,6 +166,7 @@ app.use((req, res, next) => {
   next();
 });
 // Routes
+
 app.use("/", indexRoutes);
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);

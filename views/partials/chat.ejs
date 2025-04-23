@@ -13,14 +13,19 @@
         flex-direction: column;
         position: relative;
         flex: 2;
-        border: 1px solid black;
+        border: 1px solid var(--gray);
         margin: 0;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     #chat-box fieldset {
         display: flex;
         width: 100%;
         flex-direction: row;
+        border: none;
+        padding: 1rem;
     }
 
     #chat-box fieldset label {
@@ -28,45 +33,83 @@
         flex: 0;
         width: 100%;
         flex-direction: row;
-        font-size: xx-large;
-
+        font-size: 1.1rem;
+        color: var(--dark-red);
+        font-weight: 600;
     }
 
     #chat-box fieldset form {
         display: flex;
-        flex: 2;
         width: 100%;
         flex-direction: row;
-
+        gap: 0.5rem;
+        align-items: center;
     }
 
     #chat-box fieldset form input {
         display: flex;
-        flex: 2;
-        width: 100%;
-        flex-direction: row;
-        font-size: xx-large;
-        margin: 1% 0;
+        flex: 3;
+        width: 75%;
+        padding: 1.5rem;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+        font-size: 1.2rem;
+        transition: border-color 0.3s ease;
+        min-height: 3.5rem;
+    }
 
+    #chat-box fieldset form input:focus {
+        outline: none;
+        border-color: var(--dark-red);
+        box-shadow: 0 0 0 2px rgba(73, 19, 19, 0.1);
     }
 
     #chat-box fieldset form button {
         display: flex;
-        flex: 0;
-        width: 100%;
-        flex-direction: row;
-        margin: 1% 1%;
+        flex: 1;
+        width: 25%;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0.5rem;
+        background: var(--dark-red);
+        color: var(--white);
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 2rem;
+        font-size: 0.9rem;
+    }
 
+    #chat-box fieldset form button:hover {
+        background: var(--red);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     #message-container {
         flex: 1;
-        /* Makes #chat-messages take up remaining space */
-        margin: 1% 1% 1% 1%;
-        width: 98%;
-        border: 3px solid black;
+        margin: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--gray);
+        border-radius: 6px;
         overflow-y: auto;
-        /* Allows scrolling if content overflows */
+        background: var(--white);
+    }
+
+    #message-container div {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: var(--white);
+        border-radius: 6px;
+        border: 1px solid var(--gray);
+        transition: all 0.3s ease;
+    }
+
+    #message-container div:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     section.project-layout form.project-button {
@@ -85,6 +128,7 @@
 
     }
 </style>
+
 
 
 <aside id='chat-box'>
