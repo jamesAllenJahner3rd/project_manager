@@ -1,3 +1,4 @@
+
 console.log("Modal.js loaded");
 //Functions to handle general modal behavior
 const modal = document.querySelector(".modalWrapper");

@@ -34,4 +34,6 @@
         "start": "cross-env node server.js",
         "dev": "cross-env NODE_ENV=development nodemon -e js,css,ejs server.js --ignore node_modules --ignore public"
     }
+
 }
+

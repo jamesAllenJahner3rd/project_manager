@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const dotenv = require("dotenv");
 
-
 // Apply patches to fix deprecation warnings
 require("./patches/apply-patches");
 

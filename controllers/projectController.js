@@ -107,6 +107,60 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
+  /**getProjectInfo: async (req, res) => {
+    console.log("projectController getProjectInfo line 110", "req.params.id", req.params);
+
+    try {
+        // Fetch project data from MongoDB
+        const project = await Project.findById(req.params.id); // Renamed response to project for clarity
+        
+        if (!project) {
+            // Respond with 404 if project not found
+            return res.status(404).json({ error: "Project not found" });
+        }
+
+        console.log("projectController getProjectInfo line 110", project, "req.params.id", req.params.id);
+
+        // Respond with project data as JSON
+        res.json(project);
+    } catch (err) {
+        // Log and respond with 500 Internal Server Error
+        console.error(err, "ERROR projectController getProjectInfo");
+        res.status(500).json({ error: "Server Error", details: err.message });
+    }
+};*/
+  // getProjectInfo: async (req, res) => {
+  //   console.log(
+  //     "projectController getProjectInfo line 110",
+  //     "req.params.id",
+  //     req.params
+  //   );
+  //   try {
+  //     const { id } = req.params;
+  //     if (!mongoose.Types.ObjectId.isValid(id)) {
+  //       return res.status(400).json({ error: "Invalid Project ID" });
+  //     }
+  //     const response = await Project.findById(id);
+  //     if (!response) {
+  //       return res.status(404).json({ error: "Project not found" });
+  //     }
+  //     // const project = response.json();
+  //     console.log(
+  //       "projectController getProjectInfo line 110",
+  //       response,
+  //       "req.params.id",
+  //       req.params.id
+  //     );
+
+  //     res.json(response);
+  //   } catch (err) {
+  //     console.error(
+  //       err,
+  //       "ERROR projectController getProjectInfo chat.js line 13"
+  //     ); // Log for debugging
+  //     res.status(500).json({ error: "Server Error", details: err.message });
+  //   }
+  // },
   updateProject: async (req, res) => {
     try {
       const { name, description, startDate, endDate, status } = req.body;

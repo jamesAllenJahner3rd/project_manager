@@ -213,4 +213,3 @@ async function saveNotification(event) {
     console.error(error, "User not found");
   }
 }
-// console.log('end profile',currentProject)
