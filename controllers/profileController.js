@@ -28,7 +28,7 @@ module.exports = {
       const projectList = await Project.find({
         $or: [{ adminId: userId }, { userId: userId }],
       });
-      const notificationList = await Notification.find({ userId });
+      const notificationList = await Notification.find({ userId, status:"New" });
 
       console.log("Projects fetched from DB:", projectList);
 
