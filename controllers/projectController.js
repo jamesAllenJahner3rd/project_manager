@@ -1,6 +1,7 @@
 const Profile = require("../models/Profile");
 const Project = require("../models/Project");
 const Kanban = require("../models/Kanban");
+const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 module.exports = {
   getProjects: async (req, res) => {
@@ -58,7 +59,9 @@ module.exports = {
       });
       console.log(
         "create project newProject:",
-        newProject._id,"name",newProject.name,
+        newProject._id,
+        "name",
+        newProject.name,
         "********************************************projectController createProject"
       );
       await newProject.save();
@@ -104,60 +107,6 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
-  /**getProjectInfo: async (req, res) => {
-    console.log("projectController getProjectInfo line 110", "req.params.id", req.params);
-
-    try {
-        // Fetch project data from MongoDB
-        const project = await Project.findById(req.params.id); // Renamed response to project for clarity
-        
-        if (!project) {
-            // Respond with 404 if project not found
-            return res.status(404).json({ error: "Project not found" });
-        }
-
-        console.log("projectController getProjectInfo line 110", project, "req.params.id", req.params.id);
-
-        // Respond with project data as JSON
-        res.json(project);
-    } catch (err) {
-        // Log and respond with 500 Internal Server Error
-        console.error(err, "ERROR projectController getProjectInfo");
-        res.status(500).json({ error: "Server Error", details: err.message });
-    }
-};*/
-  // getProjectInfo: async (req, res) => {
-  //   console.log(
-  //     "projectController getProjectInfo line 110",
-  //     "req.params.id",
-  //     req.params
-  //   );
-  //   try {
-  //     const { id } = req.params;
-  //     if (!mongoose.Types.ObjectId.isValid(id)) {
-  //       return res.status(400).json({ error: "Invalid Project ID" });
-  //     }
-  //     const response = await Project.findById(id);
-  //     if (!response) {
-  //       return res.status(404).json({ error: "Project not found" });
-  //     }
-  //     // const project = response.json();
-  //     console.log(
-  //       "projectController getProjectInfo line 110",
-  //       response,
-  //       "req.params.id",
-  //       req.params.id
-  //     );
-
-  //     res.json(response);
-  //   } catch (err) {
-  //     console.error(
-  //       err,
-  //       "ERROR projectController getProjectInfo chat.js line 13"
-  //     ); // Log for debugging
-  //     res.status(500).json({ error: "Server Error", details: err.message });
-  //   }
-  // },
   updateProject: async (req, res) => {
     try {
       const { name, description, startDate, endDate, status } = req.body;
@@ -222,36 +171,49 @@ module.exports = {
     }
   },
   addUser: async (req, res) => {
-    console.log("addUser  req.body", req.body);
+    let notificationObjectId = null;
+    const { notificationId } = req.body; // Extract from request
+    console.log(
+      `adduser projectController.js line 172 ${JSON.stringify(req.body)}`
+    );
+    if (mongoose.Types.ObjectId.isValid(notificationId)) {
+      notificationObjectId = new mongoose.Types.ObjectId(notificationId);
+      console.log("Converted ObjectId:", notificationObjectId);
+    } else {
+      console.error("Invalid ObjectId:", notificationId);
+    }
     try {
-      const { userName, userType, projectId } = req.body;
-      const projectObjectId = new mongoose.Types.ObjectId(projectId);
+      const notificationDocument = await Notification.findOne({
+        _id: notificationObjectId,
+      });
 
-      console.log("userName, userType", userName, userType);
-      const getUser = await Profile.findOne({ displayName: userName });
-      console.log("getUser", getUser);
-      if (!getUser) {
-        return res.status(404).json({ error: "User not found" });
-      }
+      // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
+      // const projectObjectId = new mongoose.Types.ObjectId(projectId);
+
+      // const {status, projectId ,projectName, userId, userType} = notificationDocument;
+      // console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
+
       const updateField =
         userType === "adminId"
-          ? { $addToSet: { adminId: getUser._id } }
-          : { $addToSet: { userId: getUser._id } };
+          ? { $addToSet: { adminId: userId } }
+          : { $addToSet: { userId: userId } };
       const updatedProjectUsers = await Project.findOneAndUpdate(
-        { _id: projectObjectId },
+        { _id: projectId },
         updateField,
         { new: true, upsert: false }
       );
       if (!updatedProjectUsers) {
         return res.status(404).json({ error: "Project not found" });
       }
-      console.log("Updated Project", updatedProjectUsers);
+      console.log("Updated Project", updatedProjectUsers.name);
       res.status(200).json({
         message: `User added as ${userType}`,
         project: updatedProjectUsers,
       });
     } catch (err) {
-      console.error(` ${err} I Can't connect to find users.`);
+      console.error(
+        ` ${err} I Can't connect to find users. projectController.js line 211`
+      );
       res
         .status(500)
         .json({ error: "Server error. Unable to add user to project." });
