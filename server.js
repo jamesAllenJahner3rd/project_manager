@@ -1,10 +1,7 @@
-
 const express = require("express");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const dotenv = require("dotenv");
-
-
 
 // Apply patches to fix deprecation warnings
 require("./patches/apply-patches");
@@ -16,7 +13,6 @@ const flash = require("connect-flash");
 const Kanban = require("./models/Kanban");
 const Project = require("./models/Project");
 // const dragula = require("dragula");
-
 
 const indexRoutes = require("./routes/indexRoutes");
 const profileRoutes = require("./routes/profileRoutes");
@@ -165,8 +161,8 @@ app.use((req, res, next) => {
   }
   next();
 });
-// Routes
 
+// Routes
 app.use("/", indexRoutes);
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
