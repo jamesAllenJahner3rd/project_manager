@@ -49,7 +49,7 @@ module.exports = {
           .send("Profile not found. Try logining in again.");
       }
       const newProject = new Project({
-        projectName,
+        name,
         description,
         startDate,
         endDate,
@@ -58,7 +58,7 @@ module.exports = {
       });
       console.log(
         "create project newProject:",
-        newProject._id,
+        newProject._id,"name",newProject.name,
         "********************************************projectController createProject"
       );
       await newProject.save();

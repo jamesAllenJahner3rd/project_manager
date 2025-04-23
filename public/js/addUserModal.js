@@ -62,4 +62,5 @@ addUserWindow.addEventListener("submit", async function (event) {
   } catch (error) {
     console.error(error, "requestedUserId not found,profile.ejs line 78");
   }
+  modal.style.display = "none"
 });

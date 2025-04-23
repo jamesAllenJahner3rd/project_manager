@@ -1,7 +1,7 @@
  console.log("Modal.js loaded")
  //Functions to handle general modal behavior
- const modal = document.getElementById("editModal");
-const span = document.getElementsByClassName('close')[0];
+ const modal = document.querySelector(".modalWrapper");
+const span = document.querySelectorAll('.close')[0];
 let openedModal = null;
 function openModal(event){
   openedModal = event.target;
@@ -19,9 +19,9 @@ function openModal(event){
       toggledElement.style.display = 'block';
     }
 }
-span.onclick = function () {
+span.addEventListener('click', function () {
         modal.style.display = 'none';
-}
+})
 //Create project modal specific
 const openCPbutton = document.getElementById('openCPModalButton');
 openCPbutton?.addEventListener('click', openModal)

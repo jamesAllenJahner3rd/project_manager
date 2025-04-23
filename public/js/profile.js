@@ -4,7 +4,7 @@ let notifpushed = false;
 
 document.addEventListener('DOMContentLoaded', function () {
   
-  const modal = document.getElementById('editModal');
+  const modal = document.querySelector("modalWrapper");
   const addDocumentModal = document.getElementById('addDocumentModal');
   const span = document.getElementsByClassName('close')[0];
   const editProjectForm = document.getElementById('editProjectForm');
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
       status: document.getElementById('status').value,
       columns: [] // Initialize empty columns array
     };
-
+    console.log('name profile.js line 166',formData.name)
     try {
       const response = await fetch('/project/createProject', {
         method: 'POST',
@@ -198,6 +198,7 @@ try {
 
     }) // Handle server response
     const responseData = await newUser.json();
+    console.log(responseData)
     if (newUser.ok) {
         console.log("User added successfully:", responseData);
     } else {
@@ -206,4 +207,4 @@ try {
 } catch (error) {
     console.error(error, "User not found");
 }}
-console.log('end profile',currentProject)
+// console.log('end profile',currentProject)
