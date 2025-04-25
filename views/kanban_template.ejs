@@ -781,7 +781,7 @@
 
                     documentDrake = dragula(documentContainers, {
                         moves: (el, container, handle) => el.classList.contains('dragDocument'),
-                        accepts: (el, target) => el.classList.contains('documents-container'),
+                        accepts: (el, target) => target.classList.contains('documents-container'),
                     });
 
                     columnDrake.on('drop', (el, target, source) => {
@@ -789,7 +789,23 @@
                         saveToLocalStorage();
                     });
 
-                    documentDrake.on('drop', saveToLocalStorage);
+                    documentDrake.on('drop', (el, target, source) => {
+                        // Update document counts for both source and target columns
+                        if (source && target) {
+                            const sourceColumn = source.closest('.dragColumn');
+                            const targetColumn = target.closest('.dragColumn');
+                            
+                            if (sourceColumn) {
+                                updateDocumentCount(sourceColumn);
+                            }
+                            
+                            if (targetColumn && targetColumn !== sourceColumn) {
+                                updateDocumentCount(targetColumn);
+                            }
+                        }
+                        
+                        saveToLocalStorage();
+                    });
                 }
 
                 function deleteDocument(docID) {
@@ -892,11 +908,23 @@
                         // Reinitialize dragula for documents with new column
                         documentDrake.destroy();
                         listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
-                        documentDrake = dragula(listOfColumn, {
+                        
+                        // Update to use document containers consistently
+                        const documentContainers = listOfColumn.map(column => 
+                            column.querySelector('.documents-container')
+                        ).filter(container => container !== null);
+                        
+                        documentDrake = dragula(documentContainers, {
                             moves: (el, container, handle) => el.classList.contains('dragDocument'),
-                            accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn')
+                            accepts: (el, target) => target.classList.contains('documents-container')
                         });
-                        documentDrake.on('drop', saveToLocalStorage);
+                        
+                        documentDrake.on('drop', (el, target, source) => {
+                            if (source && source !== target) {
+                                // Update any necessary data or references for this document
+                            }
+                            saveToLocalStorage();
+                        });
                     };
                     createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
                     createDocumentForm.addEventListener('submit', handleDocumentSubmit)
@@ -911,16 +939,23 @@
                         };
                         const documentLineItem = createDocumentFromSaved(doc);
                         const parentColumn = document.getElementById(columnID);
-                        parentColumn.appendChild(documentLineItem);
+                        const documentsContainer = parentColumn.querySelector('.documents-container');
+                        documentsContainer.appendChild(documentLineItem);
                         createDocumentForm.reset();
-                        createDocumentForm.setAttribute('hidden', '');
+                        createDocumentForm.style.display = 'none';
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                        document.body.classList.remove('modal-open');
                         saveToLocalStorage();
                     };
 
                     // Close button for document form
                     const closeBtn = document.querySelector('.close-btn');
                     closeBtn.addEventListener('click', () => {
-                        createDocumentForm.setAttribute('hidden', '');
+                        createDocumentForm.style.display = 'none';
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                        document.body.classList.remove('modal-open');
                     });
                 }  
             </script>

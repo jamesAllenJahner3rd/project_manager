@@ -58,3 +58,7 @@ ehthumbs_vista.db
 .history
 .localhistory/
 .lh/
+
+# Cursor IDE specific files
+.cursorrules
+.cursor/
