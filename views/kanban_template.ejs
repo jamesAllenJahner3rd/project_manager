@@ -571,12 +571,53 @@
                 const roomName = `<%= project.name %>`;
 
                 socket.on('connect', () => {
+                    console.log('Connected to server');
                     socket.emit('join-room', roomName, room);
                 });
 
                 socket.on("board-updated", (updatedBoard) => {
-                    init(updatedBoard, true);
+                    console.log('Received board update:', updatedBoard);
+                    if (updatedBoard && updatedBoard.projectId === projectId) {
+                        loadFromLocalStorage(updatedBoard, true);
+                    }
                 });
+
+                function loadFromLocalStorage(emittedBoard, emitted) {
+                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
+                    const savedState = localStorage.getItem(`kanbanBoard-${projectId}`);
+                    
+                    let boardState;
+                    
+                    if (emittedBoard) {
+                        boardState = emittedBoard;
+                    } else if (savedState) {
+                        boardState = JSON.parse(savedState);
+                    } else if (kanban && kanban.length > 0) {
+                        boardState = kanban[0];
+                    } else {
+                        boardState = {
+                            projectId: projectId,
+                            columns: []
+                        };
+                    }
+
+                    if (boardState.projectId !== projectId) {
+                        console.log('No saved state for this project');
+                        return;
+                    }
+
+                    const dragparent = document.getElementById('dragparent');
+                    dragparent.innerHTML = '';
+                    listOfColumn = [];
+
+                    boardState.columns.forEach(column => {
+                        const newColumn = createColumnFromSaved(column);
+                        dragparent.appendChild(newColumn);
+                        listOfColumn.push(newColumn);
+                    });
+
+                    reinitializeDragula(dragparent, listOfColumn);
+                }
 
                 function saveToLocalStorage() {
                     const boardState = {
@@ -603,8 +644,15 @@
                         updateDocumentCount(column);
                     });
 
-                    socket.emit('updateBoard', boardState);
-                    localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
+                    // Save to both localStorage and server
+                    localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
+                    
+                    // Emit to server with error handling
+                    try {
+                        socket.emit('updateBoard', boardState);
+                    } catch (error) {
+                        console.error('Error saving to server:', error);
+                    }
                 }
 
                 function createDocumentFromSaved(doc) {
@@ -734,31 +782,6 @@
                         const count = column.querySelectorAll('.dragDocument').length;
                         documentCount.textContent = `Documents: ${count}`;
                     }
-                }
-
-                function loadFromLocalStorage(emittedBoard, emitted) {
-                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>')[0] ?? kanban;
-
-                    if (!kanban || kanban === true) return;
-
-                    const boardState = emittedBoard ?? kanban;
-
-                    if (boardState.projectId !== projectId) {
-                        console.log('No saved state for this project');
-                        return;
-                    }
-
-                    const dragparent = document.getElementById('dragparent');
-                    dragparent.innerHTML = '';
-                    listOfColumn = [];
-
-                    boardState.columns.forEach(column => {
-                        const newColumn = createColumnFromSaved(column);
-                        dragparent.appendChild(newColumn);
-                        listOfColumn.push(newColumn);
-                    });
-
-                    reinitializeDragula(dragparent, listOfColumn);
                 }
 
                 function reinitializeDragula(dragparent, listOfColumn) {
@@ -958,6 +981,37 @@
                         document.body.classList.remove('modal-open');
                     });
                 }  
+
+                // Add event listener for page unload
+                window.addEventListener('beforeunload', () => {
+                    saveToLocalStorage();
+                });
+
+                // Add event listener for visibility change
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden') {
+                        saveToLocalStorage();
+                    }
+                });
+
+                // Initialize socket connection
+                socket.on('connect', () => {
+                    console.log('Connected to server');
+                    socket.emit('join-room', roomName, room);
+                });
+
+                socket.on('board-updated', (updatedBoard) => {
+                    console.log('Received board update:', updatedBoard);
+                    if (updatedBoard && updatedBoard.projectId === projectId) {
+                        loadFromLocalStorage(updatedBoard, true);
+                    }
+                });
+
+                socket.on('disconnect', () => {
+                    console.log('Disconnected from server');
+                    // Save current state before disconnecting
+                    saveToLocalStorage();
+                });
             </script>
 </body>
 

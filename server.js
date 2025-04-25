@@ -61,14 +61,37 @@ io.on("connection", (socket) => {
     }
   });
 
-  // socket.on("join-room", (roomName, roomId) => {
-  //   console.log(`User joined room: ${roomName}`);
-  //   socket.join(roomId);
-  // });
-
-  socket.on("project-update", (data) => {
-    socket.broadcast.emit("project-update", data);
+  socket.on('join-room', (roomName, room) => {
+    socket.join(room);
+    console.log(`User ${socket.id} joined room: ${room}`);
   });
+
+  socket.on('updateBoard', async (boardState) => {
+    try {
+      const { projectId } = boardState;
+      console.log("Updating board for project:", projectId);
+      
+      // Save to database first
+      const updatedKanban = await Kanban.findOneAndUpdate(
+        { projectId: projectId },
+        { columns: boardState.columns },
+        { new: true, upsert: true }
+      );
+
+      if (!updatedKanban) {
+        console.error("Failed to update Kanban board");
+        return;
+      }
+
+      // Broadcast to all clients in the room
+      const room = `chat${projectId}`;
+      io.to(room).emit('board-updated', updatedKanban);
+      console.log("Board updated and broadcasted to room:", room);
+    } catch (error) {
+      console.error("Error handling board update:", error);
+    }
+  });
+
   socket.on("send-message", (message, roomId) => {
     console.log(`Message received for room ${roomId}: ${message}`);
     io.to(roomId).emit("receive-message", message);
@@ -77,30 +100,7 @@ io.on("connection", (socket) => {
     // socket.broadcast.emit('project-update',data);
   });
   socket.on("disconnect", () => {
-    console.log(`socket.on("disconnect"User disconnected: ${socket.id}`);
-  });
-  socket.on("join-room", (roomName, roomId) => {
-    if (!socket.rooms.has(roomId)) {
-      // Prevent joining multiple times
-      socket.join(roomId);
-      console.log(`User joined room: ${roomName}`);
-    }
-  });
-  socket.on(`updateBoard`, async (boardState) => {
-    try {
-      const { projectId } = boardState;
-      console.log("projectId", projectId);
-      await Kanban.findOneAndUpdate(
-        { projectId: projectId },
-        { columns: boardState.columns },
-        { new: true, upsert: true }
-      ).lean();
-
-      socket.broadcast.emit("board-updated", boardState);
-      console.log("server socket is trying to loadFromLocalStorage");
-    } catch (error) {
-      console.error("Error handling board update:", error);
-    }
+    console.log("User disconnected:", socket.id);
   });
 });
 
