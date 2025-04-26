@@ -1,32 +1,34 @@
 <html lang="en">
 <button type="button" class="btn btn-primary" id='openCPModalButton'>Create Project</button>
-<div id='CreateProjectModal' class="modal" >
-  <form action="/project/createProject" method="POST"  class="modal-content" >
-    <span class="close">&times;</span>
-    <div class="form-group">
-      <label for="name">Project Name</label>
-      <input type="text" name="name" id="name" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea name="description" id="description" class="form-control" required></textarea>
-    </div>
-    <div class="form-group">
-      <label for="startDate">Start Date</label>
-      <input type="date" name="startDate" id="startDate" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="endDate">End Date</label>
-      <input type="date" name="endDate" id="endDate" class="form-control" required>
-    </div>
-    <div class="form-group">
-      <label for="status">Status</label>
-      <select name="status" id="status" class="form-control">
-        <option value="Not Started">Not Started</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Create Project</button>
-  </form>
+<div id='CreateProjectModal' class="modal">
+  <div class="modal-content">
+    <button type="button" class="close">&times;</button>
+    <form action="/project/createProject" method="POST">
+      <div class="form-group">
+        <label for="name">Project Name</label>
+        <input type="text" name="name" id="name" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea name="description" id="description" class="form-control" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="startDate">Start Date</label>
+        <input type="date" name="startDate" id="startDate" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="endDate">End Date</label>
+        <input type="date" name="endDate" id="endDate" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select name="status" id="status" class="form-control">
+          <option value="Not Started">Not Started</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Create Project</button>
+    </form>
+  </div>
 </div>

@@ -157,14 +157,34 @@
         }
 
         #createDocumentForm {
-            border: 1px solid black;
+            border: 1px solid #e0e0e0;
             position: fixed;
-            width: 300px;
-            z-index: 2;
-            background-color: white;
+            width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1000;
+            background-color: #f9f9f9;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         body {
@@ -178,24 +198,146 @@
         }
 
         .close-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            font-size: 24px;
+            position: relative;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: #666;
+            color: white;
             transition: color 0.2s;
+            padding: 0;
+            background: none;
+            border: none;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .close-btn:hover {
-            color: #000;
+            color: #f0f0f0;
         }
 
         .form-header {
             position: relative;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #8B0000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .form-content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+            background-color: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #08CF65;
+            background-color: #ffffff;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            border-color: #d0d0d0;
+        }
+
+        .btn-primary {
+            background-color: #8B0000;
+            color: white;
+            border: 1px solid white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #6B0000;
+            transform: translateY(-1px);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-footer {
+            padding: 20px;
+            background-color: #8B0000;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            border-radius: 0 0 12px 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-footer .btn-primary {
+            width: auto;
+            min-width: 150px;
+            display: inline-block;
+            background-color: white;
+            color: #8B0000;
+            border: 1px solid #8B0000;
+            margin: 0 auto;
+        }
+
+        .form-footer .btn-primary:hover {
+            background-color: #f0f0f0;
+            color: #8B0000;
         }
 
         .column-color-picker,
@@ -325,6 +467,36 @@
                 /* One column on small screens */
             }
         }
+
+        .column-footer {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin-top: 8px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+            z-index: 5;
+        }
+
+        .documents-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 100px;
+        }
+
+        .document-count {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -340,35 +512,38 @@
         </h1>
         <form id="createColumnForm">
             <div class="form-group">
-                <label for="columnContent">Column Content</label>
+                <label for="columnContent">Column Title</label>
                 <input type="text" id="columnContent" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-primary">Create Column</button>
         </form>
 
         <!-- Without hidden attribute: form shows before any columns exist -->
-        <form id="createDocumentForm" hidden class="document-form">
+        <form id="createDocumentForm" class="document-form" style="display: none;">
             <div class="form-header">
                 <h2>Create Document</h2>
-                <span class="close-btn">&times;</span>
+                <button type="button" class="close-btn">&times;</button>
             </div>
-            <div class="form-group">
-                <label for="documentTitle">Document Title</label>
-                <input type="text" id="documentTitle" class="form-control" required>
+            <div class="form-content">
+                <div class="form-group">
+                    <label for="documentTitle">Document Title</label>
+                    <input type="text" id="documentTitle" class="form-control" required placeholder="Enter document title">
 
-                <label for="documentDescription">Document Description</label>
-                <textarea id="documentDescription" class="form-control"></textarea>
+                    <label for="documentDescription">Document Description</label>
+                    <textarea id="documentDescription" class="form-control" placeholder="Enter document description"></textarea>
 
-                <div class="form-buttons">
-                    <input type="button" id="documentColumn" class="form-control btn-secondary" value="Column">
-                    <input type="button" id="documentAssignee" class="form-control btn-secondary" value="Assignee">
-                    <input type="button" id="documentLabel" class="form-control btn-secondary" value="Label">
-                    <input type="button" id="documentProject" class="form-control btn-secondary"
-                        value="Assign to Project">
-                    <input type="button" id="MileStone" class="form-control btn-secondary" value="MileStone">
+                    <div class="form-buttons">
+                        <input type="button" id="documentColumn" class="btn-secondary" value="Column">
+                        <input type="button" id="documentAssignee" class="btn-secondary" value="Assignee">
+                        <input type="button" id="documentLabel" class="btn-secondary" value="Label">
+                        <input type="button" id="documentProject" class="btn-secondary" value="Assign to Project">
+                        <input type="button" id="MileStone" class="btn-secondary" value="MileStone">
+                    </div>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+            </div>
         </form>
 
         <!-- Without this container: nowhere to place dragable columns -->
@@ -396,12 +571,53 @@
                 const roomName = `<%= project.name %>`;
 
                 socket.on('connect', () => {
+                    console.log('Connected to server');
                     socket.emit('join-room', roomName, room);
                 });
 
                 socket.on("board-updated", (updatedBoard) => {
-                    init(updatedBoard, true);
+                    console.log('Received board update:', updatedBoard);
+                    if (updatedBoard && updatedBoard.projectId === projectId) {
+                        loadFromLocalStorage(updatedBoard, true);
+                    }
                 });
+
+                function loadFromLocalStorage(emittedBoard, emitted) {
+                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>');
+                    const savedState = localStorage.getItem(`kanbanBoard-${projectId}`);
+                    
+                    let boardState;
+                    
+                    if (emittedBoard) {
+                        boardState = emittedBoard;
+                    } else if (savedState) {
+                        boardState = JSON.parse(savedState);
+                    } else if (kanban && kanban.length > 0) {
+                        boardState = kanban[0];
+                    } else {
+                        boardState = {
+                            projectId: projectId,
+                            columns: []
+                        };
+                    }
+
+                    if (boardState.projectId !== projectId) {
+                        console.log('No saved state for this project');
+                        return;
+                    }
+
+                    const dragparent = document.getElementById('dragparent');
+                    dragparent.innerHTML = '';
+                    listOfColumn = [];
+
+                    boardState.columns.forEach(column => {
+                        const newColumn = createColumnFromSaved(column);
+                        dragparent.appendChild(newColumn);
+                        listOfColumn.push(newColumn);
+                    });
+
+                    reinitializeDragula(dragparent, listOfColumn);
+                }
 
                 function saveToLocalStorage() {
                     const boardState = {
@@ -423,8 +639,20 @@
                         }),
                     };
 
-                    socket.emit('updateBoard', boardState);
-                    localStorage.setItem(`kanbanBoard`, JSON.stringify(boardState));
+                    // Update document counts
+                    document.querySelectorAll('.dragColumn').forEach(column => {
+                        updateDocumentCount(column);
+                    });
+
+                    // Save to both localStorage and server
+                    localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
+                    
+                    // Emit to server with error handling
+                    try {
+                        socket.emit('updateBoard', boardState);
+                    } catch (error) {
+                        console.error('Error saving to server:', error);
+                    }
                 }
 
                 function createDocumentFromSaved(doc) {
@@ -522,36 +750,38 @@
                     columnNav.appendChild(title);
 
                     newColumn.appendChild(columnNav);
+
+                    // Create documents container
+                    const documentsContainer = document.createElement('div');
+                    documentsContainer.className = 'documents-container';
+                    newColumn.appendChild(documentsContainer);
+                    
+                    // Add documents to the container
                     column.documents.forEach(document => {
                         const newDocument = createDocumentFromSaved(document);
-                        newColumn.appendChild(newDocument);
+                        documentsContainer.appendChild(newDocument);
                     });
+
+                    // Add column footer with document count
+                    const columnFooter = document.createElement('div');
+                    columnFooter.className = 'column-footer';
+                    
+                    const documentCount = document.createElement('span');
+                    documentCount.className = 'document-count';
+                    documentCount.textContent = `Documents: ${column.documents.length}`;
+                    columnFooter.appendChild(documentCount);
+                    
+                    newColumn.appendChild(columnFooter);
+
                     return newColumn;
                 }
 
-                function loadFromLocalStorage(emittedBoard, emitted) {
-                    const kanban = JSON.parse('<%- JSON.stringify(kanban) %>')[0] ?? kanban;
-
-                    if (!kanban || kanban === true) return;
-
-                    const boardState = emittedBoard ?? kanban;
-
-                    if (boardState.projectId !== projectId) {
-                        console.log('No saved state for this project');
-                        return;
+                function updateDocumentCount(column) {
+                    const documentCount = column.querySelector('.document-count');
+                    if (documentCount) {
+                        const count = column.querySelectorAll('.dragDocument').length;
+                        documentCount.textContent = `Documents: ${count}`;
                     }
-
-                    const dragparent = document.getElementById('dragparent');
-                    dragparent.innerHTML = '';
-                    listOfColumn = [];
-
-                    boardState.columns.forEach(column => {
-                        const newColumn = createColumnFromSaved(column);
-                        dragparent.appendChild(newColumn);
-                        listOfColumn.push(newColumn);
-                    });
-
-                    reinitializeDragula(dragparent, listOfColumn);
                 }
 
                 function reinitializeDragula(dragparent, listOfColumn) {
@@ -567,9 +797,14 @@
 
                     if (documentDrake) documentDrake.destroy();
 
-                    documentDrake = dragula(listOfColumn, {
+                    // Update to use document containers
+                    const documentContainers = listOfColumn.map(column => 
+                        column.querySelector('.documents-container')
+                    ).filter(container => container !== null);
+
+                    documentDrake = dragula(documentContainers, {
                         moves: (el, container, handle) => el.classList.contains('dragDocument'),
-                        accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn'),
+                        accepts: (el, target) => target.classList.contains('documents-container'),
                     });
 
                     columnDrake.on('drop', (el, target, source) => {
@@ -577,7 +812,23 @@
                         saveToLocalStorage();
                     });
 
-                    documentDrake.on('drop', saveToLocalStorage);
+                    documentDrake.on('drop', (el, target, source) => {
+                        // Update document counts for both source and target columns
+                        if (source && target) {
+                            const sourceColumn = source.closest('.dragColumn');
+                            const targetColumn = target.closest('.dragColumn');
+                            
+                            if (sourceColumn) {
+                                updateDocumentCount(sourceColumn);
+                            }
+                            
+                            if (targetColumn && targetColumn !== sourceColumn) {
+                                updateDocumentCount(targetColumn);
+                            }
+                        }
+                        
+                        saveToLocalStorage();
+                    });
                 }
 
                 function deleteDocument(docID) {
@@ -621,13 +872,18 @@
 
                 function createDocumentPopup(columnData) {
                     const theDocPopupForm = document.getElementById('createDocumentForm');
-                    theDocPopupForm.toggleAttribute("hidden");
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop';
+                    document.body.appendChild(backdrop);
+                    backdrop.style.display = 'block';
+                    theDocPopupForm.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                    
                     const popupButton = document.getElementById('createDoc');
                     popupButton.setAttribute('data-id', columnData);
                     const documentTitle = document.getElementById('documentTitle');
                     documentTitle.focus();
                 }
-
                 function init(emittedBoard = null, emitted = false) {
                     const createColumnForm = document.getElementById('createColumnForm');
                     const createDocumentForm = document.getElementById('createDocumentForm');
@@ -675,11 +931,23 @@
                         // Reinitialize dragula for documents with new column
                         documentDrake.destroy();
                         listOfColumn = Array.from(document.querySelectorAll('.dragColumn'));
-                        documentDrake = dragula(listOfColumn, {
+                        
+                        // Update to use document containers consistently
+                        const documentContainers = listOfColumn.map(column => 
+                            column.querySelector('.documents-container')
+                        ).filter(container => container !== null);
+                        
+                        documentDrake = dragula(documentContainers, {
                             moves: (el, container, handle) => el.classList.contains('dragDocument'),
-                            accepts: (el, target) => el.classList.contains('dragDocument') && target.classList.contains('dragColumn')
+                            accepts: (el, target) => target.classList.contains('documents-container')
                         });
-                        documentDrake.on('drop', saveToLocalStorage);
+                        
+                        documentDrake.on('drop', (el, target, source) => {
+                            if (source && source !== target) {
+                                // Update any necessary data or references for this document
+                            }
+                            saveToLocalStorage();
+                        });
                     };
                     createDocumentForm.removeEventListener('submit', handleDocumentSubmit);
                     createDocumentForm.addEventListener('submit', handleDocumentSubmit)
@@ -694,18 +962,56 @@
                         };
                         const documentLineItem = createDocumentFromSaved(doc);
                         const parentColumn = document.getElementById(columnID);
-                        parentColumn.appendChild(documentLineItem);
+                        const documentsContainer = parentColumn.querySelector('.documents-container');
+                        documentsContainer.appendChild(documentLineItem);
                         createDocumentForm.reset();
-                        createDocumentForm.setAttribute('hidden', '');
+                        createDocumentForm.style.display = 'none';
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                        document.body.classList.remove('modal-open');
                         saveToLocalStorage();
                     };
 
                     // Close button for document form
                     const closeBtn = document.querySelector('.close-btn');
                     closeBtn.addEventListener('click', () => {
-                        createDocumentForm.setAttribute('hidden', '');
+                        createDocumentForm.style.display = 'none';
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
+                        document.body.classList.remove('modal-open');
                     });
                 }  
+
+                // Add event listener for page unload
+                window.addEventListener('beforeunload', () => {
+                    saveToLocalStorage();
+                });
+
+                // Add event listener for visibility change
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden') {
+                        saveToLocalStorage();
+                    }
+                });
+
+                // Initialize socket connection
+                socket.on('connect', () => {
+                    console.log('Connected to server');
+                    socket.emit('join-room', roomName, room);
+                });
+
+                socket.on('board-updated', (updatedBoard) => {
+                    console.log('Received board update:', updatedBoard);
+                    if (updatedBoard && updatedBoard.projectId === projectId) {
+                        loadFromLocalStorage(updatedBoard, true);
+                    }
+                });
+
+                socket.on('disconnect', () => {
+                    console.log('Disconnected from server');
+                    // Save current state before disconnecting
+                    saveToLocalStorage();
+                });
             </script>
 </body>
 

@@ -6,4 +6,3 @@ const{ensureAuth, ensureGuest} = require('../middleware/auth')
 router.get('/',indexController.getIndex) 
 
 module.exports = router
-//

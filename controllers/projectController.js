@@ -107,6 +107,60 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
+  /**getProjectInfo: async (req, res) => {
+    console.log("projectController getProjectInfo line 110", "req.params.id", req.params);
+
+    try {
+        // Fetch project data from MongoDB
+        const project = await Project.findById(req.params.id); // Renamed response to project for clarity
+        
+        if (!project) {
+            // Respond with 404 if project not found
+            return res.status(404).json({ error: "Project not found" });
+        }
+
+        console.log("projectController getProjectInfo line 110", project, "req.params.id", req.params.id);
+
+        // Respond with project data as JSON
+        res.json(project);
+    } catch (err) {
+        // Log and respond with 500 Internal Server Error
+        console.error(err, "ERROR projectController getProjectInfo");
+        res.status(500).json({ error: "Server Error", details: err.message });
+    }
+};*/
+  // getProjectInfo: async (req, res) => {
+  //   console.log(
+  //     "projectController getProjectInfo line 110",
+  //     "req.params.id",
+  //     req.params
+  //   );
+  //   try {
+  //     const { id } = req.params;
+  //     if (!mongoose.Types.ObjectId.isValid(id)) {
+  //       return res.status(400).json({ error: "Invalid Project ID" });
+  //     }
+  //     const response = await Project.findById(id);
+  //     if (!response) {
+  //       return res.status(404).json({ error: "Project not found" });
+  //     }
+  //     // const project = response.json();
+  //     console.log(
+  //       "projectController getProjectInfo line 110",
+  //       response,
+  //       "req.params.id",
+  //       req.params.id
+  //     );
+
+  //     res.json(response);
+  //   } catch (err) {
+  //     console.error(
+  //       err,
+  //       "ERROR projectController getProjectInfo chat.js line 13"
+  //     ); // Log for debugging
+  //     res.status(500).json({ error: "Server Error", details: err.message });
+  //   }
+  // },
   updateProject: async (req, res) => {
     try {
       const { name, description, startDate, endDate, status } = req.body;
@@ -140,9 +194,11 @@ module.exports = {
   getKanban: async (req, res) => {
     try {
       const kanban = await Kanban.find({ projectId: req.params.id });
-      // const kanban = JSON.stringify(await Kanban.find({projectId: req.params.id}));
       const project = await Project.findById(req.params.id);
-      // console.log("req.params.id", req.params.id,"kanban",JSON.stringify(kanban));
+
+      if (!project) {
+        return res.status(404).send("Project not found");
+      }
 
       res.render("kanban_template", {
         project,
@@ -151,22 +207,27 @@ module.exports = {
       });
     } catch (err) {
       console.error(err);
-      req.status(500).send("Server Error");
+      res.status(500).send("Server Error");
     }
   },
   updateKanban: async (req, res) => {
     try {
       const { projectId, columns } = req.body;
 
-      const updatedKanban = await Kanban.findByIdAndUpdate(
+      const updatedKanban = await Kanban.findOneAndUpdate(
         { projectId: projectId },
         { columns: columns },
         { new: true, upsert: true }
       );
-      req.app.get("socket.io").emit(`updateBoard`, updatedKanban);
-    } catch (err) {
-      console.error("Error updating Kanban:", error);
 
+      if (!updatedKanban) {
+        return res.status(404).send("Kanban not found");
+      }
+
+      req.app.get("socket.io").emit("board-updated", updatedKanban);
+      res.json(updatedKanban);
+    } catch (err) {
+      console.error("Error updating Kanban:", err);
       res.status(500).send("Server Error");
     }
   },
