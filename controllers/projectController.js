@@ -194,9 +194,11 @@ module.exports = {
   getKanban: async (req, res) => {
     try {
       const kanban = await Kanban.find({ projectId: req.params.id });
-      // const kanban = JSON.stringify(await Kanban.find({projectId: req.params.id}));
       const project = await Project.findById(req.params.id);
-      // console.log("req.params.id", req.params.id,"kanban",JSON.stringify(kanban));
+
+      if (!project) {
+        return res.status(404).send("Project not found");
+      }
 
       res.render("kanban_template", {
         project,
@@ -205,22 +207,27 @@ module.exports = {
       });
     } catch (err) {
       console.error(err);
-      req.status(500).send("Server Error");
+      res.status(500).send("Server Error");
     }
   },
   updateKanban: async (req, res) => {
     try {
       const { projectId, columns } = req.body;
 
-      const updatedKanban = await Kanban.findByIdAndUpdate(
+      const updatedKanban = await Kanban.findOneAndUpdate(
         { projectId: projectId },
         { columns: columns },
         { new: true, upsert: true }
       );
-      req.app.get("socket.io").emit(`updateBoard`, updatedKanban);
-    } catch (err) {
-      console.error("Error updating Kanban:", error);
 
+      if (!updatedKanban) {
+        return res.status(404).send("Kanban not found");
+      }
+
+      req.app.get("socket.io").emit("board-updated", updatedKanban);
+      res.json(updatedKanban);
+    } catch (err) {
+      console.error("Error updating Kanban:", err);
       res.status(500).send("Server Error");
     }
   },

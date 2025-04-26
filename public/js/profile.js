@@ -1,16 +1,16 @@
 let notifpushed = false;
 
 document.addEventListener("DOMContentLoaded", function () {
-  const modal = document.querySelector("modalWrapper");
+  const modal = document.querySelector(".modalWrapper");
   const addDocumentModal = document.getElementById("addDocumentModal");
   const span = document.getElementsByClassName("close")[0];
   const editProjectForm = document.getElementById("editProjectForm");
+  let currentProjectId = null;
 
   // Delete project functionality
   const deleteButtons = document.querySelectorAll(".delete-btn");
   deleteButtons.forEach((button) => {
     button.addEventListener("click", async function (event) {
-      // Prevent any parent elements from handling the click
       event.stopPropagation();
 
       if (confirm("Are you sure you want to delete this project?")) {
@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           const data = await response.json();
           if (data.success) {
-            // Remove the project item from the DOM
             this.closest(".project-item").remove();
           } else {
             alert("Failed to delete project");
@@ -45,9 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
       event.stopPropagation();
 
-      const projectId = this.getAttribute("href")
-        .split("/edit")[0]
-        .split("project/")[1];
+      const projectId = this.getAttribute("href").split("/edit")[0].split("project/")[1];
       currentProjectId = projectId;
 
       try {
@@ -55,15 +52,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const response = await fetch(`/profile/project/${projectId}/data`);
         if (!response.ok) throw new Error("Failed to fetch project data");
 
-        currentProject = await response.json();
-        console.log("start profile editbuttons", currentProject);
+        const project = await response.json();
+        console.log("Fetched project data:", project);
+
         // Populate form
         document.getElementById("editName").value = project.name;
         document.getElementById("editDescription").value = project.description;
-        document.getElementById("editStartDate").value =
-          project.startDate.split("T")[0];
-        document.getElementById("editEndDate").value =
-          project.endDate.split("T")[0];
+        document.getElementById("editStartDate").value = project.startDate.split("T")[0];
+        document.getElementById("editEndDate").value = project.endDate.split("T")[0];
         document.getElementById("editStatus").value = project.status;
 
         // Show modal
@@ -123,16 +119,13 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     try {
-      const response = await fetch(
-        `/profile/project/${currentProjectId}?_method=PUT`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       if (response.ok) {
         window.location.reload();
