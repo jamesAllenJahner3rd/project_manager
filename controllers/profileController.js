@@ -18,8 +18,8 @@ module.exports = {
         return res.status(404).send("Profile not found. Try logging in again.");
       }
 
-      console.log("User Profile Found:", userProfile);
-      console.log("User Profile ID:", userProfile._id);
+      // console.log("User Profile Found:", userProfile);
+      // console.log("User Profile ID:", userProfile._id);
 
       // Ensure ObjectId format
       const userId = new mongoose.Types.ObjectId(userProfile._id);
@@ -28,9 +28,12 @@ module.exports = {
       const projectList = await Project.find({
         $or: [{ adminId: userId }, { userId: userId }],
       });
-      const notificationList = await Notification.find({ userId, status:"New" });
+      const notificationList = await Notification.find({
+        userId,
+        status: "New",
+      });
 
-      console.log("Projects fetched from DB:", projectList);
+      // console.log("Projects fetched from DB:", projectList);
 
       res.render("profile", {
         userProfile,

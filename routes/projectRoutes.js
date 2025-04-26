@@ -12,6 +12,7 @@ router.put("/kanban:id", projectController.updateKanban);
 router.post("/createProject", projectController.createProject);
 router.get("/:id", projectController.getProject);
 router.put("/addUser", projectController.addUser);
+router.put("/ageNotification", projectController.ageNotification);
 // router.get('/:id/getProjectInfo', projectController.getProjectInfo);
 router.get("/:id/edit", async (req, res) => {
   try {
