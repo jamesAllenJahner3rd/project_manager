@@ -212,9 +212,9 @@ async function saveNotification(event) {
       }
     }
     //console.log(
-      "notificationId profile.js save Notification line 219",
-      notificationId
-    );
+    //   "notificationId profile.js save Notification line 219",
+    //   notificationId
+    // );
     let ageNotification = await fetch(`/project/ageNotification`, {
       method: "PUT",
       headers: {
