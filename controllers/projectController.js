@@ -266,6 +266,7 @@ module.exports = {
       if (!updatedProjectUsers) {
         return res.status(404).json({ error: "Project not found" });
       }
+
       console.log("Updated Project", updatedProjectUsers.name);
       res.status(200).json({
         message: `User added as ${userType}`,
@@ -278,6 +279,33 @@ module.exports = {
       res
         .status(500)
         .json({ error: "Server error. Unable to add user to project." });
+    }
+  },
+  ageNotification: async (req, res) => {
+    console.log(
+      "notificationId, agaNotification projectController.js line 225",
+      req.body
+    );
+    try {
+      let CurrentNotification = await Notification.findOneAndUpdate(
+        { _id: req.body.notificationId },
+        { status: "Old" },
+        { new: true, upsert: true }
+      );
+      console.log("userId", CurrentNotification.userId);
+      const { userId } = CurrentNotification;
+      const notificationList = await Notification.find({
+        userId,
+        status: "New",
+      });
+
+      console.log("notificationList:", notificationList);
+      // console.log("userId:", req.body.userId);
+
+      res.json(JSON.stringify(notificationList, userId));
+      // res.json({ message: "Notification updated successfully", notification: req.body.notificationId });
+    } catch (err) {
+      console.log("You got and error:", err);
     }
   },
 };
