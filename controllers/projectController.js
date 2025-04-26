@@ -247,13 +247,10 @@ module.exports = {
       const notificationDocument = await Notification.findOne({
         _id: notificationObjectId,
       });
-
       // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
-      // const projectObjectId = new mongoose.Types.ObjectId(projectId);
-
-      // const {status, projectId ,projectName, userId, userType} = notificationDocument;
+       const {status, projectId ,projectName, userId, userType} = notificationDocument;
       // console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
-
+      const projectObjectId = new mongoose.Types.ObjectId(projectId);
       const updateField =
         userType === "adminId"
           ? { $addToSet: { adminId: userId } }
