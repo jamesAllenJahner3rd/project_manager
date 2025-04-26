@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
         status: document.getElementById("status").value,
         columns: [], // Initialize empty columns array
       };
-      console.log("name profile.js line 166", formData.name);
+      // console.log("name profile.js line 166", formData.name);
       try {
         const response = await fetch("/project/createProject", {
           method: "POST",
@@ -185,13 +185,13 @@ decisionButton.forEach((button) => {
 });
 async function saveNotification(event) {
   const notificationId = event.target.dataset.id;
-  console.log(
-    "notificationId profile.js save Notification line 195",
-    notificationId
-  );
-  console.log(event.currentTarget.classList, event.currentTarget, event.target);
+  // console.log(
+    // "notificationId profile.js save Notification line 195",
+    // notificationId
+  // );
+  // console.log(event.currentTarget.classList, event.currentTarget, event.target);
 
-  console.log(`${notificationId} profile.js line 192`);
+  // console.log(`${notificationId} profile.js line 192`);
   try {
     if (event.target.classList.contains("affirmativeButton")) {
       console.log("trying to save the user to the project");
@@ -204,7 +204,7 @@ async function saveNotification(event) {
         body: JSON.stringify({ notificationId }),
       }); // Handle server response
       const responseData = await newUser.json();
-      console.log(responseData);
+      // console.log(responseData);
       if (newUser.ok) {
         console.log("User added successfully:", responseData);
       } else {
@@ -212,9 +212,9 @@ async function saveNotification(event) {
       }
     }
     //console.log(
-      "notificationId profile.js save Notification line 219",
-      notificationId
-    );
+      // "notificationId profile.js save Notification line 219",
+      // notificationId
+    // );
     let ageNotification = await fetch(`/project/ageNotification`, {
       method: "PUT",
       headers: {
