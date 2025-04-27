@@ -220,4 +220,13 @@ module.exports = {
       req.status(500).json({ error: "Server Error" });
     }
   },
+  getId: async (req, res) => {
+    // console.log("googleId", req.user.googleId);
+
+    const userProfile = await Profile.findOne({
+      googleId: req.user.googleId,
+    });
+
+    res.json(userProfile);
+  },
 };

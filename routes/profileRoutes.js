@@ -16,7 +16,7 @@ router.delete(
   profileController.deleteProject
 );
 router.get("/project/:id/data", ensureAuth, profileController.getProjectData);
-
+router.get("/getId",ensureAuth, profileController.getId);
 router.put("/notifyUser/:id", ensureAuth, profileController.addNotification);
 //routes for profile control
 // router.get('/openNotifications', ensureAuth, profileController.getProfile);

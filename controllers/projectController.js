@@ -249,11 +249,11 @@ module.exports = {
       });
 
       // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
-      
 
-       const {status, projectId ,projectName, userId, userType} = notificationDocument;
+      const { status, projectId, projectName, userId, userType } =
+        notificationDocument;
       //  console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
-       const projectObjectId = new mongoose.Types.ObjectId(projectId);
+      const projectObjectId = new mongoose.Types.ObjectId(projectId);
       const updateField =
         userType === "adminId"
           ? { $addToSet: { adminId: userId } }
@@ -306,6 +306,14 @@ module.exports = {
       // res.json({ message: "Notification updated successfully", notification: req.body.notificationId });
     } catch (err) {
       console.log("You got and error:", err);
+    }
+  },
+  edit: async (req, res) => {
+    try {
+      const project = await Project.findById(req.params.id);
+      res.render("projects/edit", { project });
+    } catch (error) {
+      res.status(500).send("Server Error");
     }
   },
 };
