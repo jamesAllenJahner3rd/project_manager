@@ -14,14 +14,7 @@ router.get("/:id", projectController.getProject);
 router.put("/addUser", projectController.addUser);
 router.put("/ageNotification", projectController.ageNotification);
 // router.get('/:id/getProjectInfo', projectController.getProjectInfo);
-router.get("/:id/edit", async (req, res) => {
-  try {
-    const project = await Project.findById(req.params.id);
-    res.render("projects/edit", { project });
-  } catch (error) {
-    res.status(500).send("Server Error");
-  }
-});
+router.get("/:id/edit", projectController.edit);
 router.put("/:id", projectController.updateProject);
 router.delete("/:id", projectController.deleteProject);
 

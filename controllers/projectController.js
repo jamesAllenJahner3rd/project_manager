@@ -239,7 +239,7 @@ module.exports = {
     );
     if (mongoose.Types.ObjectId.isValid(notificationId)) {
       notificationObjectId = new mongoose.Types.ObjectId(notificationId);
-      console.log("Converted ObjectId:", notificationObjectId);
+      // console.log("Converted ObjectId:", notificationObjectId);
     } else {
       console.error("Invalid ObjectId:", notificationId);
     }
@@ -248,8 +248,10 @@ module.exports = {
         _id: notificationObjectId,
       });
       // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
+
        const {status, projectId ,projectName, userId, userType} = notificationDocument;
       // console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
+
       const projectObjectId = new mongoose.Types.ObjectId(projectId);
       const updateField =
         userType === "adminId"
@@ -264,7 +266,9 @@ module.exports = {
         return res.status(404).json({ error: "Project not found" });
       }
 
-      console.log("Updated Project", updatedProjectUsers.name);
+
+      // console.log("Updated Project", updatedProjectUsers.name);
+
       res.status(200).json({
         message: `User added as ${userType}`,
         project: updatedProjectUsers,
@@ -303,6 +307,14 @@ module.exports = {
       // res.json({ message: "Notification updated successfully", notification: req.body.notificationId });
     } catch (err) {
       console.log("You got and error:", err);
+    }
+  },
+  edit: async (req, res) => {
+    try {
+      const project = await Project.findById(req.params.id);
+      res.render("projects/edit", { project });
+    } catch (error) {
+      res.status(500).send("Server Error");
     }
   },
 };

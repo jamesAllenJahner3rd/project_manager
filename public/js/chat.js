@@ -38,7 +38,7 @@ socket.on("connect", () => {
     if (!socket.joinedRoom) {
       socket.emit("join-room", roomName, `chat${currentProject._id}`);
       socket.joinedRoom = true; // Mark room as joined
-      displayMessage(`Client side: You connected with room: ${roomName}`);
+      displayMessage(`You connected with room: ${roomName}`);
     }
   });
 });
@@ -57,10 +57,13 @@ chatForm.addEventListener("submit", (e) => {
   messageInput.value = "";
 });
 
-function displayMessage(message) {
-  console.log(message);
+async function displayMessage(message) {
+  const response = await fetch("/profile/getId ");
+  const userProfile = await response.json();
+  // console.log("USERPROFILE:", userProfile);
+  // console.log(`${userProfile.displayName}: ${message}`);
   const div = document.createElement("div");
-  div.textContent = message;
+  div.textContent = `${userProfile.displayName}: ${message}`;
   document.getElementById("message-container").append(div);
 }
 export { currentProject };

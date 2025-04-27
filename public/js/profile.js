@@ -185,6 +185,7 @@ decisionButton.forEach((button) => {
 });
 async function saveNotification(event) {
   const notificationId = event.target.dataset.id;
+
   // console.log(
     // "notificationId profile.js save Notification line 195",
     // notificationId
@@ -192,6 +193,7 @@ async function saveNotification(event) {
   // console.log(event.currentTarget.classList, event.currentTarget, event.target);
 
   // console.log(`${notificationId} profile.js line 192`);
+
   try {
     if (event.target.classList.contains("affirmativeButton")) {
       console.log("trying to save the user to the project");
@@ -212,8 +214,8 @@ async function saveNotification(event) {
       }
     }
     //console.log(
-      // "notificationId profile.js save Notification line 219",
-      // notificationId
+    // "notificationId profile.js save Notification line 219",
+    //   notificationId
     // );
     let ageNotification = await fetch(`/project/ageNotification`, {
       method: "PUT",
