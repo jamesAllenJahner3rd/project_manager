@@ -1,5 +1,5 @@
 let notifpushed = false;
-
+console.log("profile is loading");
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.querySelector(".modalWrapper");
   const addDocumentModal = document.getElementById("addDocumentModal");
@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
         status: document.getElementById("status").value,
         columns: [], // Initialize empty columns array
       };
-      console.log("name profile.js line 166", formData.name);
+      // console.log("name profile.js line 166", formData.name);
       try {
         const response = await fetch("/project/createProject", {
           method: "POST",
@@ -179,29 +179,59 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   // In your form submission handler
 });
-const yesButton = document.querySelectorAll(".affirmativeButton");
-yesButton.forEach((button) => {
+const decisionButton = document.querySelectorAll(".notificationChoice");
+decisionButton.forEach((button) => {
   button.addEventListener("click", saveNotification);
 });
 async function saveNotification(event) {
   const notificationId = event.target.dataset.id;
-  console.log(`${notificationId} profile.js line 192`);
+  // console.log(
+    // "notificationId profile.js save Notification line 195",
+    // notificationId
+  // );
+  // console.log(event.currentTarget.classList, event.currentTarget, event.target);
+
+  // console.log(`${notificationId} profile.js line 192`);
   try {
-    console.log("trying to save the user to the project");
-    let newUser = await fetch(`/project/addUser`, {
+    if (event.target.classList.contains("affirmativeButton")) {
+      console.log("trying to save the user to the project");
+      let newUser = await fetch(`/project/addUser`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          // body{ event.target}
+        },
+        body: JSON.stringify({ notificationId }),
+      }); // Handle server response
+      const responseData = await newUser.json();
+      // console.log(responseData);
+      if (newUser.ok) {
+        console.log("User added successfully:", responseData);
+      } else {
+        console.error("Error adding user:", responseData);
+      }
+    }
+    //console.log(
+      // "notificationId profile.js save Notification line 219",
+      // notificationId
+    // );
+    let ageNotification = await fetch(`/project/ageNotification`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ notificationId }),
-    }); // Handle server response
-    const responseData = await newUser.json();
-    console.log(responseData);
-    if (newUser.ok) {
-      console.log("User added successfully:", responseData);
-    } else {
-      console.error("Error adding user:", responseData);
-    }
+    });
+    let responseData = await ageNotification.json();
+    //console.log(responseData.length, responseData[0], responseData[625]);
+
+    let notificationList = JSON.parse(responseData);
+
+    let notiButton = document.getElementById("openNotiModalButton");
+
+    notiButton.textContent = `${notificationList.length} Notifications`;
+    //console.log("test1", JSON.parse(responseData));
+    event.target.closest("li").remove();
   } catch (error) {
     console.error(error, "User not found");
   }

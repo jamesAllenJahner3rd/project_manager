@@ -1,7 +1,7 @@
 <button type="button" class="btn btn-primary" id="openNotiModalButton">
   <%= notificationList.length %> Notifications
 </button>
-<div class="modal">
+<div class="modal notificationList" id="notificationListModal">
   <h2>New Notifications</h2>
   <nav>
     <ul class="notification-list">
@@ -11,15 +11,12 @@
             <div class="project-header">
               <span>Hi <%=userProfile.displayName %>, Would you like to join the project <%= notification.projectName %>
                     ?</span>
-              <button class="btn btn-primary affirmativeButton" data-id="<%= notification._id %>"> Yes sir</button>
-              <button class="btn btn-primary negativeButton"> No </button>
+              <button class="btn btn-primary affirmativeButton notificationChoice" data-id="<%= notification._id %>">
+                Yes </button>
+              <button class="btn btn-primary negativeButton notificationChoice" data-id="<%= notification._id %>"> No
+              </button>
               <div class="notification-actions">
-                <button class="delete-btn" data-id="<%= notification._id %>">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-                <a href="/profile/notification/<%= notification._id %>/edit" class="edit-btn">
-                  <i class="fas fa-edit"></i>
-                </a>
+
               </div>
             </div>
 
