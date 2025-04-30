@@ -4,7 +4,7 @@
 <div class="modal notificationList" id="notificationListModal">
   <h2>New Notifications</h2>
   <nav>
-    <ul class="notification-list">
+    <ul class="notification-list" id="noteList">
       <% if (typeof notificationList !=='undefined' && notificationList.length> 0) { %>
         <% notificationList.forEach(notification=> { %>
           <li class="project-item">
