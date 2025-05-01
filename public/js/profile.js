@@ -240,6 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   // In your form submission handler
 });
+
 const noteList = document
   .getElementById("noteList")
   .addEventListener("click", (event) => {
@@ -261,6 +262,7 @@ async function saveNotification(button) {
   // console.log("button saveNotification profile.js line 247", button);
 
   // console.log(`${notificationId} notificationId profile.js line 192`);
+
   try {
     if (button.classList.contains("affirmativeButton")) {
       console.log("trying to save the user to the project");
@@ -315,6 +317,7 @@ async function saveNotification(button) {
     console.error(error, "User not found");
   }
 }
+
 async function getUserId() {
   const response = await fetch("/profile/getId");
   const userId = await response.json();
