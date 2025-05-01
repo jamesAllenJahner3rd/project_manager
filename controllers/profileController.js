@@ -4,19 +4,20 @@ const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 const Document = require("../models/Document");
 
-
-module.exports = (io)=>{
+module.exports = (io) => {
   return {
     getProfile: async (req, res) => {
-    console.log("Fetching profile...");
+      console.log("Fetching profile...");
       try {
         const userProfile = await Profile.findOne({
           googleId: req.user.googleId,
         });
 
         if (!userProfile) {
-          console.log("No profile found for this user.");
-          return res.status(404).send("Profile not found. Try logging in again.");
+          console.error("No profile found for this user.");
+          return res
+            .status(404)
+            .send("Profile not found. Try logging in again.");
         }
 
         // console.log("User Profile Found:", userProfile);
@@ -183,8 +184,7 @@ module.exports = (io)=>{
       }
     },
     addNotification: async (req, res) => {
-
-      console.log("addNotification profileController.js line 182", req.params.id);
+      // console.log("addNotification profileController.js line 182", req.params.id);
       try {
         const {
           status,
@@ -197,7 +197,7 @@ module.exports = (io)=>{
           sender,
         } = req.body;
         let user = await Profile.findOne({ email: req.params.id });
-        console.log(user);
+        // console.log(user);
         if (!user) {
           throw new Error("Can't find user profile Controler.js line 197");
         }
@@ -212,24 +212,29 @@ module.exports = (io)=>{
           userType,
           sender,
         });
-        console.log(`${user._id}`,{
-          noteID: newNotification._id, 
-          requestedUserId : user._id, 
-          displayName: user.displayName
-        })
+        // console.log(`${user._id}`,{
+        //   noteID: newNotification._id,
+        //   requestedUserId : user._id,
+        //   displayName: user.displayName
+        // })
         await newNotification.save();
-        debugger
-        
-        let userIdString =`${user._id}`//, user._id.toString)
-        console.log("userId line 224 profileController addnotification",userIdString)
-        io.to(userIdString).emit("notificationAlert",{
-          noteID: newNotification._id, 
-          requestedUserId : user._id, 
-          displayName: user.displayName
-        })
+
+        // console.log("Active rooms:", io.sockets.adapter.rooms);
+        // io.emit("notificationAlert", { noteID: "test", displayName: "Server Test" });
+        let userIdString = `${user._id}`; //, user._id.toString)
+        // console.log("userId line 224 profileController addnotification",userIdString)
+        io.to(userIdString).emit("notificationAlert", {
+          noteID: newNotification._id,
+          requestedUserId: user._id,
+          displayName: user.displayName,
+        });
         res
           .status(201)
-          .json({ success: true, message: "Notification added successfully",noteID: newNotification._id });
+          .json({
+            success: true,
+            message: "Notification added successfully",
+            noteID: newNotification._id,
+          });
         // res.redirect("/project", { isAuthenticated: req.isAuthenticated() });
       } catch (err) {
         console.error(err);
@@ -243,7 +248,7 @@ module.exports = (io)=>{
         googleId: req.user.googleId,
       });
       // console.log(userProfile)
-      res.json(userProfile);
+      res.json(userProfile._id);
     },
   };
 };

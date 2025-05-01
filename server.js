@@ -45,14 +45,12 @@ const server = http.createServer(app); //creates an HTTP server using your Expre
 const io = require("socket.io")(server);
 // const profileController = require("./controllers/profileController")(io);
 const profileRoutes = require("./routes/profileRoutes")(io);
-// debugger
 
 // console.log("server connection line 48")//,userId)
 io.on("connection", async (socket) => {
-  console.log("server")
-  
+  // console.log("server")
+
   socket.on("get-project-info", async (projectId) => {
-    
     try {
       const project = await Project.findById(projectId);
       if (!project) {
@@ -66,26 +64,23 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on('join-room', async (roomName, userProfile) => {
-    
-    
+  socket.on("join-room", async (roomName, userProfile) => {
     if (!socket.joinedRooms) socket.joinedRooms = new Set();
 
     if (!socket.joinedRooms.has(roomName)) {
-        socket.join(roomName);
-        socket.joinedRooms.add(roomName);
+      socket.join(roomName);
+      socket.joinedRooms.add(roomName);
     }
-    socket.userID = userProfile._id
+    socket.userID = userProfile._id;
     console.log(`User ${socket.userID} joined room: ${roomName}`);
     io.to(roomName).emit("user-active", { active: true });
   });
 
-
-  socket.on('updateBoard', async (boardState) => {
+  socket.on("updateBoard", async (boardState) => {
     try {
       const { projectId } = boardState;
       console.log("Updating board for project:", projectId);
-      
+
       // Save to database first
       const updatedKanban = await Kanban.findOneAndUpdate(
         { projectId: projectId },
@@ -100,7 +95,7 @@ io.on("connection", async (socket) => {
 
       // Broadcast to all clients in the room
       const room = `chat${projectId}`;
-      io.to(room).emit('board-updated', updatedKanban);
+      io.to(room).emit("board-updated", updatedKanban);
       console.log("Board updated and broadcasted to room:", room);
     } catch (error) {
       console.error("Error handling board update:", error);
@@ -111,19 +106,11 @@ io.on("connection", async (socket) => {
     console.log(`Message received for room ${roomId}: ${message}`);
     io.to(roomId).emit("receive-message", message);
 
-    console.log('socket.on("line 53 server.js send-message"', message);
+    // console.log('socket.on("line 53 server.js send-message"', message);
     // socket.broadcast.emit('project-update',data);
   });
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
-  });
-  socket.on("notificationAlert",  ()=>{
-    debugger
-    console.log('ALERT')
-    console.log('ALERT')
-    console.log('ALERT')
-    console.log('ALERT')
-    console.log('ALERT')
   });
 });
 
