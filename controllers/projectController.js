@@ -247,12 +247,11 @@ module.exports = {
       const notificationDocument = await Notification.findOne({
         _id: notificationObjectId,
       });
-
       // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
 
-      const { status, projectId, projectName, userId, userType } =
-        notificationDocument;
-      //  console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
+       const {status, projectId ,projectName, userId, userType} = notificationDocument;
+      // console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
+
       const projectObjectId = new mongoose.Types.ObjectId(projectId);
       const updateField =
         userType === "adminId"
@@ -267,7 +266,9 @@ module.exports = {
         return res.status(404).json({ error: "Project not found" });
       }
 
+
       // console.log("Updated Project", updatedProjectUsers.name);
+
       res.status(200).json({
         message: `User added as ${userType}`,
         project: updatedProjectUsers,
