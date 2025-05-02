@@ -58,7 +58,7 @@ chatForm.addEventListener("submit", (e) => {
 });
 
 async function displayMessage(message) {
-  const response = await fetch("/profile/getId ");
+  const response = await fetch("/profile/getId");
   const userProfile = await response.json();
   // console.log("USERPROFILE:", userProfile);
   // console.log(`${userProfile.displayName}: ${message}`);

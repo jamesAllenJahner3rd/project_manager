@@ -1,4 +1,6 @@
 let notifpushed = false;
+let userId = null;
+const socket = io("http://localhost:3000");
 console.log("profile is loading");
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.querySelector(".modalWrapper");
@@ -6,7 +8,59 @@ document.addEventListener("DOMContentLoaded", function () {
   const span = document.getElementsByClassName("close")[0];
   const editProjectForm = document.getElementById("editProjectForm");
   let currentProjectId = null;
+  //
+  // socket.on("set-user", (userId) => {
+  //         ; // Assign custom ID
+  //         console.log(`User ID set: ${socket.userId}`);
+  //     });
 
+  socket.on("connect", async () => {
+    // console.log("Client connect"),
+    let userProfile = await getUserId();
+    userId = `${userProfile}`;
+    // console.log("userProfile", userProfile);
+    if (!socket.joinedRoom) {
+      // Use custom tracking property
+      socket.emit("join-room", userId, userProfile);
+      socket.joinedRoom = true; // Mark room as joined
+      console.log(`User ${userId} joined room ${userId}`);
+    }
+  });
+  //<----------------
+  socket.on("notificationAlert", (data) => {
+    // console.log("notificationAlert profile line 32");
+    console.log("Received notificationAlert"); //:", data);
+
+    let newMessage = `<li class="project-item">
+            <div class="project-header">
+              <span>Hi ${data.displayName}, Would you like to join the project ${data.projectName}
+                    ?</span>
+              <button class="btn btn-primary affirmativeButton notificationChoice" data-id="${data.noteID}">
+                Yes </button>
+              <button class="btn btn-primary negativeButton notificationChoice" data-id="${data.noteID}"> No
+              </button>
+              <div class="notification-actions">
+
+              </div>
+            </div>
+
+          </li>`;
+    if (document.getElementById("emptyList")) {
+      document.getElementById("emptyList").remove();
+    }
+    let list = document.getElementById("noteList");
+    list.insertAdjacentHTML("afterbegin", newMessage);
+    let notiButton = this.getElementById("openNotiModalButton");
+    let numberOfNotes = notiButton.innerText.split(" ")[0];
+    notiButton.textContent = `${+numberOfNotes + 1} Notifications`;
+  });
+  socket.on("user-active", (data) => {
+    // console.log("profile.js socket.on user-active line 53");
+    const NotifyButton = document.getElementById("openNotiModalButton");
+    // if (data.active) {
+    //   console.log("profile.js socket.on user-active line 54");
+    // }
+  });
   // Delete project functionality
   const deleteButtons = document.querySelectorAll(".delete-btn");
   deleteButtons.forEach((button) => {
@@ -44,7 +98,9 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
       event.stopPropagation();
 
-      const projectId = this.getAttribute("href").split("/edit")[0].split("project/")[1];
+      const projectId = this.getAttribute("href")
+        .split("/edit")[0]
+        .split("project/")[1];
       currentProjectId = projectId;
 
       try {
@@ -58,8 +114,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // Populate form
         document.getElementById("editName").value = project.name;
         document.getElementById("editDescription").value = project.description;
-        document.getElementById("editStartDate").value = project.startDate.split("T")[0];
-        document.getElementById("editEndDate").value = project.endDate.split("T")[0];
+        document.getElementById("editStartDate").value =
+          project.startDate.split("T")[0];
+        document.getElementById("editEndDate").value =
+          project.endDate.split("T")[0];
         document.getElementById("editStatus").value = project.status;
 
         // Show modal
@@ -119,13 +177,16 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     try {
-      const response = await fetch(`/profile/project/${currentProjectId}?_method=PUT`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `/profile/project/${currentProjectId}?_method=PUT`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
         window.location.reload();
@@ -179,23 +240,31 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   // In your form submission handler
 });
-const decisionButton = document.querySelectorAll(".notificationChoice");
-decisionButton.forEach((button) => {
-  button.addEventListener("click", saveNotification);
-});
-async function saveNotification(event) {
-  const notificationId = event.target.dataset.id;
 
+const noteList = document
+  .getElementById("noteList")
+  .addEventListener("click", (event) => {
+    if (event.target.closest(".notificationChoice")) {
+      saveNotification(event.target.closest(".notificationChoice"));
+    }
+  });
+
+// const decisionButton = document.querySelectorAll(".notificationChoice");
+// decisionButton.forEach((button) => {
+//   button.addEventListener("click", saveNotification);
+// });
+async function saveNotification(button) {
+  const notificationId = button.dataset.id;
   // console.log(
-    // "notificationId profile.js save Notification line 195",
-    // notificationId
+  //   "notificationId profile.js save Notification line 195",
+  //   notificationId
   // );
-  // console.log(event.currentTarget.classList, event.currentTarget, event.target);
+  // console.log("button saveNotification profile.js line 247", button);
 
-  // console.log(`${notificationId} profile.js line 192`);
+  // console.log(`${notificationId} notificationId profile.js line 192`);
 
   try {
-    if (event.target.classList.contains("affirmativeButton")) {
+    if (button.classList.contains("affirmativeButton")) {
       console.log("trying to save the user to the project");
       let newUser = await fetch(`/project/addUser`, {
         method: "PUT",
@@ -224,6 +293,7 @@ async function saveNotification(event) {
       },
       body: JSON.stringify({ notificationId }),
     });
+
     let responseData = await ageNotification.json();
     //console.log(responseData.length, responseData[0], responseData[625]);
 
@@ -233,8 +303,23 @@ async function saveNotification(event) {
 
     notiButton.textContent = `${notificationList.length} Notifications`;
     //console.log("test1", JSON.parse(responseData));
-    event.target.closest("li").remove();
+    button.closest("li").remove();
+    let noteList = document.getElementById("noteList");
+    // console.log(noteList.childNodes, "before hasChildNodes");
+    if (noteList.children.length === 0) {
+      // console.log(!noteList.hasChildNodes(), "after hasChildNodes");
+      const emptyList = document.createElement("li");
+      emptyList.id = "emptyList";
+      emptyList.innerText = "No notifications found";
+      noteList.appendChild(emptyList);
+    }
   } catch (error) {
     console.error(error, "User not found");
   }
+}
+
+async function getUserId() {
+  const response = await fetch("/profile/getId");
+  const userId = await response.json();
+  return userId;
 }

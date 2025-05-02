@@ -1035,6 +1035,8 @@ footer nav ul a:hover {
     gap: 8px;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(8, 207, 101, 0.2);
+    margin: 1rem 1rem 0 1rem ;
+    
 }
 
 .btn-primary:hover {
@@ -1314,8 +1316,9 @@ footer {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
+  width: 9rem;
   margin-top: 1rem;
+  
 }
 
 .btn-primary:hover {

@@ -235,6 +235,7 @@
     }
 
     @media (max-width: 600px) {
+
       .modal-content,
       #CreateProjectModal .modal-content {
         width: 95%;
@@ -248,59 +249,58 @@
 <body>
   <!-- header -->
   <%- include('partials/header') %>
-    <h1>Adjust your profile here</h1>
-    <a href="/">To index Page</a>
-    <section class="profile-layout">
-      <!-- Project Creation Form -->
-      <nav>
-        <%- include( 'partials/createProject' ) %>
-          <%- include( 'partials/notifications' ) %>
-      </nav>
-      <ul class="project-list">
-        <% if (typeof projectList !=='undefined' && projectList.length> 0) { %>
-          <% projectList.forEach(project=> { %>
-            <li class="project-item">
-              <div class="project-header">
-                <a href="/project/<%= project._id %>">
-                  <%= project.name %>
+  <h1>Adjust your profile here</h1>
+  <a href="/">To index Page</a>
+  <section class="profile-layout">
+    <!-- Project Creation Form -->
+    <nav>
+      <%- include( 'partials/createProject' ) %>
+        <%- include( 'partials/notifications' ) %>
+    </nav>
+    <ul class="project-list">
+      <% if (typeof projectList !=='undefined' && projectList.length> 0) { %>
+        <% projectList.forEach(project=> { %>
+          <li class="project-item">
+            <div class="project-header">
+              <a href="/project/<%= project._id %>">
+                <%= project.name %>
+              </a>
+              <div class="project-actions">
+                <button class="delete-btn" data-id="<%= project._id %>">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+                <a href="/profile/project/<%= project._id %>/edit" class="edit-btn">
+                  <i class="fas fa-edit"></i>
                 </a>
-                <div class="project-actions">
-                  <button class="delete-btn" data-id="<%= project._id %>">
-                    <i class="fas fa-trash-alt"></i>
-                  </button>
-                  <a href="/profile/project/<%= project._id %>/edit" class="edit-btn">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                </div>
               </div>
+            </div>
+            <!-- <div class="project-details">
+              <p><strong>Status:</strong>
+                <%= project.status %>
+              </p>
+              <p><strong>Columns:</strong>
+                <%= project.columns ? project.columns.length : 0 %>
+              </p>
+              <p><strong>Documents:</strong>
+                <%= project.columns ? project.columns.reduce((sum, col)=> sum + (col.documents ? col.documents.length
+                  : 0), 0) : 0 %>
+              </p>
+            </div> -->
+          </li>
+          <% }) %>
+            <% } else { %>
+              <li>No projects found</li>
+              <% } %>
+    </ul>
+  </section>
+  <!-- Edit Modal HTML -->
 
-              <!-- <div class="project-details">
-                <p><strong>Status:</strong>
-                  <%= project.status %>
-                </p>
-                <p><strong>Columns:</strong>
-                  <%= project.columns ? project.columns.length : 0 %>
-                </p>
-                <p><strong>Documents:</strong>
-                  <%= project.columns ? project.columns.reduce((sum, col)=> sum + (col.documents ? col.documents.length
-                    : 0), 0) : 0 %>
-                </p>
-              </div> -->
-            </li>
-            <% }) %>
-              <% } else { %>
-                <li>No projects found</li>
-                <% } %>
-      </ul>
-    </section>
-    <!-- Edit Modal HTML -->
+  <%- include('partials/editProjectModal') %>
 
-    <%- include('partials/editProjectModal') %>
-
-      <%- include('partials/footer') %>
-        <script src="js/modal.js" type='module'></script>
-        <script src="js/profile.js" type='module'></script>
-        
+  <%- include('partials/footer') %>
+  <script src="/js/socket.io.js"></script>
+  <script src="js/modal.js" type='module'></script>
+  <script src="js/profile.js" type='module'></script>
 </body>
 
 </html>

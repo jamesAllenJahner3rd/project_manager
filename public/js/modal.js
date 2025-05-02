@@ -1,4 +1,3 @@
-
 console.log("Modal.js loaded");
 //Functions to handle general modal behavior
 const modal = document.querySelector(".modalWrapper");
@@ -7,9 +6,9 @@ let openedModal = null;
 function openModal(event) {
   openedModal = event.target;
   let toggledElement = event.target.nextElementSibling;
-  let theForm = toggledElement.firstElementChild;
+  let theForm = toggledElement?.firstElementChild || null; //fixed an error before the element loads.
   toggledElement.addEventListener("click", function (event) {
-    console.log("click modal.js line 11");
+    // console.log("click modal.js line 11");
     if (!theForm.contains(event.target)) {
       toggledElement.style.display = "none";
     }
