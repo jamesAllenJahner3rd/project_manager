@@ -149,6 +149,7 @@ module.exports = (io) => {
       }
     },
 
+
     updateDocument: async (req, res) => {
       try {
         const { title, content, status } = req.body;

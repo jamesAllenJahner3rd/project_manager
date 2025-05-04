@@ -240,6 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   // In your form submission handler
 });
+
 const noteList = document
   .getElementById("noteList")
   .addEventListener("click", (event) => {
@@ -319,4 +320,3 @@ async function getUserId() {
   const response = await fetch("/profile/getId");
   const userId = await response.json();
   return userId;
-}
