@@ -17,5 +17,5 @@ router.put("/ageNotification", projectController.ageNotification);
 router.get("/:id/edit", projectController.edit);
 router.put("/:id", projectController.updateProject);
 router.delete("/:id", projectController.deleteProject);
-
+router.get("/kanban/:id/data", projectController.getKanbanData);
 module.exports = router;

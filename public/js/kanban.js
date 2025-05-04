@@ -27,32 +27,80 @@ let room = async () => {
 };
 const roomName = room.name; //**************************
 console.log("roomName:", roomName);
-const roomN = await room(); // Get actual room data
-console.log("Room Data:", roomN);
-// Status mapping constants - maps column position to status
-const STATUS_BY_POSITION = {
-  0: "to_do", // To Do (leftmost column)
-  1: "in_progress", // In Progress
-  2: "testing", // Testing
-  3: "done", // Done (rightmost column)
-};
+
+  let STATUS_BY_POSITION  ={}
+function setStateList(){
+   listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
+   STATUS_BY_POSITION =
+   listOfColumn.forEach((column, index) => {
+    // Add column index for status tracking
+    column.index = index;   
+    listOfColumn.push(newColumn);
+    STATUS_BY_POSITION[index] = column.title;
+  });
+}
+  
+  // async 
+  function createStatusMap(projectId) {
+    // try {
+    //     const res = await fetch(`/project/kanban/${projectId}/data`);
+    //     if (!res.ok) {
+    //         throw new Error(`Fetch failed with status ${res.status}. kanban.js line 21`);
+    //     }
+
+    //     const kanbanData = await res.json();
+    //     console.log("kanbanData",kanbanData)
+    //     // Ensure kanbanData and columns exist before proceeding
+    //     if (!kanbanData || !kanbanData.columns) {
+    //         throw new Error("Kanban data is missing or incorrectly formatted.");
+    //     }
+
+        
+        
+        // for (let i = 0; i < listOfColumn.length; i++) { 
+            
+        //   STATUS_BY_POSITION[i] = listOfColumn[i].innerText;
+        // }
+
+        console.log("STATUS_BY_POSITION:", STATUS_BY_POSITION);
+        return STATUS_BY_POSITION; // Return it for use elsewhere
+
+    // } catch (err) {
+    //     console.error("Error fetching or processing Kanban data:", err);
+    //     return {}; // Return an empty object instead of null
+    // }
+}
+console.log("currentProject:", currentProject);
+
+// const STATUS_BY_POSITION = {
+//   0: "to_do", // To Do (leftmost column)
+//   1: "in_progress", // In Progress
+//   2: "testing", // Testing
+//   3: "done", // Done (rightmost column)
+// };
 // Get next status in progression
 function getNextStatus(currentStatus) {
-  switch (currentStatus) {
-    case "to_do":
-      return "in_progress";
-    case "in_progress":
-      return "testing";
-    case "testing":
-      return "done";
-    default:
-      return currentStatus; // Don't allow loopback
-  }
+  let key = Object.keys(STATUS_BY_POSITION).find(i => STATUS_BY_POSITION[i] === currentStatus)
+  // switch (currentStatus) {
+  //   case "to_do":
+  //     return "in_progress";
+  //   case "in_progress":
+  //     return "testing";
+  //   case "testing":
+  //     return "done";
+  //   default:
+  console.log("end of getNextStatus" )
+      return STATUS_BY_POSITION[+key+1]; // Don't allow loopback
+  // }
 }
 
 // Get status based on column position
 function getStatusForColumn(columnIndex) {
-  return STATUS_BY_POSITION[columnIndex] || "to_do";
+    console.log("kanban columnIndex line 81", columnIndex )
+    console.log("kanban columnIndex line 81", STATUS_BY_POSITION, ` ${ STATUS_BY_POSITION}` )
+    console.log("end of getStatusForColumn","STATUS_BY_POSITION",STATUS_BY_POSITION,"list of columns",listOfColumn )
+
+  return STATUS_BY_POSITION[columnIndex] || "Submit";
 }
 
 // Handle progress click
@@ -111,6 +159,7 @@ async function handleProgressClick(documentId, currentStatus) {
 
     // Save changes
     saveToLocalStorage();
+    console.log(' end of handleProgressClick')
   } catch (error) {
     console.error("Error updating document status:", error);
     // Use existing error handling - no custom error states
@@ -123,22 +172,24 @@ function updateProgressButtonState(button, status) {
   button.className = "progress-button";
   button.title = `Status: ${status}`;
 
-  switch (status) {
-    case "to_do":
+  // switch (status) {
+  //   case "to_do":
+  //     button.textContent = "";
+  //     break;
+  //   case "in_progress":
+  //     button.textContent = "⏳";
+  //     break;
+  //   case "testing":
+  //     button.textContent = "🧪";
+  //     break;
+  //   case "done":
+  //     button.textContent = "✓";
+  //     break;
+  //   default:
       button.textContent = "";
-      break;
-    case "in_progress":
-      button.textContent = "⏳";
-      break;
-    case "testing":
-      button.textContent = "🧪";
-      break;
-    case "done":
-      button.textContent = "✓";
-      break;
-    default:
-      button.textContent = "";
-  }
+  // }
+  console.log("end of updateProgressButtonState" )
+
 }
 
 socket.on("board-updated", (updatedBoard) => {
@@ -198,13 +249,15 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
     const newColumn = createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
+    STATUS_BY_POSITION[index] = column.title;
   });
 
   reinitializeDragula(dragparent, listOfColumn);
+  console.log('end of loadFromLocalStorage')
 }
 
 function saveToLocalStorage() {
-  debugger;
+  
   const boardState = {
     projectId: projectId,
     columns: Array.from(document.querySelectorAll("div ul.dragColumn")).map(
@@ -250,6 +303,7 @@ function saveToLocalStorage() {
   } catch (error) {
     console.error("Error saving to server:", error);
   }
+  console.log('end of saveToLocalStorage',"STATUS_BY_POSITION",STATUS_BY_POSITION,"list of columns",listOfColumn )
 }
 
 function createDocumentFromSaved(doc, columnIndex = 0) {
@@ -419,7 +473,7 @@ function createColumnFromSaved(column) {
   const documentsContainer = document.createElement("div");
   documentsContainer.className = "documents-container";
   newColumn.appendChild(documentsContainer);
-
+  
   // Add documents to the container
   if (!column.documents || column.documents.length === 0) {
     console.warn(`No documents found for column: ${column.title}`);
@@ -440,7 +494,7 @@ function createColumnFromSaved(column) {
   columnFooter.appendChild(documentCount);
 
   newColumn.appendChild(columnFooter);
-
+  console.log('end of createColumnFromSaved')
   return newColumn;
 }
 
@@ -450,6 +504,7 @@ function updateDocumentCount(column) {
     const count = column.querySelectorAll(".dragDocument").length;
     documentCount.textContent = `Documents: ${count}`;
   }
+  console.log('end of updateDocumentCount')
 }
 
 function reinitializeDragula(dragparent, listOfColumn) {
@@ -482,11 +537,13 @@ function reinitializeDragula(dragparent, listOfColumn) {
     }
 
     // Update column indices after reordering
-    const columns = Array.from(document.querySelectorAll(".dragColumn"));
-    columns.forEach((column, index) => {
+    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
+    listOfColumn.forEach((column, index) => {
       column.dataset.index = index;
+      STATUS_BY_POSITION[index] = column.innerText.split('\n')[0];
     });
 
+    // setStateList()
     saveToLocalStorage();
   });
 
@@ -517,9 +574,10 @@ function reinitializeDragula(dragparent, listOfColumn) {
         }
       }
     }
-
+    
     saveToLocalStorage();
   });
+console.log('end of reinitializeDragula')
 }
 
 function deleteDocument(docID) {
@@ -582,6 +640,7 @@ function createDocumentPopup(columnData) {
   documentTitle.focus();
 }
 function init(emittedBoard = null, emitted = false) {
+  
   const createColumnForm = document.getElementById("createColumnForm");
   const createDocumentForm = document.getElementById("createDocumentForm");
   const dragparent = document.getElementById("dragparent");
@@ -624,12 +683,14 @@ function init(emittedBoard = null, emitted = false) {
       title: columnContent,
       backgroundColor: "#f9f9f9",
       documents: [],
+      index : listOfColumn.length, 
     };
     const newColumn = createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
     createColumnForm.reset();
     saveToLocalStorage();
+    createStatusMap(projectId)
 
     // Reinitialize dragula for documents with new column
     documentDrake.destroy();
@@ -694,12 +755,14 @@ function init(emittedBoard = null, emitted = false) {
     if (backdrop) backdrop.remove();
     document.body.classList.remove("modal-open");
   });
+  console.log('end of init')
 }
 
 // Add event listener for page unload
 window.addEventListener("beforeunload", (event) => {
   saveToLocalStorage();
   event.returnValue = ""; // Prevent accidental closure without saving
+  console.log('end of beforeunload')
 });
 
 // Add event listener for visibility change

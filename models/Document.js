@@ -41,8 +41,7 @@ const DocumentSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Not Started', 'In Progress','To Be Reviewed','Completed'],
-        default: 'Not Started'
+        
     }
 });
 

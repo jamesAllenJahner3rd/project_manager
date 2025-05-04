@@ -9,41 +9,35 @@ const KanbanSchema = new mongoose.Schema({
     type: Array,
     default:[],
     required: false,
+  },statusMap: {
+    type: Object, // Store dynamically mapped statuses
+    default: {}, // Ensure default empty object
   },
 });
 
+
 // Add a pre-save hook to ensure every document has a status
-KanbanSchema.pre('save', function(next) {
-  //i  was getting errors of these not being arrays since they were empty 
-  if(!Array.isArray(this.columns)){
-    this.columns = []
+KanbanSchema.pre('save', function (next) {
+  if (!Array.isArray(this.columns)) {
+    this.columns = [];
   }
 
-  // let statusMap ={}
-  debugger
-  console.log("this.columns",this.columns)
-  if (this.columns && Array.isArray(this.columns)) {
-    // Ensure each document in each column has a status
-    this.columns.forEach((column, colIndex) => {
-//i  was getting errors of these not being arrays since they were empty 
-      if (!Array.isArray(column.documents)) {
-        column.documents =[]
+  let dynamicStatusMap = {}; // Store column titles dynamically
+  this.columns.forEach((column, colIndex) => {
+    if (!Array.isArray(column.documents)) {
+      column.documents = [];
+    }
+
+    column.documents.forEach(doc => {
+      if (!doc.status) {
+        doc.status = column.title || "Submit"; // Use column title instead of hardcoded map
       }
-        column.documents.forEach(doc => {
-          // If status is missing, set based on column index
-          if (!doc.status) {
-            const statusMap = {
-              0: "to_do",
-              1: "in_progress", 
-              2: "testing",
-              3: "done"
-            };
-            doc.status = statusMap[colIndex] || "to_do";
-          }
-        });
-      
     });
-  }
+
+    dynamicStatusMap[colIndex] = column.title || "Submit"; // Store dynamic mapping
+  });
+
+  this.statusMap = dynamicStatusMap; // Save mapping in MongoDB
   next();
 });
 

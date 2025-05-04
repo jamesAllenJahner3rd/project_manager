@@ -112,7 +112,7 @@ module.exports = (io) => {
 
     getProjectData: async (req, res) => {
       try {
-        debugger
+        
         console.log("Received project ID:", req.params.id);
         const project = await Project.findById(req.params.id).lean();
         if (!project) {
