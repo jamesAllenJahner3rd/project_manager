@@ -19,6 +19,7 @@ let room = async () => {
   try {
     let res = await fetch(`/profile/project/${projectId}/data`);
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+    console.log("end of room")
     return await res.json();
   } catch (error) {
     console.error("Fetch failed:", error);
@@ -35,9 +36,10 @@ function setStateList(){
    listOfColumn.forEach((column, index) => {
     // Add column index for status tracking
     column.index = index;   
-    listOfColumn.push(newColumn);
+    listOfColumn.push(column);
     STATUS_BY_POSITION[index] = column.title;
   });
+  console.log("end of setStateList")
 }
   
   // async 
@@ -69,6 +71,7 @@ function setStateList(){
     //     console.error("Error fetching or processing Kanban data:", err);
     //     return {}; // Return an empty object instead of null
     // }
+    console.log("end of createStatusMap")
 }
 console.log("currentProject:", currentProject);
 
@@ -131,8 +134,9 @@ async function handleProgressClick(documentId, currentStatus) {
 
     // Get all columns and find target column
     const columns = Array.from(document.querySelectorAll(".dragColumn"));
-    if (targetColumnIndex >= columns.length) return;
-
+    listOfColumn = columns
+    if (targetColumnIndex >= columns.length) return;  
+    
     const targetColumn = columns[targetColumnIndex];
     const targetContainer = targetColumn.querySelector(".documents-container");
 
@@ -160,6 +164,7 @@ async function handleProgressClick(documentId, currentStatus) {
     // Save changes
     saveToLocalStorage();
     console.log(' end of handleProgressClick')
+    setStateList()
   } catch (error) {
     console.error("Error updating document status:", error);
     // Use existing error handling - no custom error states
@@ -171,6 +176,7 @@ function updateProgressButtonState(button, status) {
   // Clear any existing classes
   button.className = "progress-button";
   button.title = `Status: ${status}`;
+  button.textContent = "✓"//'&#10003'
 
   // switch (status) {
   //   case "to_do":
@@ -186,7 +192,7 @@ function updateProgressButtonState(button, status) {
   //     button.textContent = "✓";
   //     break;
   //   default:
-      button.textContent = "";
+      // button.textContent = "";
   // }
   console.log("end of updateProgressButtonState" )
 
@@ -384,6 +390,8 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
   progressBtn.style.flexShrink = "0";
   progressBtn.style.margin = "0";
   progressBtn.style.padding = "0";
+  progressBtn.textContent = "✓"
+  progressBtn.innerText = "✓"
 
   // Set initial state based on status
   updateProgressButtonState(progressBtn, status);
@@ -410,6 +418,7 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
 
   docContainer.appendChild(iconContainer);
   documentLineItem.appendChild(docContainer);
+  console.log("end of createDocumentFromSaved")
   return documentLineItem;
 }
 
@@ -545,6 +554,7 @@ function reinitializeDragula(dragparent, listOfColumn) {
 
     // setStateList()
     saveToLocalStorage();
+    console.log("end of List of column, drop")
   });
 
   documentDrake.on("drop", (el, target, source) => {
@@ -576,6 +586,7 @@ function reinitializeDragula(dragparent, listOfColumn) {
     }
     
     saveToLocalStorage();
+    console.log("end of documentDrake")
   });
 console.log('end of reinitializeDragula')
 }
@@ -592,6 +603,7 @@ function deleteDocument(docID) {
     theDoomedDocument.parentNode.removeChild(theDoomedDocument);
     saveToLocalStorage();
   }
+  console.log("end of deleteDocument end")
 }
 
 function edit(element) {
@@ -623,6 +635,7 @@ function edit(element) {
 
   element.appendChild(rewrite);
   rewrite.focus();
+  console.log("end of edit")
 }
 
 function createDocumentPopup(columnData) {
@@ -638,6 +651,7 @@ function createDocumentPopup(columnData) {
   popupButton.setAttribute("data-id", columnData);
   const documentTitle = document.getElementById("documentTitle");
   documentTitle.focus();
+  console.log("end of createDocumentPopup")
 }
 function init(emittedBoard = null, emitted = false) {
   
