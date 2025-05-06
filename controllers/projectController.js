@@ -7,9 +7,7 @@ module.exports = {
   getProjects: async (req, res) => {
     try {
       // Find the profile of the currently authenticated user
-      const userProfile = await Profile.findOne({
-        googleId: req.user.googleId,
-      });
+      
 
       // Handle case where profile is not found
       if (!userProfile) {
@@ -22,7 +20,7 @@ module.exports = {
           { userId: new mongoose.Types.ObjectId(userProfile._id) },
         ],
       });
-
+      
       // console.log(projectList);
       res.render("project_template", { projectList: projectList });
     } catch (err) {
@@ -88,18 +86,30 @@ module.exports = {
     }
   },
   getProject: async (req, res) => {
+    debugger
     console.log(`projectcontroller getproject line 88`);
+    let accessLevel = null;
     try {
+      const userProfile = await Profile.findOne({
+        googleId: req.user.googleId,
+      });
+
       const project = await Project.findById(req.params.id);
-      console.log(
-        "get Project",
-        project,
-        "req.params.id ",
-        req.params.id,
-        "*******************************projectController getProject"
-      );
+      console.log("test accessLevel projectController line 102",userProfile._id,project.adminId,accessLevel, `${userProfile._id}`=== `${project.adminId}`)
+      if(project.adminId.map((e) =>`${e}`).includes(`${userProfile._id}`)){
+        accessLevel = "admin"
+      }else if (`${userProfile._id}`=== `${project.userId}`){
+        accessLevel = "user"
+      } else{
+        throw new Error(" Client isn't labeled as User or Admin")
+      }
+      
+      
+      console.log("included", project.adminId.map(id => id.toString()), userProfile.toString()); 
+
       res.render("project_template", {
         project,
+         accessLevel : accessLevel,
         isAuthenticated: req.isAuthenticated(),
       });
     } catch (err) {
