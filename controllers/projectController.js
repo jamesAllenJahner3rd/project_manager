@@ -3,7 +3,9 @@ const Project = require("../models/Project");
 const Kanban = require("../models/Kanban");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
+const projectController = require("./projectController"); 
 module.exports = {
+
   getProjects: async (req, res) => {
     try {
       // Find the profile of the currently authenticated user
@@ -85,9 +87,9 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
-  getProject: async (req, res) => {
+  getAccessLevel: async (req) => {
     debugger
-    console.log(`projectcontroller getproject line 88`);
+    console.log(`projectcontroller getAccesLevel line 91`);
     let accessLevel = null;
     try {
       const userProfile = await Profile.findOne({
@@ -101,12 +103,41 @@ module.exports = {
       }else if (`${userProfile._id}`=== `${project.userId}`){
         accessLevel = "user"
       } else{
-        throw new Error(" Client isn't labeled as User or Admin")
+        console.error(" Client isn't labeled as User or Admin")
       }
       
       
       console.log("included", project.adminId.map(id => id.toString()), userProfile.toString()); 
 
+      return accessLevel;
+    } catch (err) {
+      console.error(err);
+     return null
+    }
+  },
+  getProject: async (req, res) => {
+    
+    console.log(`projectcontroller getproject line 123`);
+    let accessLevel = null;
+    try {
+      const userProfile = await Profile.findOne({
+        googleId: req.user.googleId,
+      });
+
+      const project = await Project.findById(req.params.id)
+      console.log("test accessLevel projectController line 102",userProfile._id,project.adminId, `${userProfile._id}`=== `${project.adminId}`)
+     
+            if(project.adminId.map((e) =>`${e}`).includes(`${userProfile._id}`)){
+        accessLevel = "admin"
+      }else if (`${userProfile._id}`=== `${project.userId}`){
+        accessLevel = "user"
+      } else{
+        console.error(" Client isn't labeled as User or Admin")
+      }
+      
+      
+      console.log("included", project.adminId.map(id => id.toString()), userProfile.toString()); 
+      
       res.render("project_template", {
         project,
          accessLevel : accessLevel,

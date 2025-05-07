@@ -7,7 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const editProjectForm = document.getElementById("editProjectForm");
   let currentProjectId = null;
   let addUserbutton = document.getElementById("addUserModalTrigger");
-  addUserbutton.addEventListener("click", showaddUserModal);
+  if (addUserbutton){
+    addUserbutton?.addEventListener("click", showaddUserModal);
+  }
   function showaddUserModal() {
     modal.style.display = "block";
   }
