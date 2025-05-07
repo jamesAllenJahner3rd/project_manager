@@ -112,10 +112,15 @@ module.exports = (io) => {
 
     getProjectData: async (req, res) => {
       try {
-        const project = await Project.findById(req.params.id);
+        
+        console.log("Received project ID:", req.params.id);
+        const project = await Project.findById(req.params.id).lean();
         if (!project) {
           return res.status(404).json({ error: "Project not found" });
         }
+        let a = project;
+        console.log("a",a)
+        console.log("project",`${project}`)
         res.json(project);
       } catch (error) {
         res.status(500).json({ error: "Server error" });
@@ -143,6 +148,7 @@ module.exports = (io) => {
         res.status(500).json({ error: "Server Error" });
       }
     },
+
 
     updateDocument: async (req, res) => {
       try {

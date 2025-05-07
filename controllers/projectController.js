@@ -197,7 +197,7 @@ module.exports = {
       const project = await Project.findById(req.params.id);
 
       if (!project) {
-        return res.status(404).send("Project not found");
+        return res.status(404).send("Project not found projectConroller getKanban line 200");
       }
 
       res.render("kanban_template", {
@@ -205,6 +205,21 @@ module.exports = {
         kanban,
         isAuthenticated: req.isAuthenticated(),
       });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Server Error");
+    }
+  },
+  getKanbanData: async (req, res) => {
+    try {
+      const kanban = await Kanban.find({ projectId: req.params.id });
+      const project = await Project.findById(req.params.id);
+
+      if (!project) {
+        return res.status(404).send("Kanban not found projectConroller getKanbanData line 219");
+      }
+
+      res.json(kanban);
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
