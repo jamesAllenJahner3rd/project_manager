@@ -19,11 +19,11 @@ function openModal(event) {
     toggledElement.style.display = "block";
   }
 }
-if(span){
-span.addEventListener("click", function () {
-  modal.style.display = "none";
-});
-};
+if (span) {
+  span.addEventListener("click", function () {
+    modal.style.display = "none";
+  });
+}
 //Create project modal specific
 const openCPbutton = document.getElementById("openCPModalButton");
 openCPbutton?.addEventListener("click", openModal);
