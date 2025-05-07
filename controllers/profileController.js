@@ -65,6 +65,7 @@ module.exports = (io) => {
       } catch (err) {
         console.error(err);
         res.status(500).send("Server Error");
+
       }
     },
     editProject: async (req, res) => {

@@ -3,6 +3,7 @@ console.log("addUserModal.js is loaded");
 const socket = io("http://localhost:3000")
 const addUserWindow = document.querySelector("#addUserForm");
 console.log("addUserModal.js,line 5", currentProject);
+if(addUserWindow) {
 addUserWindow.addEventListener("submit", async function (event) {
   event.preventDefault();
 
@@ -72,3 +73,4 @@ addUserWindow.addEventListener("submit", async function (event) {
   const modal = document.querySelector(".modalWrapper");
   modal.style.display = "none";
 });
+};

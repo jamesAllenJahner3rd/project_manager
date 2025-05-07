@@ -1,9 +1,14 @@
 <style>
     fieldset.column {
-        margin: auto;
+        /* margin: auto;
         flex-direction: column;
         flex: 1;
-        display: flex;
+        display: flex; */
+    flex-direction: column;
+    display: flex;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: flex-start;
 
     }
 
@@ -96,6 +101,7 @@
         border-radius: 6px;
         overflow-y: auto;
         background: var(--white);
+        max-height: 32vh;
     }
 
     #message-container div {
@@ -113,7 +119,7 @@
     }
 
     section.project-layout form.project-button {
-        margin: 10%;
+        /* margin: 10%; */
     }
 
     .crosswise {

@@ -62,8 +62,11 @@ async function displayMessage(message) {
   const userProfile = await response.json();
   // console.log("USERPROFILE:", userProfile);
   // console.log(`${userProfile.displayName}: ${message}`);
-  const div = document.createElement("div");
-  div.textContent = `${userProfile.displayName}: ${message}`;
-  document.getElementById("message-container").append(div);
+  const newMessage = document.createElement("div");
+  newMessage.textContent = `${userProfile.displayName}: ${message}`;
+  const chatContainer = document.getElementById("message-container")
+  chatContainer.append(newMessage);
+  chatContainer.scroll(0,chatContainer.scrollHeight)
+  //chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 export { currentProject };
