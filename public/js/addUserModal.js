@@ -1,6 +1,6 @@
 import { currentProject } from "/js/chat.js";
 console.log("addUserModal.js is loaded");
-const socket = io("http://localhost:3000")
+const socket = io("http://localhost:8000")
 const addUserWindow = document.querySelector("#addUserForm");
 console.log("addUserModal.js,line 5", currentProject);
 if(addUserWindow) {

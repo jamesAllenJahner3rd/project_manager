@@ -1,6 +1,6 @@
 let notifpushed = false;
 let userId = null;
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:8000");
 console.log("profile is loading");
 document.addEventListener("DOMContentLoaded", function () {
   const modal = document.querySelector(".modalWrapper");
