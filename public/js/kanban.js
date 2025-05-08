@@ -31,14 +31,18 @@ console.log("roomName:", roomName);
 
 let STATUS_BY_POSITION = {};
 function setStateList() {
+  if (STATUS_BY_POSITION == undefined){
+  let STATUS_BY_POSITION = {};
+}
   listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
-  STATUS_BY_POSITION = listOfColumn.forEach((column, index) => {
+  listOfColumn.forEach((column, index) => {
     // Add column index for status tracking
     column.index = index;
-    listOfColumn.push(column);
-    STATUS_BY_POSITION[index] = column.title;
+    listOfColumn[index] = column;
+    STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
   });
   console.log("end of setStateList");
+  return {STATUS_BY_POSITION,listOfColumn};
 }
 
 // async
@@ -80,6 +84,9 @@ console.log("currentProject:", currentProject);
 // };
 // Get next status in progression
 function getNextStatus(currentStatus) {
+  if (STATUS_BY_POSITION == undefined){
+    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+  }
   let key = Object.keys(STATUS_BY_POSITION).find(
     (i) => STATUS_BY_POSITION[i] === currentStatus
   );
@@ -118,6 +125,7 @@ function getStatusForColumn(columnIndex) {
 // Handle progress click
 async function handleProgressClick(documentId, currentStatus) {
   try {
+    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
     const nextStatus = getNextStatus(currentStatus);
     if (nextStatus === currentStatus) return; // No change needed
 
@@ -173,7 +181,9 @@ async function handleProgressClick(documentId, currentStatus) {
     // Save changes
     saveToLocalStorage();
     console.log(" end of handleProgressClick");
-    setStateList();
+    if (STATUS_BY_POSITION == undefined){
+      let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+    }
   } catch (error) {
     console.error("Error updating document status:", error);
     // Use existing error handling - no custom error states
@@ -565,7 +575,6 @@ function reinitializeDragula(dragparent, listOfColumn) {
       STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
     });
 
-    // setStateList()
     saveToLocalStorage();
     console.log("end of List of column, drop");
   });

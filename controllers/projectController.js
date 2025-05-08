@@ -85,43 +85,6 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
-  getAccessLevel: async (req) => {
-    debugger;
-    console.log(`projectcontroller getAccesLevel line 91`);
-    let accessLevel = null;
-    try {
-      const userProfile = await Profile.findOne({
-        googleId: req.user.googleId,
-      });
-
-      const project = await Project.findById(req.params.id);
-      console.log(
-        "test accessLevel projectController line 102",
-        userProfile._id,
-        project.adminId,
-        accessLevel,
-        `${userProfile._id}` === `${project.adminId}`
-      );
-      if (project.adminId.map((e) => `${e}`).includes(`${userProfile._id}`)) {
-        accessLevel = "admin";
-      } else if (`${userProfile._id}` === `${project.userId}`) {
-        accessLevel = "user";
-      } else {
-        console.error(" Client isn't labeled as User or Admin");
-      }
-
-      console.log(
-        "included",
-        project.adminId.map((id) => id.toString()),
-        userProfile.toString()
-      );
-
-      return accessLevel;
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  },
   getProject: async (req, res) => {
     console.log(`projectcontroller getproject line 123`);
     let accessLevel = null;
@@ -146,11 +109,11 @@ module.exports = {
         console.error(" Client isn't labeled as User or Admin");
       }
 
-      console.log(
-        "included",
-        project.adminId.map((id) => id.toString()),
-        userProfile.toString()
-      );
+      // console.log(
+      //   "included",
+      //   project.adminId.map((id) => id.toString()),
+      //   userProfile.toString()
+      // );
 
       res.render("project_template", {
         project,
@@ -247,20 +210,43 @@ module.exports = {
     }
   },
   getKanban: async (req, res) => {
+    let accessLevel = null;
     try {
+      const userProfile = await Profile.findOne({
+        googleId: req.user.googleId,
+      });
+      if (!userProfile) {
+        return res
+          .status(404)
+          .send("userProfile not found projectConroller getKanban line 221");
+      }
       const kanban = await Kanban.find({ projectId: req.params.id });
+      if (!kanban) {
+        return res
+          .status(404)
+          .send("kanban not found projectConroller getKanban line 227");
+      }
       const project = await Project.findById(req.params.id);
-
       if (!project) {
         return res
           .status(404)
-          .send("Project not found projectConroller getKanban line 200");
+          .send("Project not found projectConroller getKanban line 233");
       }
+      if (project.adminId.map((e) => `${e}`).includes(`${userProfile._id}`)) {
+        accessLevel = "admin";
+      } else if (`${userProfile._id}` === `${project.userId}`) {
+        accessLevel = "user";
+      } else {
+        console.error(" Client isn't labeled as User or Admin");
+      }
+
+      
 
       res.render("kanban_template", {
         project,
         kanban,
         isAuthenticated: req.isAuthenticated(),
+        accessLevel: accessLevel,
       });
     } catch (err) {
       console.error(err);

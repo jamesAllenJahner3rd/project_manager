@@ -510,13 +510,15 @@
         <h1>
             <%= project.name %>
         </h1>
-        <form id="createColumnForm">
+        <% if(accessLevel === "admin"){%>
+            <form id="createColumnForm">
             <div class="form-group">
                 <label for="columnContent">Column Title</label>
                 <input type="text" id="columnContent" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-primary">Create Column</button>
         </form>
+        <%}%>
 
         <!-- Without hidden attribute: form shows before any columns exist -->
         <form id="createDocumentForm" class="document-form" style="display: none;">
@@ -557,7 +559,9 @@
             <!-- Without main.js: core application features missing -->
             <script src="/js/main.js"></script>
             <!-- Without dragula.js: no drag-and-drop functionality -->
-            <script src="/js/dragula.js"></script>
+           <% if(accessLevel === "admin"){%>
+             <script src="/js/dragula.js"></script>
+             <%}%>
             <script src="/js/socket.io.js"></script>
             <script type="module" src="/js/kanban.js"></script>
 </body>
