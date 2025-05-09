@@ -1,6 +1,7 @@
 console.log("kanban.js has loaded");
 document.addEventListener("DOMContentLoaded", () => {
   init();
+  setupSocketListeners();
 });
 let currentProject = null;
 const currentUrl = window.location.href;
@@ -9,8 +10,8 @@ let currentProjectId = currentUrl.split("kanban")[1]?.split("?")[0];
 if (!currentProjectId) {
   console.error("Project ID not found in URL");
 }
-let columnDrake;
-let documentDrake;
+let columnDrake = null;
+let documentDrake = null;
 let listOfColumn = [];
 const projectId = currentProjectId;
 
@@ -29,7 +30,7 @@ let room = async () => {
 const roomName = room.name; //**************************
 console.log("roomName:", roomName);
 
-  let STATUS_BY_POSITION  ={}
+let STATUS_BY_POSITION = {}
 function setStateList(){
    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
    STATUS_BY_POSITION =
@@ -805,3 +806,11 @@ socket.on("disconnect", () => {
     socket.connect(); // Attempt reconnect
   }, 5000);
 });
+
+function setupSocketListeners() {
+  socket.on('boardUpdate', (updatedBoard) => {
+    if (updatedBoard.projectId === projectId) {
+      loadFromLocalStorage(updatedBoard, true);
+    }
+  });
+}

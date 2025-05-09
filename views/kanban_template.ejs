@@ -16,8 +16,9 @@
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
-
-    <title>Kanban Template</title>
+    <title>Kanban Board</title>
+    <link rel="stylesheet" href="/css/kanban.css">
+    <link rel="stylesheet" href="/css/dragula.min.css">
     <style>
         .drag-container {
             display: flex;
@@ -505,59 +506,59 @@
     <!-- Without header: navigation missing -->
     <%- include('partials/header') %>
 
-        <!-- Without this form: no way to c
+    <!-- Without this form: no way to c
      new columns -->
-        <h1>
-            <%= project.name %>
-        </h1>
-        <form id="createColumnForm">
+    <h1>
+        <%= project.name %>
+    </h1>
+    <form id="createColumnForm">
+        <div class="form-group">
+            <label for="columnContent">Column Title</label>
+            <input type="text" id="columnContent" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Column</button>
+    </form>
+
+    <!-- Without hidden attribute: form shows before any columns exist -->
+    <form id="createDocumentForm" class="document-form" style="display: none;">
+        <div class="form-header">
+            <h2>Create Document</h2>
+            <button type="button" class="close-btn">&times;</button>
+        </div>
+        <div class="form-content">
             <div class="form-group">
-                <label for="columnContent">Column Title</label>
-                <input type="text" id="columnContent" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Create Column</button>
-        </form>
+                <label for="documentTitle">Document Title</label>
+                <input type="text" id="documentTitle" class="form-control" required placeholder="Enter document title">
 
-        <!-- Without hidden attribute: form shows before any columns exist -->
-        <form id="createDocumentForm" class="document-form" style="display: none;">
-            <div class="form-header">
-                <h2>Create Document</h2>
-                <button type="button" class="close-btn">&times;</button>
-            </div>
-            <div class="form-content">
-                <div class="form-group">
-                    <label for="documentTitle">Document Title</label>
-                    <input type="text" id="documentTitle" class="form-control" required placeholder="Enter document title">
+                <label for="documentDescription">Document Description</label>
+                <textarea id="documentDescription" class="form-control" placeholder="Enter document description"></textarea>
 
-                    <label for="documentDescription">Document Description</label>
-                    <textarea id="documentDescription" class="form-control" placeholder="Enter document description"></textarea>
-
-                    <div class="form-buttons">
-                        <input type="button" id="documentColumn" class="btn-secondary" value="Column">
-                        <input type="button" id="documentAssignee" class="btn-secondary" value="Assignee">
-                        <input type="button" id="documentLabel" class="btn-secondary" value="Label">
-                        <input type="button" id="documentProject" class="btn-secondary" value="Assign to Project">
-                        <input type="button" id="MileStone" class="btn-secondary" value="MileStone">
-                    </div>
+                <div class="form-buttons">
+                    <input type="button" id="documentColumn" class="btn-secondary" value="Column">
+                    <input type="button" id="documentAssignee" class="btn-secondary" value="Assignee">
+                    <input type="button" id="documentLabel" class="btn-secondary" value="Label">
+                    <input type="button" id="documentProject" class="btn-secondary" value="Assign to Project">
+                    <input type="button" id="MileStone" class="btn-secondary" value="MileStone">
                 </div>
             </div>
-            <div class="form-footer">
-                <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
-            </div>
-        </form>
+        </div>
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary" id='createDoc'>Create Document</button>
+        </div>
+    </form>
 
-        <!-- Without this container: nowhere to place dragable columns -->
-        <div id="dragparent" class="drag-container"></div>
+    <!-- Without this container: nowhere to place dragable columns -->
+    <div id="dragparent" class="drag-container"></div>
 
-        <!-- Without footer: missing page closure and contact info -->
-        <%- include('partials/footer') %>
+    <!-- Without footer: missing page closure and contact info -->
+    <%- include('partials/footer') %>
 
-            <!-- Without main.js: core application features missing -->
-            <script src="/js/main.js"></script>
-            <!-- Without dragula.js: no drag-and-drop functionality -->
-            <script src="/js/dragula.js"></script>
-            <script src="/js/socket.io.js"></script>
-            <script type="module" src="/js/kanban.js"></script>
+    <!-- Without main.js: core application features missing -->
+    <script src="/js/main.js"></script>
+    <!-- Without dragula.js: no drag-and-drop functionality -->
+    <script src="/js/dragula.js"></script>
+    <script src="/js/socket.io.js"></script>
+    <script type="module" src="/js/kanban.js"></script>
 </body>
 
 </html>
