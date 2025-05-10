@@ -10,7 +10,7 @@ console.log("Fetching project info for ID:", currentProjectId);
 
 const messageInput = document.getElementById("message-input");
 const chatform = document.getElementById("chatForm");
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:8000");
 
 socket.on("connect", () => {
   console.log("Socket connected");

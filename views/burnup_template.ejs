@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burnup Chart - <%= project.name %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/burnup.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <div class="chart-container">
+        <div class="chart-header">
+            <h1>Burnup Chart - <%= project.name %></h1>
+            <a href="/project/<%= project._id %>" class="btn btn-primary">Back to Project</a>
+        </div>
+
+        <div class="chart-stats">
+            <% Object.entries(documentCounts.byStatus).forEach(([status, count]) => { %>
+                <div class="stat-box">
+                    <h3><%= status %></h3>
+                    <p><%= count %></p>
+                </div>
+            <% }); %>
+            <div class="stat-box">
+                <h3>Total Documents</h3>
+                <p><%= documentCounts.total %></p>
+            </div>
+        </div>
+
+        <canvas id="burnupChart"></canvas>
+    </div>
+
+    <!-- Hidden element to store document counts data -->
+    <script id="document-counts" type="application/json">
+        <%- JSON.stringify(documentCounts) %>
+    </script>
+
+    <%- include('partials/footer') %>
+    <script src="/js/burnup.js"></script>
+</body>
+</html> 

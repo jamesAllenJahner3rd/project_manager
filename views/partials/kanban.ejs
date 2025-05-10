@@ -1,0 +1,86 @@
+<!-- Kanban Board Container -->
+<div class="kanban-board" data-project-id="<%= project._id %>">
+  <!-- Kanban Columns -->
+  <div class="kanban-columns">
+    <% const columns = [
+      { id: 'to_do', title: 'To Do', status: 'to_do' },
+      { id: 'in_progress', title: 'In Progress', status: 'in_progress' },
+      { id: 'testing', title: 'Testing', status: 'testing' },
+      { id: 'done', title: 'Done', status: 'done' }
+    ] %>
+
+    <% columns.forEach((column, index) => { %>
+      <div class="kanban-column" 
+           id="<%= column.id %>" 
+           data-status="<%= column.status %>"
+           data-column-index="<%= index %>">
+        <div class="column-header">
+          <h3><%= column.title %></h3>
+          <span class="document-count">0</span>
+        </div>
+        <div class="column-content" 
+             data-status="<%= column.status %>"
+             ondrop="drop(event)" 
+             ondragover="allowDrop(event)">
+          <!-- Documents will be dynamically inserted here -->
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<!-- Document Template -->
+<template id="document-template">
+  <div class="document" draggable="true" ondragstart="drag(event)">
+    <div class="document-header">
+      <h4 class="document-title"></h4>
+      <div class="document-actions">
+        <button class="edit-btn" onclick="editDocument(this)">✎</button>
+        <button class="delete-btn" onclick="deleteDocument(this)">×</button>
+      </div>
+    </div>
+    <p class="document-description"></p>
+    <div class="document-footer">
+      <input type="color" class="color-picker" onchange="updateDocumentColor(this)">
+    </div>
+  </div>
+</template>
+
+<!-- Edit Document Modal -->
+<div id="edit-document-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Edit Document</h2>
+    <form id="edit-document-form">
+      <input type="hidden" id="edit-document-id">
+      <div class="form-group">
+        <label for="edit-document-title">Title:</label>
+        <input type="text" id="edit-document-title" required>
+      </div>
+      <div class="form-group">
+        <label for="edit-document-description">Description:</label>
+        <textarea id="edit-document-description" required></textarea>
+      </div>
+      <button type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- Create Document Modal -->
+<div id="create-document-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Create New Document</h2>
+    <form id="create-document-form">
+      <div class="form-group">
+        <label for="document-title">Title:</label>
+        <input type="text" id="document-title" required>
+      </div>
+      <div class="form-group">
+        <label for="document-description">Description:</label>
+        <textarea id="document-description" required></textarea>
+      </div>
+      <button type="submit">Create Document</button>
+    </form>
+  </div>
+</div> 
