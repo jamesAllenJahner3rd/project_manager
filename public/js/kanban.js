@@ -30,17 +30,25 @@ let room = async () => {
 const roomName = room.name; //**************************
 console.log("roomName:", roomName);
 
-let STATUS_BY_POSITION = {}
+// Constants for status mapping - this should never be modified
+const STATUS_MAPPING = {
+  0: 'to_do',
+  1: 'in_progress',
+  2: 'testing',
+  3: 'done'
+};
+
+// This will store the actual column titles
+let columnTitles = {};
+
 function setStateList(){
    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
-   STATUS_BY_POSITION =
+   columnTitles = {};
    listOfColumn.forEach((column, index) => {
-    // Add column index for status tracking
-    column.index = index;   
-    listOfColumn.push(column);
-    STATUS_BY_POSITION[index] = column.title;
+    column.index = index;
+    columnTitles[index] = column.querySelector('.title').textContent;
   });
-  console.log("end of setStateList")
+  console.log("Column titles updated:", columnTitles);
 }
   
   // async 
@@ -65,8 +73,8 @@ function setStateList(){
         //   STATUS_BY_POSITION[i] = listOfColumn[i].innerText;
         // }
 
-        console.log("STATUS_BY_POSITION:", STATUS_BY_POSITION);
-        return STATUS_BY_POSITION; // Return it for use elsewhere
+        console.log("STATUS_BY_POSITION:", STATUS_MAPPING);
+        return STATUS_MAPPING; // Return it for use elsewhere
 
     // } catch (err) {
     //     console.error("Error fetching or processing Kanban data:", err);
@@ -76,35 +84,27 @@ function setStateList(){
 }
 console.log("currentProject:", currentProject);
 
-// const STATUS_BY_POSITION = {
-//   0: "to_do", // To Do (leftmost column)
-//   1: "in_progress", // In Progress
-//   2: "testing", // Testing
-//   3: "done", // Done (rightmost column)
-// };
 // Get next status in progression
 function getNextStatus(currentStatus) {
-  let key = Object.keys(STATUS_BY_POSITION).find(i => STATUS_BY_POSITION[i] === currentStatus)
-  // switch (currentStatus) {
-  //   case "to_do":
-  //     return "in_progress";
-  //   case "in_progress":
-  //     return "testing";
-  //   case "testing":
-  //     return "done";
-  //   default:
-  console.log("end of getNextStatus" )
-      return STATUS_BY_POSITION[+key+1]; // Don't allow loopback
-  // }
+  // Find current status index
+  const currentIndex = Object.values(STATUS_MAPPING).indexOf(currentStatus);
+  
+  // If status not found or is the last status, return current status
+  if (currentIndex === -1 || currentIndex === Object.keys(STATUS_MAPPING).length - 1) {
+    return currentStatus;
+  }
+  
+  // Return next status in sequence
+  return STATUS_MAPPING[currentIndex + 1];
 }
 
 // Get status based on column position
 function getStatusForColumn(columnIndex) {
     console.log("kanban columnIndex line 81", columnIndex )
-    console.log("kanban columnIndex line 81", STATUS_BY_POSITION, ` ${ STATUS_BY_POSITION}` )
-    console.log("end of getStatusForColumn","STATUS_BY_POSITION",STATUS_BY_POSITION,"list of columns",listOfColumn )
+    console.log("kanban columnIndex line 81", STATUS_MAPPING, ` ${ STATUS_MAPPING}` )
+    console.log("end of getStatusForColumn","STATUS_BY_POSITION",STATUS_MAPPING,"list of columns",listOfColumn )
 
-  return STATUS_BY_POSITION[columnIndex] || "Submit";
+  return STATUS_MAPPING[columnIndex] || "to_do";
 }
 
 // Handle progress click
@@ -123,19 +123,11 @@ async function handleProgressClick(documentId, currentStatus) {
       `Moving document ${documentId} from ${currentStatus} → ${nextStatus}`
     ); //*****************************************
     // Find column index of target status
-    let targetColumnIndex = -1;
-    for (const [index, status] of Object.entries(STATUS_BY_POSITION)) {
-      if (status === nextStatus) {
-        targetColumnIndex = parseInt(index);
-        break;
-      }
-    }
-
+    const targetColumnIndex = Object.values(STATUS_MAPPING).indexOf(nextStatus);
     if (targetColumnIndex === -1) return;
 
     // Get all columns and find target column
     const columns = Array.from(document.querySelectorAll(".dragColumn"));
-    listOfColumn = columns
     if (targetColumnIndex >= columns.length) return;  
     
     const targetColumn = columns[targetColumnIndex];
@@ -177,26 +169,29 @@ function updateProgressButtonState(button, status) {
   // Clear any existing classes
   button.className = "progress-button";
   button.title = `Status: ${status}`;
-  button.textContent = "✓"//'&#10003'
-
-  // switch (status) {
-  //   case "to_do":
-  //     button.textContent = "";
-  //     break;
-  //   case "in_progress":
-  //     button.textContent = "⏳";
-  //     break;
-  //   case "testing":
-  //     button.textContent = "🧪";
-  //     break;
-  //   case "done":
-  //     button.textContent = "✓";
-  //     break;
-  //   default:
-      // button.textContent = "";
-  // }
-  console.log("end of updateProgressButtonState" )
-
+  
+  // Set appropriate icon based on status
+  switch (status) {
+    case "to_do":
+      button.textContent = "→";
+      button.style.color = "#666";
+      break;
+    case "in_progress":
+      button.textContent = "⏳";
+      button.style.color = "#2196F3";
+      break;
+    case "testing":
+      button.textContent = "🧪";
+      button.style.color = "#FF9800";
+      break;
+    case "done":
+      button.textContent = "✓";
+      button.style.color = "#4CAF50";
+      break;
+    default:
+      button.textContent = "→";
+      button.style.color = "#666";
+  }
 }
 
 socket.on("board-updated", (updatedBoard) => {
@@ -251,12 +246,11 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
   listOfColumn = [];
 
   boardState.columns.forEach((column, index) => {
-    // Add column index for status tracking
     column.index = index;
     const newColumn = createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
-    STATUS_BY_POSITION[index] = column.title;
+    columnTitles[index] = column.title;
   });
 
   reinitializeDragula(dragparent, listOfColumn);
@@ -310,7 +304,7 @@ function saveToLocalStorage() {
   } catch (error) {
     console.error("Error saving to server:", error);
   }
-  console.log('end of saveToLocalStorage',"STATUS_BY_POSITION",STATUS_BY_POSITION,"list of columns",listOfColumn )
+  console.log('end of saveToLocalStorage',"STATUS_BY_POSITION",STATUS_MAPPING,"list of columns",listOfColumn )
 }
 
 function createDocumentFromSaved(doc, columnIndex = 0) {
@@ -391,15 +385,16 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
   progressBtn.style.flexShrink = "0";
   progressBtn.style.margin = "0";
   progressBtn.style.padding = "0";
-  progressBtn.textContent = "✓"
-  progressBtn.innerText = "✓"
 
   // Set initial state based on status
-  updateProgressButtonState(progressBtn, status);
+  const initialStatus = doc.status || getStatusForColumn(columnIndex);
+  documentLineItem.dataset.status = initialStatus;
+  updateProgressButtonState(progressBtn, initialStatus);
 
   progressBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    handleProgressClick(documentLineItem.id, documentLineItem.dataset.status);
+    const currentStatus = documentLineItem.dataset.status;
+    handleProgressClick(documentLineItem.id, currentStatus);
   });
   iconContainer.appendChild(progressBtn);
 
@@ -541,25 +536,37 @@ function reinitializeDragula(dragparent, listOfColumn) {
     accepts: (el, target) => target.classList.contains("documents-container"),
   });
 
+  // Handle column reordering
   columnDrake.on("drop", (el, target, source) => {
     if (source && source !== target) {
       source.removeChild(el);
     }
 
-    // Update column indices after reordering
-    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
+    // Update column indices and titles after reordering
+    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
     listOfColumn.forEach((column, index) => {
       column.dataset.index = index;
-      STATUS_BY_POSITION[index] = column.innerText.split('\n')[0];
+      columnTitles[index] = column.querySelector('.title').textContent;
+      
+      // Update all documents in this column with new status
+      const documents = column.querySelectorAll('.dragDocument');
+      documents.forEach(doc => {
+        const newStatus = STATUS_MAPPING[index];
+        doc.dataset.status = newStatus;
+        
+        // Update progress button
+        const progressBtn = doc.querySelector('.progress-button');
+        if (progressBtn) {
+          updateProgressButtonState(progressBtn, newStatus);
+        }
+      });
     });
 
-    // setStateList()
     saveToLocalStorage();
-    console.log("end of List of column, drop")
   });
 
+  // Handle document movement
   documentDrake.on("drop", (el, target, source) => {
-    // Update document counts for both source and target columns
     if (source && target) {
       const sourceColumn = source.closest(".dragColumn");
       const targetColumn = target.closest(".dragColumn");
@@ -568,12 +575,12 @@ function reinitializeDragula(dragparent, listOfColumn) {
         updateDocumentCount(sourceColumn);
       }
 
-      if (targetColumn && targetColumn !== sourceColumn) {
+      if (targetColumn) {
         updateDocumentCount(targetColumn);
 
         // Update document status based on new column
         const targetColumnIndex = parseInt(targetColumn.dataset.index || 0);
-        const newStatus = getStatusForColumn(targetColumnIndex);
+        const newStatus = STATUS_MAPPING[targetColumnIndex];
 
         // Update document status
         el.dataset.status = newStatus;
@@ -587,9 +594,9 @@ function reinitializeDragula(dragparent, listOfColumn) {
     }
     
     saveToLocalStorage();
-    console.log("end of documentDrake")
   });
-console.log('end of reinitializeDragula')
+
+  console.log('end of reinitializeDragula');
 }
 
 function deleteDocument(docID) {

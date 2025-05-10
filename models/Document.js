@@ -41,7 +41,9 @@ const DocumentSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        
+        enum: ['to_do', 'in_progress', 'testing', 'done'],
+        default: 'to_do',
+        required: true
     }
 });
 
