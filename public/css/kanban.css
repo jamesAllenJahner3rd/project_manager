@@ -1,0 +1,430 @@
+/* ========== Kanban Board Layout ========== */
+.kanban-board {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.kanban-columns {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 200px);
+  overflow-x: auto;
+  padding: 10px;
+}
+
+/* ========== Column Styles ========== */
+.kanban-column,
+.dragColumn {
+  flex: 0 0 300px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  border: 1px solid #ccc;
+  padding: 8px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  min-height: 50px;
+  margin: 0;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+@media (max-width: 1200px) {
+  .kanban-columns {
+    flex-wrap: wrap;
+  }
+  .kanban-column,
+  .dragColumn {
+    flex: 0 0 calc(50% - 20px);
+  }
+}
+@media (max-width: 768px) {
+  .kanban-column,
+  .dragColumn {
+    flex: 0 0 100%;
+  }
+  .modal-content {
+    width: 95%;
+    margin: 5% auto;
+  }
+}
+
+/* ========== Column Header & Footer ========== */
+.column-header {
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.column-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+.column-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f0f0;
+  margin-top: 8px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+  z-index: 5;
+}
+.document-count {
+  background-color: #e0e0e0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* ========== Document List & Card ========== */
+.column-content,
+.documents-container {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+.document,
+.dragDocument {
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 12px 8px 12px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: move;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+.dragDocument {
+  background-color: #08cf65;
+  margin: 6px 0;
+  padding: 8px 8px 8px 8px;
+}
+.document:hover,
+.dragDocument:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== Document Header & Actions ========== */
+.document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.document-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+.document-actions,
+.document-icons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+  z-index: 5;
+  position: static;
+}
+.document-description,
+.dragDocument p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+.document-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+.document-content {
+  margin-right: 30px;
+}
+
+/* ========== Button & Icon Styles ========== */
+.edit-btn,
+.delete-btn,
+.close-btn,
+.deleteButton {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  transition: color 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.edit-btn:hover {
+  color: #2196f3;
+}
+.delete-btn:hover,
+.deleteButton:hover {
+  color: #f44336;
+  background-color: #ff4444;
+  border-color: #ff0000;
+}
+.deleteButton {
+  border: 1px solid #ccc;
+  background-image: url(/images/Icons1.webp);
+  background-color: transparent;
+  background-size: 1300%;
+  background-position: 63% 37%;
+  border-radius: 4px;
+  /* Remove absolute positioning for inline layout */
+  position: static;
+  transition: all 0.2s ease;
+}
+.dragDocument .deleteButton {
+  align-self: flex-end;
+}
+.close-btn {
+  font-size: 1.5rem;
+  color: white;
+  background: none;
+  border: none;
+}
+.close-btn:hover {
+  color: #f0f0f0;
+}
+
+/* ========== Color Picker ========== */
+.color-picker,
+.column-color-picker,
+.document-color-picker {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: transform 0.2s ease;
+}
+.color-picker:hover,
+.column-color-picker:hover,
+.document-color-picker:hover {
+  transform: scale(1.1);
+}
+.column-color-picker::-webkit-color-swatch-wrapper,
+.document-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.column-color-picker::-webkit-color-swatch,
+.document-color-picker::-webkit-color-swatch,
+.column-color-picker::-moz-color-swatch,
+.document-color-picker::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+/* ========== Modal & Form Styles ========== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.close {
+  position: absolute;
+  right: 20px;
+  top: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+.close:hover {
+  color: #333;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 500;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+.form-header {
+  position: relative;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #8b0000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px 12px 0 0;
+}
+.form-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: 600;
+}
+.form-content {
+  padding: 20px;
+  background-color: #f9f9f9;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.form-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.btn-secondary {
+  background-color: #f0f0f0;
+  border: 1px solid #e0e0e0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: #444;
+}
+.btn-secondary:hover {
+  background-color: #e0e0e0;
+  border-color: #d0d0d0;
+}
+.btn-primary {
+  background-color: #8b0000;
+  color: white;
+  border: 1px solid white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+.btn-primary:hover {
+  background-color: #6b0000;
+  transform: translateY(-1px);
+}
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+.form-footer {
+  padding: 20px;
+  background-color: #8b0000;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  border-radius: 0 0 12px 12px;
+  position: relative;
+  z-index: 1;
+}
+.form-footer .btn-primary {
+  width: auto;
+  min-width: 150px;
+  display: inline-block;
+  background-color: white;
+  color: #8b0000;
+  border: 1px solid #8b0000;
+  margin: 0 auto;
+}
+.form-footer .btn-primary:hover {
+  background-color: #f0f0f0;
+  color: #8b0000;
+}
+
+/* ========== Miscellaneous ========== */
+nav.columnNav {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  position: relative;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+}
+.button-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.dragging {
+  opacity: 0.5;
+}
+.gu-mirror {
+  transform: rotate(0deg);
+  cursor: grabbing;
+}
+.gu-transit {
+  opacity: 0.4;
+  background-color: #f0f0f0;
+}
+.drag-over {
+  background-color: #f0f0f0;
+  border: 2px dashed #2196f3;
+}
+body.modal-open {
+  overflow: hidden;
+}
+body {
+  position: relative;
+  height: 100vh;
+}
+footer {
+  position: sticky;
+  top: 100vh;
+}

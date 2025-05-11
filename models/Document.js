@@ -19,7 +19,7 @@ const DocumentSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
+    default: "Description:",
   },
   columnId: {
     type: mongoose.Schema.Types.ObjectId,

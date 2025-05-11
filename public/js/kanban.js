@@ -762,7 +762,7 @@ function init(emittedBoard = null, emitted = false) {
     const doc = {
       id: `doc-${Date.now()}`,
       title: document.getElementById("documentTitle").value,
-      description: document.getElementById("documentDescription").value,
+      description: document.getElementById("documentDescription").value||"Description:",
       backgroundColor: "#08CF65",
       status: status,
     };
