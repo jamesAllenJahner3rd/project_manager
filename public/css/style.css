@@ -112,17 +112,20 @@ h2 {
 }
 
 .newDocPopupButton {
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 4px;
-  background: var(--green);
-  color: white;
-  cursor: pointer;
+  border: 1px solid #ccc;
+  font-size: 1.5rem;
+  width: 3vw;
+  height: 3vh;
+  padding: 0.1vh 0 0 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  text-align: center;
+  background-image: url(/images/Icons1.webp);
+  background-color: lightgrey;
+  background-size: 1000%;
+  background-position: 36% 63%;
+  border-radius: 22%;
+  position: relative;
+  margin: 1% 1%;
 }
 
 .newDocPopupButton:hover {
