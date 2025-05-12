@@ -3,13 +3,11 @@ const Project = require("../models/Project");
 const Kanban = require("../models/Kanban");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
-const projectController = require("./projectController"); 
+const projectController = require("./projectController");
 module.exports = {
-
   getProjects: async (req, res) => {
     try {
       // Find the profile of the currently authenticated user
-      
 
       // Handle case where profile is not found
       if (!userProfile) {
@@ -22,7 +20,7 @@ module.exports = {
           { userId: new mongoose.Types.ObjectId(userProfile._id) },
         ],
       });
-      
+
       // console.log(projectList);
       res.render("project_template", { projectList: projectList });
     } catch (err) {
@@ -87,36 +85,7 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
-  getAccessLevel: async (req) => {
-    debugger
-    console.log(`projectcontroller getAccesLevel line 91`);
-    let accessLevel = null;
-    try {
-      const userProfile = await Profile.findOne({
-        googleId: req.user.googleId,
-      });
-
-      const project = await Project.findById(req.params.id);
-      console.log("test accessLevel projectController line 102",userProfile._id,project.adminId,accessLevel, `${userProfile._id}`=== `${project.adminId}`)
-      if(project.adminId.map((e) =>`${e}`).includes(`${userProfile._id}`)){
-        accessLevel = "admin"
-      }else if (`${userProfile._id}`=== `${project.userId}`){
-        accessLevel = "user"
-      } else{
-        console.error(" Client isn't labeled as User or Admin")
-      }
-      
-      
-      console.log("included", project.adminId.map(id => id.toString()), userProfile.toString()); 
-
-      return accessLevel;
-    } catch (err) {
-      console.error(err);
-     return null
-    }
-  },
   getProject: async (req, res) => {
-    
     console.log(`projectcontroller getproject line 123`);
     let accessLevel = null;
     try {
@@ -124,23 +93,31 @@ module.exports = {
         googleId: req.user.googleId,
       });
 
-      const project = await Project.findById(req.params.id)
-      console.log("test accessLevel projectController line 102",userProfile._id,project.adminId, `${userProfile._id}`=== `${project.adminId}`)
-     
-            if(project.adminId.map((e) =>`${e}`).includes(`${userProfile._id}`)){
-        accessLevel = "admin"
-      }else if (`${userProfile._id}`=== `${project.userId}`){
-        accessLevel = "user"
-      } else{
-        console.error(" Client isn't labeled as User or Admin")
+      const project = await Project.findById(req.params.id);
+      console.log(
+        "test accessLevel projectController line 102",
+        userProfile._id,
+        project.adminId,
+        `${userProfile._id}` === `${project.adminId}`
+      );
+
+      if (project.adminId.map((e) => `${e}`).includes(`${userProfile._id}`)) {
+        accessLevel = "admin";
+      } else if (`${userProfile._id}` === `${project.userId}`) {
+        accessLevel = "user";
+      } else {
+        console.error(" Client isn't labeled as User or Admin");
       }
-      
-      
-      console.log("included", project.adminId.map(id => id.toString()), userProfile.toString()); 
-      
+
+      // console.log(
+      //   "included",
+      //   project.adminId.map((id) => id.toString()),
+      //   userProfile.toString()
+      // );
+
       res.render("project_template", {
         project,
-         accessLevel : accessLevel,
+        accessLevel: accessLevel,
         isAuthenticated: req.isAuthenticated(),
       });
     } catch (err) {
@@ -233,18 +210,43 @@ module.exports = {
     }
   },
   getKanban: async (req, res) => {
+    let accessLevel = null;
     try {
-      const kanban = await Kanban.find({ projectId: req.params.id });
-      const project = await Project.findById(req.params.id);
-
-      if (!project) {
-        return res.status(404).send("Project not found projectConroller getKanban line 200");
+      const userProfile = await Profile.findOne({
+        googleId: req.user.googleId,
+      });
+      if (!userProfile) {
+        return res
+          .status(404)
+          .send("userProfile not found projectConroller getKanban line 221");
       }
+      const kanban = await Kanban.find({ projectId: req.params.id });
+      if (!kanban) {
+        return res
+          .status(404)
+          .send("kanban not found projectConroller getKanban line 227");
+      }
+      const project = await Project.findById(req.params.id);
+      if (!project) {
+        return res
+          .status(404)
+          .send("Project not found projectConroller getKanban line 233");
+      }
+      if (project.adminId.map((e) => `${e}`).includes(`${userProfile._id}`)) {
+        accessLevel = "admin";
+      } else if (`${userProfile._id}` === `${project.userId}`) {
+        accessLevel = "user";
+      } else {
+        console.error(" Client isn't labeled as User or Admin");
+      }
+
+      
 
       res.render("kanban_template", {
         project,
         kanban,
         isAuthenticated: req.isAuthenticated(),
+        accessLevel: accessLevel,
       });
     } catch (err) {
       console.error(err);
@@ -257,7 +259,9 @@ module.exports = {
       const project = await Project.findById(req.params.id);
 
       if (!project) {
-        return res.status(404).send("Kanban not found projectConroller getKanbanData line 219");
+        return res
+          .status(404)
+          .send("Kanban not found projectConroller getKanbanData line 219");
       }
 
       res.json(kanban);
@@ -305,7 +309,8 @@ module.exports = {
       });
       // console.log("addUser  req.body projectController.js line 185", req.user.googleId,"notificationDocument",notificationDocument);
 
-       const {status, projectId ,projectName, userId, userType} = notificationDocument;
+      const { status, projectId, projectName, userId, userType } =
+        notificationDocument;
       // console.log("status, projectId ,projectName, userId, userType",status, projectId ,projectName, userId, userType);
 
       const projectObjectId = new mongoose.Types.ObjectId(projectId);
@@ -321,7 +326,6 @@ module.exports = {
       if (!updatedProjectUsers) {
         return res.status(404).json({ error: "Project not found" });
       }
-
 
       // console.log("Updated Project", updatedProjectUsers.name);
 

@@ -19,7 +19,7 @@ let room = async () => {
   try {
     let res = await fetch(`/profile/project/${projectId}/data`);
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-    console.log("end of room")
+    console.log("end of room");
     return await res.json();
   } catch (error) {
     console.error("Fetch failed:", error);
@@ -29,49 +29,50 @@ let room = async () => {
 const roomName = room.name; //**************************
 console.log("roomName:", roomName);
 
-  let STATUS_BY_POSITION  ={}
-function setStateList(){
-   listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
-   STATUS_BY_POSITION =
-   listOfColumn.forEach((column, index) => {
-    // Add column index for status tracking
-    column.index = index;   
-    listOfColumn.push(column);
-    STATUS_BY_POSITION[index] = column.title;
-  });
-  console.log("end of setStateList")
+let STATUS_BY_POSITION = {};
+function setStateList() {
+  if (STATUS_BY_POSITION == undefined){
+  let STATUS_BY_POSITION = {};
 }
-  
-  // async 
-  function createStatusMap(projectId) {
-    // try {
-    //     const res = await fetch(`/project/kanban/${projectId}/data`);
-    //     if (!res.ok) {
-    //         throw new Error(`Fetch failed with status ${res.status}. kanban.js line 21`);
-    //     }
+  listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
+  listOfColumn.forEach((column, index) => {
+    // Add column index for status tracking
+    column.index = index;
+    listOfColumn[index] = column;
+    STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
+  });
+  console.log("end of setStateList");
+  return {STATUS_BY_POSITION,listOfColumn};
+}
 
-    //     const kanbanData = await res.json();
-    //     console.log("kanbanData",kanbanData)
-    //     // Ensure kanbanData and columns exist before proceeding
-    //     if (!kanbanData || !kanbanData.columns) {
-    //         throw new Error("Kanban data is missing or incorrectly formatted.");
-    //     }
+// async
+function createStatusMap(projectId) {
+  // try {
+  //     const res = await fetch(`/project/kanban/${projectId}/data`);
+  //     if (!res.ok) {
+  //         throw new Error(`Fetch failed with status ${res.status}. kanban.js line 21`);
+  //     }
 
-        
-        
-        // for (let i = 0; i < listOfColumn.length; i++) { 
-            
-        //   STATUS_BY_POSITION[i] = listOfColumn[i].innerText;
-        // }
+  //     const kanbanData = await res.json();
+  //     console.log("kanbanData",kanbanData)
+  //     // Ensure kanbanData and columns exist before proceeding
+  //     if (!kanbanData || !kanbanData.columns) {
+  //         throw new Error("Kanban data is missing or incorrectly formatted.");
+  //     }
 
-        console.log("STATUS_BY_POSITION:", STATUS_BY_POSITION);
-        return STATUS_BY_POSITION; // Return it for use elsewhere
+  // for (let i = 0; i < listOfColumn.length; i++) {
 
-    // } catch (err) {
-    //     console.error("Error fetching or processing Kanban data:", err);
-    //     return {}; // Return an empty object instead of null
-    // }
-    console.log("end of createStatusMap")
+  //   STATUS_BY_POSITION[i] = listOfColumn[i].innerText;
+  // }
+
+  console.log("STATUS_BY_POSITION:", STATUS_BY_POSITION);
+  return STATUS_BY_POSITION; // Return it for use elsewhere
+
+  // } catch (err) {
+  //     console.error("Error fetching or processing Kanban data:", err);
+  //     return {}; // Return an empty object instead of null
+  // }
+  console.log("end of createStatusMap");
 }
 console.log("currentProject:", currentProject);
 
@@ -83,7 +84,12 @@ console.log("currentProject:", currentProject);
 // };
 // Get next status in progression
 function getNextStatus(currentStatus) {
-  let key = Object.keys(STATUS_BY_POSITION).find(i => STATUS_BY_POSITION[i] === currentStatus)
+  if (STATUS_BY_POSITION == undefined){
+    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+  }
+  let key = Object.keys(STATUS_BY_POSITION).find(
+    (i) => STATUS_BY_POSITION[i] === currentStatus
+  );
   // switch (currentStatus) {
   //   case "to_do":
   //     return "in_progress";
@@ -92,16 +98,26 @@ function getNextStatus(currentStatus) {
   //   case "testing":
   //     return "done";
   //   default:
-  console.log("end of getNextStatus" )
-      return STATUS_BY_POSITION[+key+1]; // Don't allow loopback
+  console.log("end of getNextStatus");
+  return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
   // }
 }
 
 // Get status based on column position
 function getStatusForColumn(columnIndex) {
-    console.log("kanban columnIndex line 81", columnIndex )
-    console.log("kanban columnIndex line 81", STATUS_BY_POSITION, ` ${ STATUS_BY_POSITION}` )
-    console.log("end of getStatusForColumn","STATUS_BY_POSITION",STATUS_BY_POSITION,"list of columns",listOfColumn )
+  console.log("kanban columnIndex line 81", columnIndex);
+  console.log(
+    "kanban columnIndex line 81",
+    STATUS_BY_POSITION,
+    ` ${STATUS_BY_POSITION}`
+  );
+  console.log(
+    "end of getStatusForColumn",
+    "STATUS_BY_POSITION",
+    STATUS_BY_POSITION,
+    "list of columns",
+    listOfColumn
+  );
 
   return STATUS_BY_POSITION[columnIndex] || "Submit";
 }
@@ -109,6 +125,7 @@ function getStatusForColumn(columnIndex) {
 // Handle progress click
 async function handleProgressClick(documentId, currentStatus) {
   try {
+    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
     const nextStatus = getNextStatus(currentStatus);
     if (nextStatus === currentStatus) return; // No change needed
 
@@ -134,9 +151,9 @@ async function handleProgressClick(documentId, currentStatus) {
 
     // Get all columns and find target column
     const columns = Array.from(document.querySelectorAll(".dragColumn"));
-    listOfColumn = columns
-    if (targetColumnIndex >= columns.length) return;  
-    
+    listOfColumn = columns;
+    if (targetColumnIndex >= columns.length) return;
+
     const targetColumn = columns[targetColumnIndex];
     const targetContainer = targetColumn.querySelector(".documents-container");
 
@@ -163,8 +180,10 @@ async function handleProgressClick(documentId, currentStatus) {
 
     // Save changes
     saveToLocalStorage();
-    console.log(' end of handleProgressClick')
-    setStateList()
+    console.log(" end of handleProgressClick");
+    if (STATUS_BY_POSITION == undefined){
+      let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+    }
   } catch (error) {
     console.error("Error updating document status:", error);
     // Use existing error handling - no custom error states
@@ -176,7 +195,7 @@ function updateProgressButtonState(button, status) {
   // Clear any existing classes
   button.className = "progress-button";
   button.title = `Status: ${status}`;
-  button.textContent = "✓"//'&#10003'
+  button.textContent = "✓"; //'&#10003'
 
   // switch (status) {
   //   case "to_do":
@@ -192,10 +211,9 @@ function updateProgressButtonState(button, status) {
   //     button.textContent = "✓";
   //     break;
   //   default:
-      // button.textContent = "";
+  // button.textContent = "";
   // }
-  console.log("end of updateProgressButtonState" )
-
+  console.log("end of updateProgressButtonState");
 }
 
 socket.on("board-updated", (updatedBoard) => {
@@ -259,11 +277,10 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
   });
 
   reinitializeDragula(dragparent, listOfColumn);
-  console.log('end of loadFromLocalStorage')
+  console.log("end of loadFromLocalStorage");
 }
 
 function saveToLocalStorage() {
-  
   const boardState = {
     projectId: projectId,
     columns: Array.from(document.querySelectorAll("div ul.dragColumn")).map(
@@ -309,7 +326,13 @@ function saveToLocalStorage() {
   } catch (error) {
     console.error("Error saving to server:", error);
   }
-  console.log('end of saveToLocalStorage',"STATUS_BY_POSITION",STATUS_BY_POSITION,"list of columns",listOfColumn )
+  console.log(
+    "end of saveToLocalStorage",
+    "STATUS_BY_POSITION",
+    STATUS_BY_POSITION,
+    "list of columns",
+    listOfColumn
+  );
 }
 
 function createDocumentFromSaved(doc, columnIndex = 0) {
@@ -390,8 +413,8 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
   progressBtn.style.flexShrink = "0";
   progressBtn.style.margin = "0";
   progressBtn.style.padding = "0";
-  progressBtn.textContent = "✓"
-  progressBtn.innerText = "✓"
+  progressBtn.textContent = "✓";
+  progressBtn.innerText = "✓";
 
   // Set initial state based on status
   updateProgressButtonState(progressBtn, status);
@@ -418,7 +441,7 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
 
   docContainer.appendChild(iconContainer);
   documentLineItem.appendChild(docContainer);
-  console.log("end of createDocumentFromSaved")
+  console.log("end of createDocumentFromSaved");
   return documentLineItem;
 }
 
@@ -482,7 +505,7 @@ function createColumnFromSaved(column) {
   const documentsContainer = document.createElement("div");
   documentsContainer.className = "documents-container";
   newColumn.appendChild(documentsContainer);
-  
+
   // Add documents to the container
   if (!column.documents || column.documents.length === 0) {
     console.warn(`No documents found for column: ${column.title}`);
@@ -503,7 +526,7 @@ function createColumnFromSaved(column) {
   columnFooter.appendChild(documentCount);
 
   newColumn.appendChild(columnFooter);
-  console.log('end of createColumnFromSaved')
+  console.log("end of createColumnFromSaved");
   return newColumn;
 }
 
@@ -513,7 +536,7 @@ function updateDocumentCount(column) {
     const count = column.querySelectorAll(".dragDocument").length;
     documentCount.textContent = `Documents: ${count}`;
   }
-  console.log('end of updateDocumentCount')
+  console.log("end of updateDocumentCount");
 }
 
 function reinitializeDragula(dragparent, listOfColumn) {
@@ -546,15 +569,14 @@ function reinitializeDragula(dragparent, listOfColumn) {
     }
 
     // Update column indices after reordering
-    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"))
+    listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
     listOfColumn.forEach((column, index) => {
       column.dataset.index = index;
-      STATUS_BY_POSITION[index] = column.innerText.split('\n')[0];
+      STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
     });
 
-    // setStateList()
     saveToLocalStorage();
-    console.log("end of List of column, drop")
+    console.log("end of List of column, drop");
   });
 
   documentDrake.on("drop", (el, target, source) => {
@@ -584,11 +606,11 @@ function reinitializeDragula(dragparent, listOfColumn) {
         }
       }
     }
-    
+
     saveToLocalStorage();
-    console.log("end of documentDrake")
+    console.log("end of documentDrake");
   });
-console.log('end of reinitializeDragula')
+  console.log("end of reinitializeDragula");
 }
 
 function deleteDocument(docID) {
@@ -603,7 +625,7 @@ function deleteDocument(docID) {
     theDoomedDocument.parentNode.removeChild(theDoomedDocument);
     saveToLocalStorage();
   }
-  console.log("end of deleteDocument end")
+  console.log("end of deleteDocument end");
 }
 
 function edit(element) {
@@ -635,7 +657,7 @@ function edit(element) {
 
   element.appendChild(rewrite);
   rewrite.focus();
-  console.log("end of edit")
+  console.log("end of edit");
 }
 
 function createDocumentPopup(columnData) {
@@ -651,10 +673,9 @@ function createDocumentPopup(columnData) {
   popupButton.setAttribute("data-id", columnData);
   const documentTitle = document.getElementById("documentTitle");
   documentTitle.focus();
-  console.log("end of createDocumentPopup")
+  console.log("end of createDocumentPopup");
 }
 function init(emittedBoard = null, emitted = false) {
-  
   const createColumnForm = document.getElementById("createColumnForm");
   const createDocumentForm = document.getElementById("createDocumentForm");
   const dragparent = document.getElementById("dragparent");
@@ -697,14 +718,14 @@ function init(emittedBoard = null, emitted = false) {
       title: columnContent,
       backgroundColor: "#f9f9f9",
       documents: [],
-      index : listOfColumn.length, 
+      index: listOfColumn.length,
     };
     const newColumn = createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
     createColumnForm.reset();
     saveToLocalStorage();
-    createStatusMap(projectId)
+    createStatusMap(projectId);
 
     // Reinitialize dragula for documents with new column
     documentDrake.destroy();
@@ -741,7 +762,7 @@ function init(emittedBoard = null, emitted = false) {
     const doc = {
       id: `doc-${Date.now()}`,
       title: document.getElementById("documentTitle").value,
-      description: document.getElementById("documentDescription").value,
+      description: document.getElementById("documentDescription").value||"Description:",
       backgroundColor: "#08CF65",
       status: status,
     };
@@ -769,14 +790,14 @@ function init(emittedBoard = null, emitted = false) {
     if (backdrop) backdrop.remove();
     document.body.classList.remove("modal-open");
   });
-  console.log('end of init')
+  console.log("end of init");
 }
 
 // Add event listener for page unload
 window.addEventListener("beforeunload", (event) => {
   saveToLocalStorage();
   event.returnValue = ""; // Prevent accidental closure without saving
-  console.log('end of beforeunload')
+  console.log("end of beforeunload");
 });
 
 // Add event listener for visibility change
