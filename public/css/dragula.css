@@ -31,3 +31,16 @@
 #dragparent{
   flex-flow: nowrap;
 }
+  #dragparent::-webkit-scrollbar {
+  width: 102px;
+  height: 2rem;
+}
+#dragparent::-webkit-scrollbar-track {
+  background: lightgrey;
+}
+#dragparent::-webkit-scrollbar-thumb {
+  background-color: #6e1818;
+  border-radius: 20px;
+  /* border: 3px solid orange; */
+}
+
