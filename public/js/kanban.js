@@ -14,7 +14,7 @@ let documentDrake;
 let listOfColumn = [];
 const projectId = currentProjectId;
 
-const socket = io("http://localhost:3000");
+const socket = io(window.location.origin);
 let room = async () => {
   try {
     let res = await fetch(`/profile/project/${projectId}/data`);

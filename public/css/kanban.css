@@ -83,7 +83,9 @@
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
   z-index: 5;
 }
-.document-count {
+.document-count,
+.max-documents {
+.max-documents {
   background-color: #e0e0e0;
   padding: 2px 8px;
   border-radius: 12px;
@@ -214,13 +216,17 @@
   right: 10px;
   top: 10px;
   font-size: 24px;
-  
   color: white;
   background: none;
   border: none;
+  cursor: pointer;
+  transition: color 0.2s;
 }
 .close-btn:hover {
   color: #000;
+}
+#addColumnModal {
+  position: fixed;
 }
 
 /* ========== Color Picker ========== */

@@ -28,6 +28,10 @@ if (span) {
 const openCPbutton = document.getElementById("openCPModalButton");
 openCPbutton?.addEventListener("click", openModal);
 
+//Create column modal specific
+const openCCbutton = document.getElementById("openCreateColumnModalButton");
+openCCbutton?.addEventListener("click", openModal);
+
 //Notification modal specific
 const Notificationbutton = document.getElementById("openNotiModalButton");
 Notificationbutton?.addEventListener("click", openModal);

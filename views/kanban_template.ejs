@@ -18,7 +18,6 @@
         rel="stylesheet">
     <title>Kanban Board</title>
     <link rel="stylesheet" href="/css/kanban.css">
-    <link rel="stylesheet" href="/css/dragula.min.css">
 </head>
 
 <body>
@@ -32,13 +31,7 @@
             <%= project.name %>
         </h1>
         <% if(accessLevel === "admin"){%>
-            <form id="createColumnForm">
-            <div class="form-group">
-                <label for="columnContent">Column Title</label>
-                <input type="text" id="columnContent" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Create Column</button>
-        </form>
+             <%- include('partials/createColumnModal') %>
         <%}%>
 
         <!-- Without hidden attribute: form shows before any columns exist -->
@@ -82,6 +75,7 @@
             <!-- Without dragula.js: no drag-and-drop functionality -->
            <% if(accessLevel === "admin"){%>
              <script src="/js/dragula.js"></script>
+             <script src="/js/modal.js" type='module'></script>
              <%}%>
             <script src="/js/socket.io.js"></script>
             <script type="module" src="/js/kanban.js"></script>
