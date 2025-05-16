@@ -20,7 +20,7 @@
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
   filter: alpha(opacity=20);
 }
-.dragthing{
+.dragthing {
   background-color: lightgray;
   padding: 20px;
   margin: 20px;
@@ -28,10 +28,10 @@
   width: 150px;
 }
 /* this is needed to keep the columns from wrapping on screen */
-#dragparent{
+#dragparent {
   flex-flow: nowrap;
 }
-  #dragparent::-webkit-scrollbar {
+#dragparent::-webkit-scrollbar {
   width: 102px;
   height: 2rem;
 }
@@ -43,4 +43,3 @@
   border-radius: 20px;
   /* border: 3px solid orange; */
 }
-
