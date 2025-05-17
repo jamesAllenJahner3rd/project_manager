@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const ColumnSchema = new mongoose.Schema({
   columnId: {
@@ -34,4 +34,4 @@ const ColumnSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Column', ColumnSchema); 
+module.exports = mongoose.model("Column", ColumnSchema);

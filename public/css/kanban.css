@@ -85,7 +85,6 @@
 }
 .document-count,
 .max-documents {
-.max-documents {
   background-color: #e0e0e0;
   padding: 2px 8px;
   border-radius: 12px;
@@ -295,23 +294,43 @@
   margin-bottom: 15px;
 }
 .form-group label {
-  display: block;
+  display: inline;
   margin-bottom: 5px;
   color: #333;
   font-weight: 500;
 }
 .form-group input,
-.form-group textarea {
-  width: 100%;
+.form-group textarea,
+.form-group label {
+  width: auto;
+  display: inline;
   padding: 8px;
+  font-size: 14px;
+}
+.form-group input,
+.form-group textarea {
+  flex-grow: 2;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  justify-self: flex-end;
 }
 .form-group textarea {
   min-height: 100px;
   resize: vertical;
 }
+.input-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+}
+.input-group:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
 .form-header {
   position: relative;
   padding: 20px;

@@ -90,17 +90,18 @@ function getNextStatus(currentStatus) {
   let key = Object.keys(STATUS_BY_POSITION).find(
     (i) => STATUS_BY_POSITION[i] === currentStatus
   );
-  // switch (currentStatus) {
-  //   case "to_do":
-  //     return "in_progress";
-  //   case "in_progress":
-  //     return "testing";
-  //   case "testing":
-  //     return "done";
-  //   default:
-  console.log("end of getNextStatus");
-  return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
-  // }
+  const nextColumnTitle = STATUS_BY_POSITION[+key + 1];
+  const nextColumn = listOfColumn
+    .find( (ul) => ul.querySelector("h1.title")?.textContent.trim() === `${nextColumnTitle}`);
+  //querySelector(`ul:has( nav h1[title=${STATUS_BY_POSITION[+key + 1]}])`); 
+  const documentNumber = nextColumn.querySelectorAll(".dragDocument").length;
+  const maxDocumentCount = nextColumn.querySelector("span.max-documents").textContent.split(" ")[1];
+    console.log("end of getNextStatus",documentNumber,maxDocumentCount);
+  if(documentNumber <= maxDocumentCount || isNaN(maxDocumentCount) ){
+    return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
+  }else {
+    return STATUS_BY_POSITION[+key]; // loopback
+  }
 }
 
 // Get status based on column position
@@ -119,7 +120,7 @@ function getStatusForColumn(columnIndex) {
     listOfColumn
   );
 
-  return STATUS_BY_POSITION[columnIndex] || "Submit";
+  return STATUS_BY_POSITION[columnIndex] 
 }
 
 // Handle progress click
@@ -305,6 +306,7 @@ function saveToLocalStorage() {
           title: column.querySelector(".title").textContent,
           backgroundColor: column.style.backgroundColor || "#f9f9f9",
           documents: documents,
+          maxDocuments: column.querySelector("span.max-documents").textContent.split(" ")[1],
         };
       }
     ),
@@ -524,8 +526,18 @@ function createColumnFromSaved(column) {
   documentCount.className = "document-count";
   documentCount.textContent = `Documents: ${column.documents.length}`;
   columnFooter.appendChild(documentCount);
-
+  const maxDocumentCount = document.createElement("span");
+  maxDocumentCount.className = "max-document-count";
+  let maxTextContent = ()=>{
+    if(column.maxDocuments === 0){
+      return "None"
+    }else{
+     return column.maxDocuments}
+};
+  maxDocumentCount.classList.add("max-documents");
+  maxDocumentCount.textContent = `Max: ${maxTextContent()}`;
   newColumn.appendChild(columnFooter);
+  columnFooter.appendChild(maxDocumentCount);
   console.log("end of createColumnFromSaved");
   return newColumn;
 }
@@ -713,16 +725,20 @@ function init(emittedBoard = null, emitted = false) {
   function handleColumnSubmit(event) {
     event.preventDefault();
     const columnContent = document.getElementById("columnContent").value;
+    const maxDocuments = document.getElementById("maxDocuments").value || "∞";
     const column = {
       id: `column-${Date.now()}`,
       title: columnContent,
       backgroundColor: "#f9f9f9",
       documents: [],
       index: listOfColumn.length,
+      maxDocuments,
     };
     const newColumn = createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
+    const modal = document.querySelector(".modalWrapper");
+    modal.style.display = "none";
     createColumnForm.reset();
     saveToLocalStorage();
     createStatusMap(projectId);
