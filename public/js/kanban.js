@@ -31,9 +31,9 @@ console.log("roomName:", roomName);
 
 let STATUS_BY_POSITION = {};
 function setStateList() {
-  if (STATUS_BY_POSITION == undefined){
-  let STATUS_BY_POSITION = {};
-}
+  if (STATUS_BY_POSITION == undefined) {
+    let STATUS_BY_POSITION = {};
+  }
   listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
   listOfColumn.forEach((column, index) => {
     // Add column index for status tracking
@@ -42,7 +42,7 @@ function setStateList() {
     STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
   });
   console.log("end of setStateList");
-  return {STATUS_BY_POSITION,listOfColumn};
+  return { STATUS_BY_POSITION, listOfColumn };
 }
 
 // async
@@ -84,8 +84,8 @@ console.log("currentProject:", currentProject);
 // };
 // Get next status in progression
 function getNextStatus(currentStatus) {
-  if (STATUS_BY_POSITION == undefined){
-    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+  if (STATUS_BY_POSITION == undefined) {
+    let { STATUS_BY_POSITION, listOfColumn } = setStateList();
   }
   let key = Object.keys(STATUS_BY_POSITION).find(
     (i) => STATUS_BY_POSITION[i] === currentStatus
@@ -120,13 +120,13 @@ function getStatusForColumn(columnIndex) {
     listOfColumn
   );
 
-  return STATUS_BY_POSITION[columnIndex] 
+  return STATUS_BY_POSITION[columnIndex];
 }
 
 // Handle progress click
 async function handleProgressClick(documentId, currentStatus) {
   try {
-    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+    let { STATUS_BY_POSITION, listOfColumn } = setStateList();
     const nextStatus = getNextStatus(currentStatus);
     if (nextStatus === currentStatus) return; // No change needed
 
@@ -171,6 +171,7 @@ async function handleProgressClick(documentId, currentStatus) {
 
     // Update the progress button appearance
     const progressBtn = doc.querySelector(".progress-button");
+
     if (progressBtn) {
       updateProgressButtonState(progressBtn, nextStatus);
     }
@@ -182,8 +183,8 @@ async function handleProgressClick(documentId, currentStatus) {
     // Save changes
     saveToLocalStorage();
     console.log(" end of handleProgressClick");
-    if (STATUS_BY_POSITION == undefined){
-      let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+    if (STATUS_BY_POSITION == undefined) {
+      let { STATUS_BY_POSITION, listOfColumn } = setStateList();
     }
   } catch (error) {
     console.error("Error updating document status:", error);
@@ -778,7 +779,8 @@ function init(emittedBoard = null, emitted = false) {
     const doc = {
       id: `doc-${Date.now()}`,
       title: document.getElementById("documentTitle").value,
-      description: document.getElementById("documentDescription").value||"Description:",
+      description:
+        document.getElementById("documentDescription").value || "Description:",
       backgroundColor: "#08CF65",
       status: status,
     };
