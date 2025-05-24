@@ -799,7 +799,9 @@ footer nav ul a:hover {
   border-color: var(--green);
   box-shadow: 0 0 0 2px rgba(8, 207, 101, 0.1);
 }
-
+div input[type="checkbox"] {
+  flex-grow: 0;
+}
 /* Add Column Button */
 .createColumnForm button {
   padding: 8px 12px;

@@ -14,7 +14,7 @@ let documentDrake;
 let listOfColumn = [];
 const projectId = currentProjectId;
 
-const socket = io("http://localhost:3000");
+const socket = io(window.location.origin);
 let room = async () => {
   try {
     let res = await fetch(`/profile/project/${projectId}/data`);
@@ -31,9 +31,9 @@ console.log("roomName:", roomName);
 
 let STATUS_BY_POSITION = {};
 function setStateList() {
-  if (STATUS_BY_POSITION == undefined){
-  let STATUS_BY_POSITION = {};
-}
+  if (STATUS_BY_POSITION == undefined) {
+    let STATUS_BY_POSITION = {};
+  }
   listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
   listOfColumn.forEach((column, index) => {
     // Add column index for status tracking
@@ -42,7 +42,7 @@ function setStateList() {
     STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
   });
   console.log("end of setStateList");
-  return {STATUS_BY_POSITION,listOfColumn};
+  return { STATUS_BY_POSITION, listOfColumn };
 }
 
 // async
@@ -84,23 +84,29 @@ console.log("currentProject:", currentProject);
 // };
 // Get next status in progression
 function getNextStatus(currentStatus) {
-  if (STATUS_BY_POSITION == undefined){
-    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+  if (STATUS_BY_POSITION == undefined) {
+    let { STATUS_BY_POSITION, listOfColumn } = setStateList();
   }
   let key = Object.keys(STATUS_BY_POSITION).find(
     (i) => STATUS_BY_POSITION[i] === currentStatus
   );
-  // switch (currentStatus) {
-  //   case "to_do":
-  //     return "in_progress";
-  //   case "in_progress":
-  //     return "testing";
-  //   case "testing":
-  //     return "done";
-  //   default:
-  console.log("end of getNextStatus");
-  return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
-  // }
+  const nextColumnTitle = STATUS_BY_POSITION[+key + 1];
+  const nextColumn = listOfColumn.find(
+    (ul) =>
+      ul.querySelector("h1.title")?.textContent.trim() === `${nextColumnTitle}`
+  );
+  //querySelector(`ul:has( nav h1[title=${STATUS_BY_POSITION[+key + 1]}])`);
+  const documentNumber = nextColumn.querySelectorAll(".dragDocument").length;
+  const maxDocumentCount = nextColumn
+    .querySelector("span.max-documents")
+    .textContent.split(" ")[1];
+  console.log("end of getNextStatus", documentNumber, maxDocumentCount);
+  if (documentNumber < maxDocumentCount || isNaN(maxDocumentCount)) {
+    return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
+  } else {
+    alert("Max document limit reached");
+    return STATUS_BY_POSITION[+key]; // loopback
+  }
 }
 
 // Get status based on column position
@@ -119,16 +125,29 @@ function getStatusForColumn(columnIndex) {
     listOfColumn
   );
 
-  return STATUS_BY_POSITION[columnIndex] || "Submit";
+  return STATUS_BY_POSITION[columnIndex];
 }
 
 // Handle progress click
 async function handleProgressClick(documentId, currentStatus) {
   try {
-    let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+    let { STATUS_BY_POSITION, listOfColumn } = setStateList();
     const nextStatus = getNextStatus(currentStatus);
     if (nextStatus === currentStatus) return; // No change needed
-
+    const nextColumn = listOfColumn.find(
+      (column) =>
+        column.querySelector("h1.title").textContent.trim() === `${nextStatus}`
+    );
+    const maxDocuments = nextColumn
+      .querySelector(`.max-documents`)
+      .textContent.split(" ")[1];
+    const CurrentDocuments = nextColumn
+      .querySelector(`.document-count`)
+      .textContent.split(" ")[1];
+    if (+maxDocuments <= +CurrentDocuments) {
+      alert("Max document limit reached");
+      return;
+    }
     // Find document and its current column
     const doc = document.getElementById(documentId);
     if (!doc) return;
@@ -170,6 +189,7 @@ async function handleProgressClick(documentId, currentStatus) {
 
     // Update the progress button appearance
     const progressBtn = doc.querySelector(".progress-button");
+
     if (progressBtn) {
       updateProgressButtonState(progressBtn, nextStatus);
     }
@@ -181,8 +201,8 @@ async function handleProgressClick(documentId, currentStatus) {
     // Save changes
     saveToLocalStorage();
     console.log(" end of handleProgressClick");
-    if (STATUS_BY_POSITION == undefined){
-      let {STATUS_BY_POSITION,listOfColumn} = setStateList();
+    if (STATUS_BY_POSITION == undefined) {
+      let { STATUS_BY_POSITION, listOfColumn } = setStateList();
     }
   } catch (error) {
     console.error("Error updating document status:", error);
@@ -305,6 +325,9 @@ function saveToLocalStorage() {
           title: column.querySelector(".title").textContent,
           backgroundColor: column.style.backgroundColor || "#f9f9f9",
           documents: documents,
+          maxDocuments: column
+            .querySelector("span.max-documents")
+            .textContent.split(" ")[1],
         };
       }
     ),
@@ -524,8 +547,19 @@ function createColumnFromSaved(column) {
   documentCount.className = "document-count";
   documentCount.textContent = `Documents: ${column.documents.length}`;
   columnFooter.appendChild(documentCount);
-
+  const maxDocumentCount = document.createElement("span");
+  maxDocumentCount.className = "max-document-count";
+  let maxTextContent = () => {
+    if (column.maxDocuments === 0) {
+      return "None";
+    } else {
+      return column.maxDocuments;
+    }
+  };
+  maxDocumentCount.classList.add("max-documents");
+  maxDocumentCount.textContent = `Max: ${maxTextContent()}`;
   newColumn.appendChild(columnFooter);
+  columnFooter.appendChild(maxDocumentCount);
   console.log("end of createColumnFromSaved");
   return newColumn;
 }
@@ -560,7 +594,17 @@ function reinitializeDragula(dragparent, listOfColumn) {
 
   documentDrake = dragula(documentContainers, {
     moves: (el, container, handle) => el.classList.contains("dragDocument"),
-    accepts: (el, target) => target.classList.contains("documents-container"),
+    accepts: (el, target) => {
+      let isAcolumn = target.classList.contains("documents-container");
+      let CurrentDocuments = target.children.length;
+      let maxDocuments = target.nextElementSibling
+        .querySelector(".max-documents")
+        .textContent.split(" ")[1];
+      if (maxDocuments === "∞") {
+        maxDocuments = CurrentDocuments + 1;
+      }
+      return isAcolumn && CurrentDocuments < +maxDocuments;
+    },
   });
 
   columnDrake.on("drop", (el, target, source) => {
@@ -661,6 +705,19 @@ function edit(element) {
 }
 
 function createDocumentPopup(columnData) {
+  const maxDocuments = document
+    .getElementById(`${columnData}`)
+    .querySelector(`.max-documents`)
+    .textContent.split(" ")[1];
+  const CurrentDocuments = document
+    .getElementById(`${columnData}`)
+    .querySelector(`.document-count`)
+    .textContent.split(" ")[1];
+  if (+maxDocuments <= +CurrentDocuments) {
+    alert("Max document limit reached");
+    return;
+  }
+
   const theDocPopupForm = document.getElementById("createDocumentForm");
   const backdrop = document.createElement("div");
   backdrop.className = "modal-backdrop";
@@ -713,16 +770,20 @@ function init(emittedBoard = null, emitted = false) {
   function handleColumnSubmit(event) {
     event.preventDefault();
     const columnContent = document.getElementById("columnContent").value;
+    const maxDocuments = document.getElementById("maxDocuments").value || "∞";
     const column = {
       id: `column-${Date.now()}`,
       title: columnContent,
       backgroundColor: "#f9f9f9",
       documents: [],
       index: listOfColumn.length,
+      maxDocuments,
     };
     const newColumn = createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
+    const modal = document.querySelector(".modalWrapper");
+    modal.style.display = "none";
     createColumnForm.reset();
     saveToLocalStorage();
     createStatusMap(projectId);
@@ -762,7 +823,8 @@ function init(emittedBoard = null, emitted = false) {
     const doc = {
       id: `doc-${Date.now()}`,
       title: document.getElementById("documentTitle").value,
-      description: document.getElementById("documentDescription").value||"Description:",
+      description:
+        document.getElementById("documentDescription").value || "Description:",
       backgroundColor: "#08CF65",
       status: status,
     };

@@ -1,0 +1,32 @@
+<button type="button" class="project-button btn btn-primary" id="openCreateColumnModalButton">Add a Column</button>
+<!--ColumnModalTrigger  -->
+<div class="modal modalWrapper">
+    <form id="createColumnForm" class="modal-content">
+        <fieldset class="form-group">
+            <legend> Add new column to your kanban.</legend>
+            <span class="close">&times;</span>
+            <div class="input-group">
+                <label for="columnContent">Column Title:</label>
+                <input type="text" id="columnContent" class="form-control" required>
+            </div>
+            <div class="input-group">
+                <label for="maxDocuments">Max number of Documents:</label>
+                <input type="number" id="maxDocuments" class="form-control" placeholder="0" >
+            </div>
+            <legend>User Options</legend>
+            <div class="input-group">
+                <input type="checkbox" id="addDocument">
+                <label for="addDocument"> to add Documents?</label>
+            </div>
+            <div class="input-group">
+                <input type="checkbox" id="documentColor">
+                <label for="documentColor"> to change color of Documents?</label>
+            </div>
+            <div class="input-group">
+                <input type="checkbox" id="deleteDocument">
+                <label for="deleteDocument"> to delete Documents?</label>
+            </div>
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Create Column</button>
+    </form>
+</div>
