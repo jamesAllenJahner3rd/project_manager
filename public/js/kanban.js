@@ -91,15 +91,20 @@ function getNextStatus(currentStatus) {
     (i) => STATUS_BY_POSITION[i] === currentStatus
   );
   const nextColumnTitle = STATUS_BY_POSITION[+key + 1];
-  const nextColumn = listOfColumn
-    .find( (ul) => ul.querySelector("h1.title")?.textContent.trim() === `${nextColumnTitle}`);
-  //querySelector(`ul:has( nav h1[title=${STATUS_BY_POSITION[+key + 1]}])`); 
+  const nextColumn = listOfColumn.find(
+    (ul) =>
+      ul.querySelector("h1.title")?.textContent.trim() === `${nextColumnTitle}`
+  );
+  //querySelector(`ul:has( nav h1[title=${STATUS_BY_POSITION[+key + 1]}])`);
   const documentNumber = nextColumn.querySelectorAll(".dragDocument").length;
-  const maxDocumentCount = nextColumn.querySelector("span.max-documents").textContent.split(" ")[1];
-    console.log("end of getNextStatus",documentNumber,maxDocumentCount);
-  if(documentNumber <= maxDocumentCount || isNaN(maxDocumentCount) ){
+  const maxDocumentCount = nextColumn
+    .querySelector("span.max-documents")
+    .textContent.split(" ")[1];
+  console.log("end of getNextStatus", documentNumber, maxDocumentCount);
+  if (documentNumber < maxDocumentCount || isNaN(maxDocumentCount)) {
     return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
-  }else {
+  } else {
+    alert("Max document limit reached");
     return STATUS_BY_POSITION[+key]; // loopback
   }
 }
@@ -129,7 +134,20 @@ async function handleProgressClick(documentId, currentStatus) {
     let { STATUS_BY_POSITION, listOfColumn } = setStateList();
     const nextStatus = getNextStatus(currentStatus);
     if (nextStatus === currentStatus) return; // No change needed
-
+    const nextColumn = listOfColumn.find(
+      (column) =>
+        column.querySelector("h1.title").textContent.trim() === `${nextStatus}`
+    );
+    const maxDocuments = nextColumn
+      .querySelector(`.max-documents`)
+      .textContent.split(" ")[1];
+    const CurrentDocuments = nextColumn
+      .querySelector(`.document-count`)
+      .textContent.split(" ")[1];
+    if (+maxDocuments <= +CurrentDocuments) {
+      alert("Max document limit reached");
+      return;
+    }
     // Find document and its current column
     const doc = document.getElementById(documentId);
     if (!doc) return;
@@ -307,7 +325,9 @@ function saveToLocalStorage() {
           title: column.querySelector(".title").textContent,
           backgroundColor: column.style.backgroundColor || "#f9f9f9",
           documents: documents,
-          maxDocuments: column.querySelector("span.max-documents").textContent.split(" ")[1],
+          maxDocuments: column
+            .querySelector("span.max-documents")
+            .textContent.split(" ")[1],
         };
       }
     ),
@@ -529,12 +549,13 @@ function createColumnFromSaved(column) {
   columnFooter.appendChild(documentCount);
   const maxDocumentCount = document.createElement("span");
   maxDocumentCount.className = "max-document-count";
-  let maxTextContent = ()=>{
-    if(column.maxDocuments === 0){
-      return "None"
-    }else{
-     return column.maxDocuments}
-};
+  let maxTextContent = () => {
+    if (column.maxDocuments === 0) {
+      return "None";
+    } else {
+      return column.maxDocuments;
+    }
+  };
   maxDocumentCount.classList.add("max-documents");
   maxDocumentCount.textContent = `Max: ${maxTextContent()}`;
   newColumn.appendChild(columnFooter);
@@ -573,7 +594,17 @@ function reinitializeDragula(dragparent, listOfColumn) {
 
   documentDrake = dragula(documentContainers, {
     moves: (el, container, handle) => el.classList.contains("dragDocument"),
-    accepts: (el, target) => target.classList.contains("documents-container"),
+    accepts: (el, target) => {
+      let isAcolumn = target.classList.contains("documents-container");
+      let CurrentDocuments = target.children.length;
+      let maxDocuments = target.nextElementSibling
+        .querySelector(".max-documents")
+        .textContent.split(" ")[1];
+      if (maxDocuments === "∞") {
+        maxDocuments = CurrentDocuments + 1;
+      }
+      return isAcolumn && CurrentDocuments < +maxDocuments;
+    },
   });
 
   columnDrake.on("drop", (el, target, source) => {
@@ -674,6 +705,19 @@ function edit(element) {
 }
 
 function createDocumentPopup(columnData) {
+  const maxDocuments = document
+    .getElementById(`${columnData}`)
+    .querySelector(`.max-documents`)
+    .textContent.split(" ")[1];
+  const CurrentDocuments = document
+    .getElementById(`${columnData}`)
+    .querySelector(`.document-count`)
+    .textContent.split(" ")[1];
+  if (+maxDocuments <= +CurrentDocuments) {
+    alert("Max document limit reached");
+    return;
+  }
+
   const theDocPopupForm = document.getElementById("createDocumentForm");
   const backdrop = document.createElement("div");
   backdrop.className = "modal-backdrop";
