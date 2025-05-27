@@ -240,8 +240,6 @@ module.exports = {
         console.error(" Client isn't labeled as User or Admin");
       }
 
-      
-
       res.render("kanban_template", {
         project,
         kanban,
@@ -289,6 +287,27 @@ module.exports = {
     } catch (err) {
       console.error("Error updating Kanban:", err);
       res.status(500).send("Server Error");
+    }
+  },
+  getAssignee: async (req, res) => {
+    try {
+      const project = await Project.findById(req.params.id);
+      if (!project) {
+        return res.status(404).send("Project not found");
+      }
+
+      const ListOfAssignees = [...project.userId, ...project.adminId];
+
+      const profiles = await Profile.find({
+        _id: { $in: ListOfAssignees },
+      }).select("displayName");
+
+      res.json(profiles);
+    } catch (error) {
+      console.error("Error fetching assignees:", error);
+      res.status(500).send("Server Error");
+    } finally {
+      console.log("getAssignee function executed successfully");
     }
   },
   addUser: async (req, res) => {
