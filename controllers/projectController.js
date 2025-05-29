@@ -221,7 +221,7 @@ module.exports = {
           .send("userProfile not found projectConroller getKanban line 221");
       }
       const kanban = await Kanban.find({ projectId: req.params.id });
-      if (!kanban) {
+      if (!kanban.length) {
         return res
           .status(404)
           .send("kanban not found projectConroller getKanban line 227");
@@ -239,12 +239,30 @@ module.exports = {
       } else {
         console.error(" Client isn't labeled as User or Admin");
       }
+      let listOfTeamMembersID = [...project.adminId].concat([
+        ...project.userId,
+      ]);
+      console.log(listOfTeamMembersID);
+      ;
+      let listOfTeamMembers = await Promise.all(
+        listOfTeamMembersID.map(async (id) => {
+          console.log(`List of id ${id}`);
+          const profile = await Profile.findById(id);
+          console.log(`List of profile ${profile}`);
+          return profile.displayName;
+        })
+      );
+      let listOfTeam = new Set(listOfTeamMembers);
+      listOfTeamMembers = Array.from(listOfTeam);
+      console.log(`List of team ${listOfTeamMembers}`);
 
       res.render("kanban_template", {
         project,
         kanban,
         isAuthenticated: req.isAuthenticated(),
         accessLevel: accessLevel,
+        listOfTeamMembers: listOfTeamMembers,
+        userName: userProfile.displayName,
       });
     } catch (err) {
       console.error(err);
@@ -301,7 +319,7 @@ module.exports = {
       const profiles = await Profile.find({
         _id: { $in: ListOfAssignees },
       }).select("displayName");
-
+      console.log(profiles);
       res.json(profiles);
     } catch (error) {
       console.error("Error fetching assignees:", error);

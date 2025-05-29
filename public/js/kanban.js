@@ -726,12 +726,44 @@ function createDocumentPopup(columnData) {
   theDocPopupForm.style.display = "block";
   document.body.classList.add("modal-open");
 
+  // const assigneeButton = document.getElementById("documentAssignee")
+  // assigneeButton
+  // adminList()
+
   const popupButton = document.getElementById("createDoc");
   popupButton.setAttribute("data-id", columnData);
   const documentTitle = document.getElementById("documentTitle");
   documentTitle.focus();
   console.log("end of createDocumentPopup");
 }
+  // async function adminList(){
+  //   console.log("adminList started");
+  //   try{
+  //     const res  = await fetch(`/project/kanban/${projectId}/assignee`);
+  //     if(!res.ok){
+  //       throw new Error(`HTTP Error: ${res.status}`);
+  //     }
+  //     const listOfAdmin = await res.json();
+  //     console.log("listOfAdmin:", listOfAdmin);
+  //     const assigneeButton = document.getElementById("documentAssignee")
+  //     const assigneeList = document.createElement("select");
+  //     listOfAdmin.forEach((profile,i)=>{
+  //       const option = document.createElement("option");
+  //       option.value = profile._id;
+  //       option.textContent = profile.displayName;
+  //       assigneeButton.appendChild(option)
+  //     })
+  //     assigneeButton.addEventListener("change", (event) => {
+  //     assigneeButton.value = "Assignee: " + event.target.displayName;
+  //     })
+       
+  //   //something  
+  //   }catch(error){
+  //     console.error("Fetch failed:", error);
+  //   }finally{
+  //     console.log("end of adminList");
+  //   }
+  // }
 function init(emittedBoard = null, emitted = false) {
   const createColumnForm = document.getElementById("createColumnForm");
   const createDocumentForm = document.getElementById("createDocumentForm");
@@ -815,6 +847,7 @@ function init(emittedBoard = null, emitted = false) {
     event.preventDefault();
     const columnID = document.getElementById("createDoc").dataset.id;
     const parentColumn = document.getElementById(columnID);
+    
 
     // Get column index for status
     const columnIndex = parseInt(parentColumn.dataset.index || 0);
@@ -828,6 +861,7 @@ function init(emittedBoard = null, emitted = false) {
       backgroundColor: "#08CF65",
       status: status,
     };
+
 
     const documentLineItem = createDocumentFromSaved(doc, columnIndex);
     const documentsContainer = parentColumn.querySelector(
