@@ -1195,7 +1195,7 @@ footer {
   color: var(--white);
   padding: 2rem;
   text-align: center;
-  margin-top: 4rem;
+  /* margin-top: 4rem; */
 }
 
 /* Responsive Design */

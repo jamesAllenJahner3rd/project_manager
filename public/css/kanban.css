@@ -316,7 +316,7 @@ document-buttons {
 .form-group label {
   width: auto;
   display: flex;
-  flex: .35 0;
+  flex: 0.35 0;
   padding: 0 8px;
   font-size: 14px;
   align-items: center;
