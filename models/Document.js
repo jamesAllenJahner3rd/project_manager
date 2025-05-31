@@ -50,9 +50,6 @@ const DocumentSchema = new mongoose.Schema({
       type: String,
     },
   ],
-  mileStone:{
-    type: String,
-  }
 });
 
 module.exports = mongoose.model("Document", DocumentSchema);

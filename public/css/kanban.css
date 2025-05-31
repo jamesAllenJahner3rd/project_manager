@@ -89,7 +89,7 @@
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 12px;
-  color: #666;
+  /* color: #666; */
   font-weight: 500;
 }
 
@@ -157,7 +157,7 @@
 .dragDocument p {
   margin: 0;
   font-size: 13px;
-  color: #666;
+  /* color: #666; */
   line-height: 1.4;
 }
 .document-footer {

@@ -178,7 +178,8 @@ h2 {
 .dragDocument p {
   margin: 0;
   font-size: 0.9rem;
-  color: #666;
+  /* color: #666; */
+  font-family: system-ui, Courier, monospace;
 }
 
 /* Create Document Form */
