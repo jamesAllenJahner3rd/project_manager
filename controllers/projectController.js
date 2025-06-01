@@ -414,4 +414,26 @@ module.exports = {
       res.status(500).send("Server Error");
     }
   },
+  isAdmin: async (req,res) => {
+    try{const project = await Project.findById(req.params.id);
+    if(!project.ok){
+      throw new Error('500 project not found')
+    }
+   const userProfile = await Profile.findOne({
+      googleId: req.user.googleId,
+    });
+    if(!userProlie.ok){
+      throw new Error ( '500 profile not found')
+    }
+    if( project.admin.includes(userProfile._id)){
+      res = true;
+    }else{ 
+      res = false;
+    }
+    console.log(`is an admin ${false} `)
+    return res.send()
+  }catch(error){
+    console.error( `Error the profile or project wasn't able to be found, ${error}`)
+  }finally{`is Admin finished running`}
+  }
 };

@@ -32,6 +32,18 @@ const ColumnSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  canAddDocuments: {
+    type: Boolean,
+    default: true,
+  },
+  canChangeDocumentColor: {
+    type: Boolean,
+    default: true,
+  },
+  canDeleteDocuments: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 module.exports = mongoose.model("Column", ColumnSchema);

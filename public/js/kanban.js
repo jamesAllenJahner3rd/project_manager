@@ -334,6 +334,9 @@ function saveToLocalStorage() {
           maxDocuments: column
             .querySelector("span.max-documents")
             .textContent.split(" ")[1],
+          canAddDocuments: column.querySelector('.canAddDocuments')? true : false,
+          canChangeDocumentColor: column.querySelector('.canChangeDocumentColor')? true : false,
+          canDeleteDocuments: column.querySelector('.canDeleteDocuments')? true : false,
         };
       }
     ),
@@ -511,7 +514,11 @@ const iconContainer = document.createElement("div");
   return documentLineItem;
 }
 
-function createColumnFromSaved(column) {
+async function createColumnFromSaved(column) {
+  const currentUrl = window.location.href;
+ const id = currentUrl.split("kanban")[1].split("?")[0]
+ 
+  const isAdmin = await fetch(`project/kanban/${id}/isAdmin`);
   const newColumn = document.createElement("ul");
   newColumn.className = "dragColumn";
   newColumn.id = column.id;
