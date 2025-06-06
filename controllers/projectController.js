@@ -415,25 +415,29 @@ module.exports = {
     }
   },
   isAdmin: async (req,res) => {
+    console.log(`isAdmin started and the id is ${req.params.id}`)
     try{const project = await Project.findById(req.params.id);
-    if(!project.ok){
+      console.log(`isAdmin started and the project is ${project}`)
+    console.log("Project value:", project);
+console.log("Type of project:", typeof project);
+      if(!project){
       throw new Error('500 project not found')
     }
+    
    const userProfile = await Profile.findOne({
       googleId: req.user.googleId,
     });
-    if(!userProlie.ok){
+    console.log(`isAdmin started and the userProfile is ${userProfile}`)
+    if(!userProfile){
       throw new Error ( '500 profile not found')
     }
-    if( project.admin.includes(userProfile._id)){
-      res = true;
-    }else{ 
-      res = false;
-    }
-    console.log(`is an admin ${false} `)
-    return res.send()
+    console.log (userProfile)
+    res.send(project.adminId.some(id => id.toString().includes(userProfile._id.toString())));
+
   }catch(error){
     console.error( `Error the profile or project wasn't able to be found, ${error}`)
-  }finally{`is Admin finished running`}
+  }finally{
+    console.log(`is Admin finished running`)
+  }
   }
 };

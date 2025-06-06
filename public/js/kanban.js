@@ -287,10 +287,10 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
   dragparent.innerHTML = "";
   listOfColumn = [];
 
-  boardState.columns.forEach((column, index) => {
+   boardState.columns.forEach(async (column, index) => {
     // Add column index for status tracking
     column.index = index;
-    const newColumn = createColumnFromSaved(column);
+    const newColumn = await createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
     STATUS_BY_POSITION[index] = column.title;
@@ -518,7 +518,8 @@ async function createColumnFromSaved(column) {
   const currentUrl = window.location.href;
  const id = currentUrl.split("kanban")[1].split("?")[0]
  
-  const isAdmin = await fetch(`project/kanban/${id}/isAdmin`);
+  const  response = await fetch(`/project/kanban/${id}/isAdmin`);
+ const isAdmin = await response.json()
   const newColumn = document.createElement("ul");
   newColumn.className = "dragColumn";
   newColumn.id = column.id;
@@ -849,7 +850,7 @@ function init(emittedBoard = null, emitted = false) {
 
   createColumnForm.removeEventListener("submit", handleColumnSubmit);
   createColumnForm.addEventListener("submit", handleColumnSubmit);
-  function handleColumnSubmit(event) {
+  async function handleColumnSubmit(event) {
     event.preventDefault();
     const columnContent = document.getElementById("columnContent").value;
     const maxDocuments = document.getElementById("maxDocuments").value || "∞";
@@ -861,7 +862,7 @@ function init(emittedBoard = null, emitted = false) {
       index: listOfColumn.length,
       maxDocuments,
     };
-    const newColumn = createColumnFromSaved(column);
+    const newColumn = await createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
     const modal = document.querySelector(".modalWrapper");
