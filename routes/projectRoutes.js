@@ -5,6 +5,8 @@ const projectController = require("../controllers/projectController");
 router.get("/", projectController.getProjects);
 router.get("/kanban:id", projectController.getKanban);
 router.put("/kanban:id", projectController.updateKanban);
+router.get("/kanban/:id/assignee", projectController.getAssignee);
+router.get("/kanban/:id/isAdmin", projectController.isAdmin);
 // router.get('/CFD', projectController.getCFD);
 // router.get('/burnup', projectController.getBurnup);
 // router.get('/taskAging', projectController.getTaskAging);

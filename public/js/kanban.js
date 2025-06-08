@@ -287,10 +287,10 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
   dragparent.innerHTML = "";
   listOfColumn = [];
 
-  boardState.columns.forEach((column, index) => {
+   boardState.columns.forEach(async (column, index) => {
     // Add column index for status tracking
     column.index = index;
-    const newColumn = createColumnFromSaved(column);
+    const newColumn = await createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
     STATUS_BY_POSITION[index] = column.title;
@@ -310,13 +310,19 @@ function saveToLocalStorage() {
         ).map((doc) => {
           // Get status based on column position
           const status = getStatusForColumn(columnIndex);
-
+          let labels = doc.querySelector(".labelsList").textContent
+          console.log("labels:", labels)
           return {
             id: doc.id,
             title: doc.querySelector("h2").textContent,
             description: doc.querySelector("p").textContent,
             backgroundColor: doc.style.backgroundColor || "#08CF65",
             status: status,
+            assignee:
+              doc.querySelector(".assignedTo").textContent || "Unassigned",
+            labels: Array.from(
+              doc.querySelector(".labelsList").textContent.split(" ")
+            ),
           };
         });
 
@@ -328,6 +334,9 @@ function saveToLocalStorage() {
           maxDocuments: column
             .querySelector("span.max-documents")
             .textContent.split(" ")[1],
+          canAddDocuments: column.querySelector('.canAddDocuments')? true : false,
+          canChangeDocumentColor: column.querySelector('.canChangeDocumentColor')? true : false,
+          canDeleteDocuments: column.querySelector('.canDeleteDocuments')? true : false,
         };
       }
     ),
@@ -374,30 +383,20 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
   // Add title and description in a content container
   const contentContainer = document.createElement("div");
   contentContainer.className = "document-content-container";
-  contentContainer.style.paddingRight = "90px"; // Make room for icons
   contentContainer.style.width = "100%";
   contentContainer.style.boxSizing = "border-box";
   contentContainer.style.overflow = "hidden"; // Prevent text from overflowing
 
+  const docHeader = document.createElement("div");
   // Add title
   const docTitle = document.createElement("h2");
   docTitle.textContent = doc.title;
   docTitle.style.fontWeight = "bold";
   docTitle.style.wordWrap = "break-word"; // Allow long words to break
   docTitle.addEventListener("dblclick", () => edit(docTitle));
-  contentContainer.appendChild(docTitle);
+  docHeader.appendChild(docTitle);
+const iconContainer = document.createElement("div");
 
-  // Add description
-  const docDescription = document.createElement("p");
-  docDescription.textContent = doc.description;
-  docDescription.style.wordWrap = "break-word"; // Allow long words to break
-  docDescription.addEventListener("dblclick", () => edit(docDescription));
-  contentContainer.appendChild(docDescription);
-
-  docContainer.appendChild(contentContainer);
-
-  // Create icon container div
-  const iconContainer = document.createElement("div");
   iconContainer.className = "document-icons";
   iconContainer.style.position = "absolute";
   iconContainer.style.right = "8px";
@@ -408,6 +407,7 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
   iconContainer.style.justifyContent = "flex-end";
   iconContainer.style.width = "auto";
   iconContainer.style.zIndex = "5"; // Ensure icons are above text
+  docHeader.appendChild(iconContainer);
 
   // Add color picker
   const colorPicker = document.createElement("input");
@@ -462,13 +462,64 @@ function createDocumentFromSaved(doc, columnIndex = 0) {
   });
   iconContainer.appendChild(deleteMe);
 
-  docContainer.appendChild(iconContainer);
+  docContainer.appendChild(docHeader);
+
+  // Add description
+  const docDescrTitle = document.createElement("h4");
+  docDescrTitle.textContent = "Description:";
+  const docDescription = document.createElement("p");
+  docDescription.textContent = doc.description;
+  docDescription.style.wordWrap = "break-word"; // Allow long words to break
+  docDescription.addEventListener("dblclick", () => edit(docDescription));
+  contentContainer.appendChild(docDescrTitle);
+  contentContainer.appendChild(docDescription);
+
+  docContainer.appendChild(contentContainer);
+  // Add assignee
+  const docAssigneeContainer = document.createElement("div");
+  const docAssigneeTitle = document.createElement("h4");
+  docAssigneeTitle.textContent = "Assignee:";
+  const docAssignee = document.createElement("p");
+  docAssignee.className = "assignedTo";
+  docAssignee.textContent = `${doc.assignee || "Unassigned"}`;
+  docAssigneeContainer.className = "document-assignee-container";
+  docAssigneeContainer.style.display = "flex";
+  docAssigneeContainer.style.alignItems = "Baseline";
+  docAssigneeContainer.appendChild(docAssigneeTitle);
+  docAssigneeContainer.appendChild(docAssignee);
+  contentContainer.appendChild(docAssigneeContainer);
+  
+  // Add labels
+  const docLabelsContainer = document.createElement("div");
+  const docLabelsTitle = document.createElement("h4");
+  docLabelsTitle.textContent = "Labels:";
+  const docLabelsList = document.createElement("p");
+  docLabelsList.className = "labelsList";
+  docLabelsList.textContent = `${doc.labels.join(" ")}`;
+  docLabelsList.addEventListener("dblclick", () => edit(docLabelsList));
+  console.log (docLabelsList.textContent)
+ 
+  // Create icon container div
+   docLabelsContainer.appendChild(docLabelsTitle);
+  docLabelsContainer.appendChild(docLabelsList);
+  // docAssigneeContainer.children.forEach((child) => {console.log(child.textContent)});
+  contentContainer.appendChild(docLabelsContainer);
+  
+
+  
+
+  
   documentLineItem.appendChild(docContainer);
   console.log("end of createDocumentFromSaved");
   return documentLineItem;
 }
 
-function createColumnFromSaved(column) {
+async function createColumnFromSaved(column) {
+  const currentUrl = window.location.href;
+ const id = currentUrl.split("kanban")[1].split("?")[0]
+ 
+  const  response = await fetch(`/project/kanban/${id}/isAdmin`);
+ const isAdmin = await response.json()
   const newColumn = document.createElement("ul");
   newColumn.className = "dragColumn";
   newColumn.id = column.id;
@@ -726,12 +777,44 @@ function createDocumentPopup(columnData) {
   theDocPopupForm.style.display = "block";
   document.body.classList.add("modal-open");
 
+  // const assigneeButton = document.getElementById("documentAssignee")
+  // assigneeButton
+  // adminList()
+
   const popupButton = document.getElementById("createDoc");
   popupButton.setAttribute("data-id", columnData);
   const documentTitle = document.getElementById("documentTitle");
   documentTitle.focus();
   console.log("end of createDocumentPopup");
 }
+// async function adminList(){
+//   console.log("adminList started");
+//   try{
+//     const res  = await fetch(`/project/kanban/${projectId}/assignee`);
+//     if(!res.ok){
+//       throw new Error(`HTTP Error: ${res.status}`);
+//     }
+//     const listOfAdmin = await res.json();
+//     console.log("listOfAdmin:", listOfAdmin);
+//     const assigneeButton = document.getElementById("documentAssignee")
+//     const assigneeList = document.createElement("select");
+//     listOfAdmin.forEach((profile,i)=>{
+//       const option = document.createElement("option");
+//       option.value = profile._id;
+//       option.textContent = profile.displayName;
+//       assigneeButton.appendChild(option)
+//     })
+//     assigneeButton.addEventListener("change", (event) => {
+//     assigneeButton.value = "Assignee: " + event.target.displayName;
+//     })
+
+//   //something
+//   }catch(error){
+//     console.error("Fetch failed:", error);
+//   }finally{
+//     console.log("end of adminList");
+//   }
+// }
 function init(emittedBoard = null, emitted = false) {
   const createColumnForm = document.getElementById("createColumnForm");
   const createDocumentForm = document.getElementById("createDocumentForm");
@@ -767,7 +850,7 @@ function init(emittedBoard = null, emitted = false) {
 
   createColumnForm.removeEventListener("submit", handleColumnSubmit);
   createColumnForm.addEventListener("submit", handleColumnSubmit);
-  function handleColumnSubmit(event) {
+  async function handleColumnSubmit(event) {
     event.preventDefault();
     const columnContent = document.getElementById("columnContent").value;
     const maxDocuments = document.getElementById("maxDocuments").value || "∞";
@@ -779,7 +862,7 @@ function init(emittedBoard = null, emitted = false) {
       index: listOfColumn.length,
       maxDocuments,
     };
-    const newColumn = createColumnFromSaved(column);
+    const newColumn = await createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
     listOfColumn.push(newColumn);
     const modal = document.querySelector(".modalWrapper");
@@ -827,6 +910,11 @@ function init(emittedBoard = null, emitted = false) {
         document.getElementById("documentDescription").value || "Description:",
       backgroundColor: "#08CF65",
       status: status,
+      assignee:
+        document.getElementById("documentAssignee").value || "Unassigned",
+      labels:
+        Array.from(document.getElementById("documentLabel").value.split(" ")) ||
+        [],
     };
 
     const documentLineItem = createDocumentFromSaved(doc, columnIndex);

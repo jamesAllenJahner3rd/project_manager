@@ -89,7 +89,7 @@
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 12px;
-  color: #666;
+  /* color: #666; */
   font-weight: 500;
 }
 
@@ -157,7 +157,7 @@
 .dragDocument p {
   margin: 0;
   font-size: 13px;
-  color: #666;
+  /* color: #666; */
   line-height: 1.4;
 }
 .document-footer {
@@ -227,7 +227,12 @@
 #addColumnModal {
   position: fixed;
 }
-
+document-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
 /* ========== Color Picker ========== */
 .color-picker,
 .column-color-picker,
@@ -295,17 +300,26 @@
 }
 .form-group label {
   display: inline;
-  margin-bottom: 5px;
+  margin: 5px 0 0 0;
   color: #333;
   font-weight: 500;
+}
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
 }
 .form-group input,
 .form-group textarea,
 .form-group label {
   width: auto;
-  display: inline;
-  padding: 8px;
+  display: flex;
+  flex: 0.35 0;
+  padding: 0 8px;
   font-size: 14px;
+  align-items: center;
 }
 .form-group input,
 .form-group textarea {
@@ -355,6 +369,7 @@
 }
 .form-buttons {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   flex-wrap: wrap;
   margin: 20px 0;

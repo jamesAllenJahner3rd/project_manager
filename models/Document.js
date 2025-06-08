@@ -42,6 +42,14 @@ const DocumentSchema = new mongoose.Schema({
   status: {
     type: String,
   },
+   assignee: {
+    type: String,
+  },
+  labels: [
+    {
+      type: String,
+    },
+  ],
 });
 
 module.exports = mongoose.model("Document", DocumentSchema);
