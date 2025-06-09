@@ -39,3 +39,8 @@ Notificationbutton?.addEventListener("click", openModal);
 //Add User modal specific
 const openAddUserbutton = document.getElementById("addUserModalTrigger");
 openAddUserbutton?.addEventListener("click", openModal);
+
+//Add Filter modal specific
+const openFilterDocumentbutton = document.getElementById("filterDocumentModalButton");
+openFilterDocumentbutton?.addEventListener("click", openModal);
+filterDocumentModalButton
