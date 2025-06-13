@@ -287,15 +287,15 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
   dragparent.innerHTML = "";
   listOfColumn = [];
 
-   boardState.columns.forEach(async (column, index) => {
+   listOfColumn =await Promise.all( 
+    boardState.columns.map(async (column, index) => {
     // Add column index for status tracking
     column.index = index;
     const newColumn = await createColumnFromSaved(column);
     dragparent.appendChild(newColumn);
-    listOfColumn.push(newColumn);
     STATUS_BY_POSITION[index] = column.title;
-  });
-
+    return newColumn;
+  }))
   reinitializeDragula(dragparent, listOfColumn);
   console.log("end of loadFromLocalStorage");
 }
