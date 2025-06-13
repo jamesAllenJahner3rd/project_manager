@@ -84,13 +84,13 @@ console.log("currentProject:", currentProject);
 // };
 // Get next status in progression
 function getNextStatus(currentStatus) {
-  if (STATUS_BY_POSITION == undefined) {
-    let { STATUS_BY_POSITION, listOfColumn } = setStateList();
-  }
+  //if (STATUS_BY_POSITION == undefined) {
+    ({ STATUS_BY_POSITION, listOfColumn } = setStateList())
+  //}
   let key = Object.keys(STATUS_BY_POSITION).find(
     (i) => STATUS_BY_POSITION[i] === currentStatus
   );
-  const nextColumnTitle = STATUS_BY_POSITION[+key + 1];
+  const nextColumnTitle = STATUS_BY_POSITION[+key + 1]||currentStatus;
   const nextColumn = listOfColumn.find(
     (ul) =>
       ul.querySelector("h1.title")?.textContent.trim() === `${nextColumnTitle}`
@@ -869,7 +869,7 @@ function init(emittedBoard = null, emitted = false) {
     modal.style.display = "none";
     createColumnForm.reset();
     saveToLocalStorage();
-    createStatusMap(projectId);
+    // createStatusMap(projectId);
 
     // Reinitialize dragula for documents with new column
     documentDrake.destroy();
@@ -888,6 +888,7 @@ function init(emittedBoard = null, emitted = false) {
     documentDrake.on("drop", (el, target, source) => {
       if (source && source !== target) {
         // Update any necessary data or references for this document
+        el.dataset.status = target.parentElement.innerText.split("\n")[0]
       }
       saveToLocalStorage();
     });
