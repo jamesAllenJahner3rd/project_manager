@@ -76,7 +76,9 @@ io.on("connection", async (socket) => {
     io.to(roomName).emit("user-active", { active: true });
   });
 
-  socket.on("updateBoard", async (boardState) => {
+  socket.on("updateBoard", async (boardState, callback) => {
+    let success =false;
+    let data  = null;
     try {
       const { projectId } = boardState;
       console.log("Updating board for project:", projectId);
@@ -89,17 +91,25 @@ io.on("connection", async (socket) => {
       );
 
       if (!updatedKanban) {
-        console.error("Failed to update Kanban board");
-        return;
-      }
+      console.error("Failed to update Kanban board");
+      data = "Update failed";
+    } else {
+      success = true;
+      data = String(updatedKanban);
+    }
+
 
       // Broadcast to all clients in the room
       const room = `chat${projectId}`;
       io.to(room).emit("board-updated", updatedKanban);
       console.log("Board updated and broadcasted to room:", room);
+      
     } catch (error) {
       console.error("Error handling board update:", error);
+      success = false;
+      data = String(error)
     }
+    finally{if (callback) callback({success:success,data: data})}
   });
 
   socket.on("send-message", (message, roomId) => {

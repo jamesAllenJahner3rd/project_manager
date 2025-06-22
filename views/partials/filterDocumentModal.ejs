@@ -1,0 +1,27 @@
+<button type="button" class="project-button btn btn-primary" id="filterDocumentModalButton">Filter Documents</button>
+<!--ColumnModalTrigger  -->
+<div class="modal modalWrapper">
+    <form id="filterDocumentsForm" class="modal-content">
+        <fieldset class="form-group">
+            <legend> Filter Documents</legend>
+            <span class="close">&times;</span>
+            <div class="input-group">
+                <label for="filterAssignee">Assignee:</label>
+                <input type="text" id="filterAssignee" class="form-control" >
+            </div>
+            <div class="input-group">
+                <label for="filterLabel">Label(spaces separate labels):</label>
+                <input type="text" id="filterLabel" class="form-control"  >
+            </div>
+            <div class="input-group">
+                <label for="filterTitle">Title:</label>
+                <input type="text" id="filterTitle" class="form-control"  >
+            </div>
+            <div class="input-group">
+                <label for="maxDocuments">Word Filter:</label>
+                <input type="text" id="filterTitle" class="form-control"  >
+            </div>
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Filter Documents</button>
+    </form>
+</div>
