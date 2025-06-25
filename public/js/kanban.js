@@ -916,26 +916,36 @@ function init(emittedBoard = null, emitted = false) {
     throw new Error("404 Couldn't find #createColumnForm");
   }
   const createDocumentForm = document.getElementById("createDocumentForm");
+  if (!createDocumentForm) {
+    throw new Error("404 Couldn't find #createDocumentForm");
+  }
+  const filterDocumentForm = document.getElementById("filterDocumentForm");
+  if (!filterDocumentForm) {
+    throw new Error("404 Couldn't find #filterDocumentForm");
+  }
   const dragparent = document.getElementById("dragparent");
   console.log("init started");
   // Load saved data first
   loadFromLocalStorage(emittedBoard, emitted);
-  if (dragparent !== null && dragparent.hasChildNodes()) {
-    reinitializeDragula(dragparent, listOfColumn);
-    // Handle the drop event for columns
-    if (columnDrake !== undefined) {
-      columnDrake.on("drop", (el, target, source) => {
-        if (source && source !== target) {
-          source.removeChild(el); // Remove the original column from the source
-        }
-        // Update column indices after reordering
-        const columns = Array.from(document.querySelectorAll(".dragColumn"));
-        columns.forEach((columnParmeter, index) => {
-          const column = columnParmeter;
-          column.dataset.index = String(index);
+  if (dragparent instanceof HTMLElement) {
+    const test = dragparent;
+    if (test.hasChildNodes()) {
+      reinitializeDragula(test, listOfColumn);
+      // Handle the drop event for columns
+      if (columnDrake !== undefined) {
+        columnDrake.on("drop", (el, target, source) => {
+          if (source && source !== target) {
+            source.removeChild(el); // Remove the original column from the source
+          }
+          // Update column indices after reordering
+          const columns = Array.from(document.querySelectorAll(".dragColumn"));
+          columns.forEach((columnParmeter, index) => {
+            const column = columnParmeter;
+            column.dataset.index = String(index);
+          });
+          saveToLocalStorage();
         });
-        saveToLocalStorage();
-      });
+      }
     }
   }
   // Update listOfColumn
@@ -946,9 +956,22 @@ function init(emittedBoard = null, emitted = false) {
     documentDrake.on("drop", saveToLocalStorage);
   }
   if (createColumnForm) {
-    createColumnForm.removeEventListener("submit", handleColumnSubmit);
-    createColumnForm.addEventListener("submit", handleColumnSubmit);
+    createColumnForm === null || createColumnForm === void 0
+      ? void 0
+      : createColumnForm.removeEventListener("submit", handleColumnSubmit);
+    createColumnForm === null || createColumnForm === void 0
+      ? void 0
+      : createColumnForm.addEventListener("submit", handleColumnSubmit);
   }
+  if (filterDocumentForm !== null) {
+    filterDocumentForm === null || filterDocumentForm === void 0
+      ? void 0
+      : filterDocumentForm.removeEventListener("submit", setDocumentFilter);
+    filterDocumentForm === null || filterDocumentForm === void 0
+      ? void 0
+      : filterDocumentForm.addEventListener("submit", setDocumentFilter);
+  }
+  // filterDocumentForm.addEventListener("click", (e) => setDocumentFilter(e));
   function handleColumnSubmit(event) {
     return __awaiter(this, void 0, void 0, function* () {
       var _a;
@@ -968,6 +991,7 @@ function init(emittedBoard = null, emitted = false) {
         maxDocuments,
       };
       const newColumn = yield createColumnFromSaved(column);
+      const dragparent = document.getElementById("dragparent");
       if (!dragparent) {
         throw new Error("404 Couldn't find the Column from DB");
       }
@@ -1010,8 +1034,9 @@ function init(emittedBoard = null, emitted = false) {
   if (!createDocumentForm) {
     throw new Error("404 Couldn't find createDocumentForm");
   }
-  createDocumentForm.removeEventListener("submit", handleDocumentSubmit);
-  createDocumentForm.addEventListener("submit", handleDocumentSubmit);
+  const form = createDocumentForm;
+  form.removeEventListener("submit", handleDocumentSubmit);
+  form.addEventListener("submit", handleDocumentSubmit);
   function handleDocumentSubmit(event) {
     var _a, _b, _c, _d, _e;
     event.preventDefault();
@@ -1132,4 +1157,115 @@ socket.on("disconnect", () => {
     socket.connect(); // Attempt reconnect
   }, 5000);
 });
+function setDocumentFilter(event) {
+  return __awaiter(this, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    event.preventDefault();
+    document
+      .querySelectorAll("li")
+      .forEach((li) => (li.style.display = "flex"));
+    const assignee =
+      (_a = document
+        .getElementById("filterAssignee")
+        .value.toLowerCase()
+        .trim()) !== null && _a !== void 0
+        ? _a
+        : "";
+    const labels =
+      (_b = document
+        .getElementById("filterLabel")
+        .value.toLowerCase()
+        .trim()
+        .split(" ")) !== null && _b !== void 0
+        ? _b
+        : "";
+    const filterTitle =
+      (_c = document
+        .getElementById("filterTitle")
+        .value.toLowerCase()
+        .trim()) !== null && _c !== void 0
+        ? _c
+        : "";
+    const filterWord =
+      (_d = document
+        .getElementById("filterWord")
+        .value.toLowerCase()
+        .trim()) !== null && _d !== void 0
+        ? _d
+        : "";
+    const filteredCriterion = [assignee, labels, filterTitle, filterWord];
+    setStateList();
+    let documentList = listOfColumn.flatMap((ul) => {
+      let tempList = [];
+      if (assignee) {
+        tempList.push(
+          Array.from(ul.querySelectorAll(".dragDocument")).filter((el) => {
+            var _a;
+            return (_a =
+              el === null || el === void 0 ? void 0 : el.textContent) ===
+              null || _a === void 0
+              ? void 0
+              : _a.includes(`Assignee:${assignee}`);
+          })
+        );
+      }
+      if (!(labels.length === 1 && labels[0] === "")) {
+        tempList.push(
+          listOfColumn.flatMap((ul) => {
+            const anArray = Array.from(ul.querySelectorAll(".dragDocument"));
+            const anotherArray = anArray.filter((li) => {
+              if (li && li.textContent) {
+                let liContent = li.textContent
+                  .toLowerCase()
+                  .split("labels:")[1]
+                  .trim()
+                  .split(" ");
+                let truth = labels.every((label) => liContent.includes(label));
+                return !!truth;
+              }
+            });
+            return anotherArray;
+          })
+        );
+      }
+      if (filterTitle) {
+        tempList.push(
+          listOfColumn.flatMap((ul) => {
+            const anArray = Array.from(ul.querySelectorAll(".dragDocument"));
+            const anotherArray = anArray.filter((li) => {
+              if (li && li.textContent) {
+                let liContent = li.textContent
+                  .toLowerCase()
+                  .trim()
+                  .split("description:")[0];
+                let truth = liContent.includes(filterTitle);
+                return !!truth;
+              }
+            });
+            return anotherArray;
+          })
+        );
+      }
+      if (filterWord) {
+        tempList.push(
+          listOfColumn.flatMap((ul) =>
+            Array.from(ul.querySelectorAll(".dragDocument")).filter((li) => {
+              if (li && li.textContent) {
+                let liContent = li.textContent
+                  .toLowerCase()
+                  .replace("description:", " ")
+                  .replace("assignee:", " ")
+                  .replace("labels:", " ");
+                let truth = liContent.includes(filterWord);
+                return !!truth;
+              }
+            })
+          )
+        );
+      }
+      return tempList.flat();
+    });
+    documentList.forEach((li) => (li.style.display = "none"));
+  });
+}
 export {};
