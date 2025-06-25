@@ -721,6 +721,7 @@ function createDocumentPopup(columnData) {
     console.log("end of createDocumentPopup");
 }
 function init(emittedBoard = null, emitted = false) {
+    var _a;
     const createColumnForm = document.getElementById("createColumnForm");
     if (!createColumnForm) {
         throw new Error("404 Couldn't find #createColumnForm");
@@ -894,6 +895,15 @@ function init(emittedBoard = null, emitted = false) {
             backdrop.remove();
         document.body.classList.remove("modal-open");
     });
+    const clear = document.getElementById("clearFilters");
+    if (clear) {
+        (_a = document.getElementById("clearFilters")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => {
+            event.preventDefault();
+            // setStateList()
+            document.querySelectorAll('.dragDocument').forEach((li) => li.style.display = 'flex');
+            document.querySelector("div:has(#filterDocumentForm)").style.display = "none";
+        });
+    }
     console.log("end of init");
 }
 // Add event listener for page unload
