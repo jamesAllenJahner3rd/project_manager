@@ -1,3 +1,4 @@
+
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -45,8 +46,7 @@ function setStateList() {
         let STATUS_BY_POSITION = {};
     }
     listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
-    listOfColumn.forEach((column, index) => {
-        // Add column index for status tracking
+    listOfColumn.forEach((column, index) => {        // Add column index for status tracking
         column.dataset.index = index.toString();
         listOfColumn[index] = column;
         STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
