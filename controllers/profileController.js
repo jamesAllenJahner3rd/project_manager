@@ -246,13 +246,32 @@ module.exports = (io) => {
       }
     },
     getId: async (req, res) => {
-      // console.log("googleId", req.user.googleId);
+      try{// console.log("googleId", req.user.googleId);
 
-      const userProfile = await Profile.findOne({
+        const userProfile = await Profile.findOne({
         googleId: req.user.googleId,
       });
+      //  userProfile = await res.json
+       const identity = userProfile.id
       // console.log(userProfile)
-      res.json(userProfile._id);
+      res.json(identity);
+      }catch(error){
+        req.status(500).json({ error: "Server Error" });
+      }
+    },
+    getDisplayName: async (req, res) => {
+      try{// console.log("googleId", req.user.googleId);
+
+        const userProfile = await Profile.findOne({
+        googleId: req.user.googleId,
+      });
+      //  userProfile = await res.json
+       const identity = userProfile.displayName
+      // console.log(userProfile)
+      res.json(identity);
+      }catch(error){
+        req.status(500).json({ error: "Server Error" });
+      }
     },
   };
 };

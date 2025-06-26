@@ -1,11 +1,17 @@
 console.log("Modal.js loaded");
 //Functions to handle general modal behavior
-const modal = document.querySelector(".modalWrapper");
-const span = document.querySelectorAll(".close")[0];
-let openedModal = null;
+// const modal = document.querySelectorAll("div:has(>.modal-content)");
+// const spanList =document.querySelectorAll(".close")
+
+// let openedModal = null;
 function openModal(event) {
-  openedModal = event.target;
-  let toggledElement = event.target.nextElementSibling;
+  let target = event.target;
+  let currenttarget = event.currentTarget;
+
+  const openedModal = event.target;
+  let toggledElement = openedModal.nextElementSibling;
+  const span = toggledElement.querySelector(".close");
+
   let theForm = toggledElement?.firstElementChild || null; //fixed an error before the element loads.
   toggledElement.addEventListener("click", function (event) {
     // console.log("click modal.js line 11");
@@ -18,11 +24,12 @@ function openModal(event) {
   } else {
     toggledElement.style.display = "block";
   }
-}
-if (span) {
-  span.addEventListener("click", function () {
-    modal.style.display = "none";
-  });
+
+  if (span) {
+    span.addEventListener("click", function () {
+      toggledElement.style.display = "none";
+    });
+  }
 }
 //Create project modal specific
 const openCPbutton = document.getElementById("openCPModalButton");
@@ -41,6 +48,8 @@ const openAddUserbutton = document.getElementById("addUserModalTrigger");
 openAddUserbutton?.addEventListener("click", openModal);
 
 //Add Filter modal specific
-const openFilterDocumentbutton = document.getElementById("filterDocumentModalButton");
+const openFilterDocumentbutton = document.getElementById(
+  "filterDocumentModalButton"
+);
 openFilterDocumentbutton?.addEventListener("click", openModal);
-filterDocumentModalButton
+

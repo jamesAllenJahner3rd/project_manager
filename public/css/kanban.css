@@ -233,6 +233,11 @@ document-buttons {
   align-items: center;
   justify-content: flex-end;
 }
+#filterButtons{
+display: flex;
+flex-direction: row;
+justify-content: space-around;
+}
 /* ========== Color Picker ========== */
 .color-picker,
 .column-color-picker,

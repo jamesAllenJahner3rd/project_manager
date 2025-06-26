@@ -58,12 +58,11 @@ chatForm.addEventListener("submit", (e) => {
 });
 
 async function displayMessage(message) {
-  const response = await fetch("/profile/getId");
-  const userProfile = await response.json();
-  // console.log("USERPROFILE:", userProfile);
-  // console.log(`${userProfile.displayName}: ${message}`);
+  const response = await fetch("/profile/getDisplayName");
+  const displayName = await response.json();
+  
   const newMessage = document.createElement("div");
-  newMessage.textContent = `${userProfile.displayName}: ${message}`;
+  newMessage.textContent = `${displayName}: ${message}`;
   const chatContainer = document.getElementById("message-container");
   chatContainer.append(newMessage);
   chatContainer.scroll(0, chatContainer.scrollHeight);

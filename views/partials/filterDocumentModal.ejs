@@ -1,7 +1,7 @@
 <button type="button" class="project-button btn btn-primary" id="filterDocumentModalButton">Filter Documents</button>
 <!--ColumnModalTrigger  -->
 <div class="modal modalWrapper">
-    <form id="filterDocumentsForm" class="modal-content">
+    <form id="filterDocumentForm" class="modal-content">
         <fieldset class="form-group">
             <legend> Filter Documents</legend>
             <span class="close">&times;</span>
@@ -19,9 +19,13 @@
             </div>
             <div class="input-group">
                 <label for="maxDocuments">Word Filter:</label>
-                <input type="text" id="filterTitle" class="form-control"  >
+                <input type="text" id="filterWord" class="form-control"  >
             </div>
         </fieldset>
-        <button type="submit" class="btn btn-primary">Filter Documents</button>
+        <div id="filterButtons" >
+            <button type="submit" class="btn btn-primary">Filter Documents</button>
+            <button type="button" class="btn btn-primary" id="clearFilters">Clear Filters</button>
+        </div>
     </form>
+    
 </div>

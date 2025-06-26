@@ -1,4 +1,4 @@
-//import { currentProject } from "/js/chat.js";
+import { currentProject } from "/js/chat.js";
 console.log("createColumnModal.js is loaded");
 //const socket = io(window.location.origin);
 const addUserWindow = document.querySelector("#addUserForm");
