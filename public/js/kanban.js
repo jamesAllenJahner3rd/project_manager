@@ -906,12 +906,6 @@ function init(emittedBoard = null, emitted = false) {
     }
     console.log("end of init");
 }
-// Add event listener for page unload
-// window.addEventListener("beforeunload", (event) => {
-//   saveToLocalStorage();
-//   event.returnValue = ""; // Prevent accidental closure without saving
-//   console.log("end of beforeunload");
-// });
 // Add event listener for visibility change
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
