@@ -18,6 +18,7 @@ module.exports = (io) => {
   );
   router.get("/project/:id/data", ensureAuth, profileController.getProjectData);
   router.get("/getId",ensureAuth, profileController.getId);
+  router.get("/getDisplayName",ensureAuth, profileController.getDisplayName);
   router.put("/notifyUser/:id", ensureAuth, profileController.addNotification);
   //routes for profile control
   // router.get('/openNotifications', ensureAuth, profileController.getProfile);

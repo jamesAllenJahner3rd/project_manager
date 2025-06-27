@@ -52,4 +52,3 @@ const openFilterDocumentbutton = document.getElementById(
   "filterDocumentModalButton"
 );
 openFilterDocumentbutton?.addEventListener("click", openModal);
-filterDocumentModalButton;
