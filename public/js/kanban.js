@@ -37,7 +37,7 @@ let room = () => __awaiter(void 0, void 0, void 0, function* () {
         return null;
     }
 });
-const roomName = room.name; //**************************
+const roomName = room(); //**************************
 console.log("roomName:", roomName);
 let STATUS_BY_POSITION = {};
 function setStateList() {
@@ -296,7 +296,7 @@ function saveToLocalStorage() {
         }
     });
     // Save to both localStorage and server
-    localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
+    // localStorage.setItem(`kanbanBoard-${projectId}`, JSON.stringify(boardState));
     // Emit to server with error handling
     try {
         socket.emit("updateBoard", boardState, (response) => {
@@ -918,10 +918,23 @@ document.addEventListener("visibilitychange", () => {
         saveToLocalStorage();
     }
 });
+function getUserId() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield fetch("/profile/getId");
+            const userId = yield response.json();
+            return userId;
+        }
+        catch (error) {
+            console.error(`${error} Couldn't find the user's ID`);
+        }
+    });
+}
 // Initialize socket connection
-socket.on("connect", () => {
+socket.on("connect", async () => {
     console.log("Connected to server");
-    socket.emit("join-room", roomName, room);
+    const userId = await getUserId();
+    socket.emit("join-room", roomName, userId);
 });
 socket.on("board-updated", (updatedBoard) => {
     console.log("Received board update:", updatedBoard);

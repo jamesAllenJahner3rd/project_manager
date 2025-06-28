@@ -19,7 +19,7 @@ socket.on("connect", () => {
   socket.emit("get-project-info", currentProjectId);
 
   // Listen for the project info response
-  socket.on("project-info", (project) => {
+  socket.on("project-info", async (project) => {
     if (!project || !project.name) {
       console.error("Invalid project data received");
       return;
@@ -36,13 +36,19 @@ socket.on("connect", () => {
 
     // Join the room after receiving project info
     if (!socket.joinedRoom) {
-      socket.emit("join-room", roomName, `chat${currentProject._id}`);
+      const profileId = await getUserId();
+      socket.emit("join-room", `chat${currentProject._id}`, profileId);
       socket.joinedRoom = true; // Mark room as joined
+      console.log(profileId, "joinedRoom: ", `chat${currentProject._id}`);
       displayMessage(`You connected with room: ${roomName}`);
     }
   });
 });
-
+async function getUserId() {
+  const response = await fetch("/profile/getId");
+  const userId = await response.json();
+  return userId;
+}
 // Handle incoming messages
 socket.on("receive-message", (message) => displayMessage(message));
 
@@ -52,15 +58,13 @@ chatForm.addEventListener("submit", (e) => {
   const message = messageInput.value;
 
   if (message === "") return;
-  displayMessage(message);
-  socket.emit("send-message", message, `chat${currentProject._id}`);
+  socket.emit("send-message", message, `chat${currentProjectId}`);
   messageInput.value = "";
 });
 
 async function displayMessage(message) {
   const response = await fetch("/profile/getDisplayName");
   const displayName = await response.json();
-  
   const newMessage = document.createElement("div");
   newMessage.textContent = `${displayName}: ${message}`;
   const chatContainer = document.getElementById("message-container");

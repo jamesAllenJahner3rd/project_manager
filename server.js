@@ -48,8 +48,8 @@ const profileRoutes = require("./routes/profileRoutes")(io);
 
 // console.log("server connection line 48")//,userId)
 io.on("connection", async (socket) => {
-  // console.log("server")
 
+  // console.log("server")
   socket.on("get-project-info", async (projectId) => {
     try {
       const project = await Project.findById(projectId);
@@ -64,21 +64,31 @@ io.on("connection", async (socket) => {
     }
   });
 
-  socket.on("join-room", async (roomName, userProfile) => {
+  socket.on("join-room", async (roomName, profileId) => {
+    
+  const userId = profileId;
+  socket.userID = userId;
+    console.log(`join-room Room: ${roomName} and userProfile:${socket.userId}`);
     if (!socket.joinedRooms) socket.joinedRooms = new Set();
 
     if (!socket.joinedRooms.has(roomName)) {
       socket.join(roomName);
       socket.joinedRooms.add(roomName);
     }
-    socket.userID = userProfile._id;
+    
+    console.log("userid for socket is ", socket.userID);
     console.log(`User ${socket.userID} joined room: ${roomName}`);
     io.to(roomName).emit("user-active", { active: true });
+    const clients = io.sockets.adapter.rooms;
+    if (clients) {
+      console.log(`this should list the rooms and ids.`);
+      console.dir(clients); // Array of socket IDs
+    }
   });
 
   socket.on("updateBoard", async (boardState, callback) => {
-    let success =false;
-    let data  = null;
+    let success = false;
+    let data = null;
     try {
       const { projectId } = boardState;
       console.log("Updating board for project:", projectId);
@@ -91,25 +101,24 @@ io.on("connection", async (socket) => {
       );
 
       if (!updatedKanban) {
-      console.error("Failed to update Kanban board");
-      data = "Update failed";
-    } else {
-      success = true;
-      data = String(updatedKanban);
-    }
-
+        console.error("Failed to update Kanban board");
+        data = "Update failed";
+      } else {
+        success = true;
+        data = String(updatedKanban);
+      }
 
       // Broadcast to all clients in the room
       const room = `chat${projectId}`;
       io.to(room).emit("board-updated", updatedKanban);
       console.log("Board updated and broadcasted to room:", room);
-      
     } catch (error) {
       console.error("Error handling board update:", error);
       success = false;
-      data = String(error)
+      data = String(error);
+    } finally {
+      if (callback) callback({ success: success, data: data });
     }
-    finally{if (callback) callback({success:success,data: data})}
   });
 
   socket.on("send-message", (message, roomId) => {
