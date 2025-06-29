@@ -48,7 +48,6 @@ const profileRoutes = require("./routes/profileRoutes")(io);
 
 // console.log("server connection line 48")//,userId)
 io.on("connection", async (socket) => {
-
   // console.log("server")
   socket.on("get-project-info", async (projectId) => {
     try {
@@ -65,9 +64,8 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("join-room", async (roomName, profileId) => {
-    
-  const userId = profileId;
-  socket.userID = userId;
+    const userId = profileId;
+    socket.userID = userId;
     console.log(`join-room Room: ${roomName} and userProfile:${socket.userId}`);
     if (!socket.joinedRooms) socket.joinedRooms = new Set();
 
@@ -75,7 +73,7 @@ io.on("connection", async (socket) => {
       socket.join(roomName);
       socket.joinedRooms.add(roomName);
     }
-    
+
     console.log("userid for socket is ", socket.userID);
     console.log(`User ${socket.userID} joined room: ${roomName}`);
     io.to(roomName).emit("user-active", { active: true });
@@ -99,18 +97,19 @@ io.on("connection", async (socket) => {
         { columns: boardState.columns },
         { new: true, upsert: true }
       );
+      const foundKanban = updatedKanban.toJSON();
 
-      if (!updatedKanban) {
+      if (!foundKanban) {
         console.error("Failed to update Kanban board");
         data = "Update failed";
       } else {
         success = true;
-        data = String(updatedKanban);
+        data = JSON.stringify(foundKanban);
       }
 
       // Broadcast to all clients in the room
-      const room = `chat${projectId}`;
-      io.to(room).emit("board-updated", updatedKanban);
+      const room = `kanban${projectId}`;
+      io.to(room).emit("board-updated", foundKanban);
       console.log("Board updated and broadcasted to room:", room);
     } catch (error) {
       console.error("Error handling board update:", error);

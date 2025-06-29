@@ -39,7 +39,7 @@ async function room() {
         return null;
     }
 }
-const roomName = room(); //**************************
+const roomName = await room(); //**************************
 console.log("roomName:", roomName);
 let STATUS_BY_POSITION = {};
 function setStateList() {
@@ -57,11 +57,7 @@ function setStateList() {
     return { STATUS_BY_POSITION, listOfColumn };
 }
 // async
-function createStatusMap(projectId) {
-    console.log("STATUS_BY_POSITION:", STATUS_BY_POSITION);
-    return STATUS_BY_POSITION; // Return it for use elsewhere
-    console.log("end of createStatusMap");
-}
+
 console.log("currentProject:", currentProject);
 function getNextStatus(currentStatus) {
     if (!STATUS_BY_POSITION) {
@@ -231,6 +227,7 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
     }
     dragparent.innerHTML = "";
     let listOfColumn = [];
+    let { STATUS_BY_POSITION } = setStateList();
     listOfColumn = await Promise.all(boardState.columns.map(async (column, index) => {
         // Add column index for status tracking
         column.index = `${index}`;
@@ -802,7 +799,7 @@ function init(emittedBoard = null, emitted = false) {
         // }
         createDocumentForm.reset();
         saveToLocalStorage();
-        createStatusMap(projectId);
+        let { STATUS_BY_POSITION } = setStateList();
         // Reinitialize dragula for documents with new column
         documentDrake.destroy();
         listOfColumn = Array.from(document.querySelectorAll(".dragColumn"));
@@ -930,7 +927,7 @@ async function getUserId() {
 socket.on("connect", async () => {
     console.log("Connected to server");
     const userId = await getUserId();
-    socket.emit("join-room", roomName, userId);
+    socket.emit("join-room", `kanban${projectId}`, userId);
 });
 socket.on("board-updated", (updatedBoard) => {
     console.log("Received board update:", updatedBoard);
