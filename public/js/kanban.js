@@ -1,13 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a;
 //  import type { Drake } from "dragula";
 console.log("kanban.js has loaded");
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 let currentProject = null;
 const currentUrl = window.location.href;
-let currentProjectId = (_a = currentUrl.split("kanban")[1]) === null || _a === void 0 ? void 0 : _a.split("?")[0];
+let currentProjectId = currentUrl.split("kanban")[1]?.split("?")[0];
 if (!currentProjectId) {
     console.error("Project ID not found in URL");
 }
@@ -23,20 +13,32 @@ let columnDrake;
 let documentDrake; //: DocumentDrake;
 let listOfColumn = [];
 const projectId = currentProjectId;
-const socket = io(window.location.origin);
-let room = () => __awaiter(void 0, void 0, void 0, function* () {
+const isAdmin = await (async () => {
     try {
-        let res = yield fetch(`/profile/project/${projectId}/data`);
+        const currentUrl = window.location.href;
+        const id = currentUrl.split("kanban")[1].split("?")[0];
+        const response = await fetch(`/project/kanban/${id}/isAdmin`);
+        const awaitingAdminBoolean = await response.json();
+        return !!awaitingAdminBoolean;
+    }
+    catch (error) {
+        console.error(`${error} Couldn't find whether the user is admin, kanban.js "areYouAdmin"`);
+    }
+})();
+const socket = io(window.location.origin);
+async function room() {
+    try {
+        let res = await fetch(`/profile/project/${projectId}/data`);
         if (!res.ok)
             throw new Error(`HTTP Error: ${res.status}`);
-        console.log("end of room");
-        return yield res.json();
+        console.log(res.json, "end of room");
+        return await res.json();
     }
     catch (error) {
         console.error("Fetch failed:", error);
         return null;
     }
-});
+}
 const roomName = room(); //**************************
 console.log("roomName:", roomName);
 let STATUS_BY_POSITION = {};
@@ -62,19 +64,18 @@ function createStatusMap(projectId) {
 }
 console.log("currentProject:", currentProject);
 function getNextStatus(currentStatus) {
-    var _a, _b;
     if (!STATUS_BY_POSITION) {
         ({ STATUS_BY_POSITION, listOfColumn } = setStateList());
     }
     let key = Object.keys(STATUS_BY_POSITION).find((i) => STATUS_BY_POSITION[+i] === currentStatus);
     const nextColumnTitle = STATUS_BY_POSITION[+key + 1] || currentStatus;
-    const nextColumn = listOfColumn.find((ul) => { var _a, _b; return ((_b = (_a = ul.querySelector("h1.title")) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.trim()) === `${nextColumnTitle}`; });
+    const nextColumn = listOfColumn.find((ul) => ul.querySelector("h1.title")?.textContent?.trim() === `${nextColumnTitle}`);
     if (!nextColumn) {
         throw new Error("404 nextColumn is null. Returning current status.");
     }
     //querySelector(`ul:has( nav h1[title=${STATUS_BY_POSITION[+key + 1]}])`);
     const documentNumber = nextColumn.querySelectorAll(".dragDocument").length;
-    const maxDocumentCount = Number((_b = (_a = nextColumn.querySelector("span.max-documents")) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.split(" ")[1]) || 0;
+    const maxDocumentCount = Number(nextColumn.querySelector("span.max-documents")?.textContent?.split(" ")[1]) || 0;
     if (!maxDocumentCount)
         throw new Error("404 nextColumn was not found");
     console.log("end of getNextStatus", documentNumber, maxDocumentCount);
@@ -94,88 +95,84 @@ function getStatusForColumn(columnIndex) {
     return STATUS_BY_POSITION[+columnIndex];
 }
 // Handle progress click
-function handleProgressClick(documentId, currentStatus) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e, _f;
-        try {
+async function handleProgressClick(documentId, currentStatus) {
+    try {
+        let { STATUS_BY_POSITION, listOfColumn } = setStateList();
+        const nextStatus = getNextStatus(currentStatus);
+        if (nextStatus === currentStatus)
+            return; // No change needed
+        const nextColumn = listOfColumn.find((column) => column.querySelector("h1.title")?.textContent?.trim() ===
+            `${nextStatus}`);
+        if (!nextColumn) {
+            throw new Error("404 Didn't find the Next Column");
+        }
+        const maxDocuments = nextColumn.querySelector(`.max-documents`)?.textContent?.split(" ")[1] ??
+            0;
+        const currentDocuments = nextColumn.querySelector(`.document-count`)?.textContent?.split(" ")[1] ??
+            0;
+        if (+maxDocuments <= +currentDocuments) {
+            alert("Max document limit reached");
+            return;
+        }
+        // Find document and its current column
+        let requestedDoc = document.getElementById(documentId);
+        if (!requestedDoc) {
+            throw new Error("Document was not found line 166 kanban.js");
+        }
+        requestedDoc = requestedDoc;
+        const currentColumn = requestedDoc.closest(".dragColumn");
+        if (!currentColumn)
+            throw new Error("dragColumn column couldn't be found.");
+        console.log(`Moving document ${documentId} from ${currentStatus} → ${nextStatus}`); //*****************************************
+        // Find column index of target status
+        let targetColumnIndex = -1;
+        for (const [index, status] of Object.entries(STATUS_BY_POSITION)) {
+            if (status === nextStatus) {
+                targetColumnIndex = parseInt(index);
+                break;
+            }
+        }
+        if (targetColumnIndex === -1)
+            return;
+        // Get all columns and find target column
+        const columns = Array.from(document.querySelectorAll(".dragColumn"));
+        listOfColumn = columns;
+        if (targetColumnIndex >= columns.length)
+            return;
+        const targetColumn = columns[targetColumnIndex];
+        const targetContainer = targetColumn.querySelector(".documents-container");
+        if (!targetContainer) {
+            throw Error("404 documents-container not found");
+        }
+        // Remove from current column and append to target column
+        if (requestedDoc.parentNode) {
+            requestedDoc.parentNode.removeChild(requestedDoc);
+        }
+        else {
+            console.warn("Document parent node not found.");
+        }
+        targetContainer.appendChild(requestedDoc);
+        // Update document status data attribute
+        requestedDoc.dataset.status = nextStatus;
+        // Update the progress button appearance
+        const progressBtn = requestedDoc.querySelector(".progress-button");
+        if (progressBtn) {
+            updateProgressButtonState(progressBtn, nextStatus);
+        }
+        // Update document counts
+        updateDocumentCount(currentColumn);
+        updateDocumentCount(targetColumn);
+        // Save changes
+        saveToLocalStorage();
+        console.log(" end of handleProgressClick");
+        if (STATUS_BY_POSITION == undefined) {
             let { STATUS_BY_POSITION, listOfColumn } = setStateList();
-            const nextStatus = getNextStatus(currentStatus);
-            if (nextStatus === currentStatus)
-                return; // No change needed
-            const nextColumn = listOfColumn.find((column) => {
-                var _a, _b;
-                return ((_b = (_a = column.querySelector("h1.title")) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.trim()) ===
-                    `${nextStatus}`;
-            });
-            if (!nextColumn) {
-                throw new Error("404 Didn't find the Next Column");
-            }
-            const maxDocuments = (_c = (_b = (_a = nextColumn.querySelector(`.max-documents`)) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.split(" ")[1]) !== null && _c !== void 0 ? _c : 0;
-            const currentDocuments = (_f = (_e = (_d = nextColumn.querySelector(`.document-count`)) === null || _d === void 0 ? void 0 : _d.textContent) === null || _e === void 0 ? void 0 : _e.split(" ")[1]) !== null && _f !== void 0 ? _f : 0;
-            if (+maxDocuments <= +currentDocuments) {
-                alert("Max document limit reached");
-                return;
-            }
-            // Find document and its current column
-            let requestedDoc = document.getElementById(documentId);
-            if (!requestedDoc) {
-                throw new Error("Document was not found line 166 kanban.js");
-            }
-            requestedDoc = requestedDoc;
-            const currentColumn = requestedDoc.closest(".dragColumn");
-            if (!currentColumn)
-                throw new Error("dragColumn column couldn't be found.");
-            console.log(`Moving document ${documentId} from ${currentStatus} → ${nextStatus}`); //*****************************************
-            // Find column index of target status
-            let targetColumnIndex = -1;
-            for (const [index, status] of Object.entries(STATUS_BY_POSITION)) {
-                if (status === nextStatus) {
-                    targetColumnIndex = parseInt(index);
-                    break;
-                }
-            }
-            if (targetColumnIndex === -1)
-                return;
-            // Get all columns and find target column
-            const columns = Array.from(document.querySelectorAll(".dragColumn"));
-            listOfColumn = columns;
-            if (targetColumnIndex >= columns.length)
-                return;
-            const targetColumn = columns[targetColumnIndex];
-            const targetContainer = targetColumn.querySelector(".documents-container");
-            if (!targetContainer) {
-                throw Error("404 documents-container not found");
-            }
-            // Remove from current column and append to target column
-            if (requestedDoc.parentNode) {
-                requestedDoc.parentNode.removeChild(requestedDoc);
-            }
-            else {
-                console.warn("Document parent node not found.");
-            }
-            targetContainer.appendChild(requestedDoc);
-            // Update document status data attribute
-            requestedDoc.dataset.status = nextStatus;
-            // Update the progress button appearance
-            const progressBtn = requestedDoc.querySelector(".progress-button");
-            if (progressBtn) {
-                updateProgressButtonState(progressBtn, nextStatus);
-            }
-            // Update document counts
-            updateDocumentCount(currentColumn);
-            updateDocumentCount(targetColumn);
-            // Save changes
-            saveToLocalStorage();
-            console.log(" end of handleProgressClick");
-            if (STATUS_BY_POSITION == undefined) {
-                let { STATUS_BY_POSITION, listOfColumn } = setStateList();
-            }
         }
-        catch (error) {
-            console.error("Error updating document status:", error);
-            // Use existing error handling - no custom error states
-        }
-    });
+    }
+    catch (error) {
+        console.error("Error updating document status:", error);
+        // Use existing error handling - no custom error states
+    }
 }
 // Update progress button appearance based on status
 function updateProgressButtonState(button, status) {
@@ -198,85 +195,87 @@ socket.on("board-updated", (updatedBoard) => {
     }
     loadFromLocalStorage(updatedBoard, true);
 });
-function loadFromLocalStorage(emittedBoard, emitted) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const kanban = yield room();
-        if (!kanban || typeof kanban !== "object") {
-            console.error("Kanban data is not in an expected object format:", kanban);
-        }
-        console.log("loadFromLocalStorage kanban.js line 138 kanban", kanban, "parse");
-        //JSON.parse(room))
-        const savedState = localStorage.getItem(`kanbanBoard-${projectId}`);
-        let boardState;
-        if (emittedBoard) {
-            boardState = emittedBoard;
-        }
-        else if (savedState) {
-            boardState = JSON.parse(savedState);
-        }
-        else if (kanban && kanban.length > 0) {
-            boardState = kanban[0];
-        }
-        else {
-            boardState = {
-                projectId: projectId,
-                columns: [],
-            };
-        }
-        if (boardState.projectId !== projectId) {
-            console.log("No saved state for this project");
-            return;
-        }
-        const dragparent = document.getElementById("dragparent");
-        if (!dragparent) {
-            throw new Error("404: Element 'dragparent' not found");
-        }
-        dragparent.innerHTML = "";
-        let listOfColumn = [];
-        listOfColumn = yield Promise.all(boardState.columns.map((column, index) => __awaiter(this, void 0, void 0, function* () {
-            // Add column index for status tracking
-            column.index = `${index}`;
-            const newColumn = yield createColumnFromSaved(column);
-            dragparent.appendChild(newColumn);
-            STATUS_BY_POSITION[index] = column.title;
-            return newColumn;
-        })));
+async function loadFromLocalStorage(emittedBoard, emitted) {
+    const kanban = await room();
+    if (!kanban || typeof kanban !== "object") {
+        console.error("Kanban data is not in an expected object format:", kanban);
+    }
+    console.log("loadFromLocalStorage kanban.js line 138 kanban", kanban, "parse");
+    //JSON.parse(room))
+    // const savedState = localStorage.getItem(`kanbanBoard-${projectId}`);
+    const getSaved = await fetch(`/project/kanban/${kanban._id}/data`);
+    const savedState = await getSaved.json();
+    let boardState;
+    if (emittedBoard) {
+        boardState = emittedBoard;
+    }
+    else if (savedState) {
+        boardState = savedState;
+    }
+    else if (kanban && kanban.columns.length > 0) {
+        boardState = kanban;
+    }
+    else {
+        boardState = {
+            projectId: projectId,
+            columns: [],
+        };
+    }
+    if (boardState.projectId !== projectId) {
+        console.log("No saved state for this project");
+        return;
+    }
+    const dragparent = document.getElementById("dragparent");
+    if (!dragparent) {
+        throw new Error("404: Element 'dragparent' not found");
+    }
+    dragparent.innerHTML = "";
+    let listOfColumn = [];
+    listOfColumn = await Promise.all(boardState.columns.map(async (column, index) => {
+        // Add column index for status tracking
+        column.index = `${index}`;
+        const newColumn = await createColumnFromSaved(column);
+        dragparent.appendChild(newColumn);
+        STATUS_BY_POSITION[index] = column.title;
+        return newColumn;
+    }));
+    // const isAdmin = await areYouAdmin()
+    if (isAdmin === true) {
         reinitializeDragula(dragparent, listOfColumn);
-        console.log("end of loadFromLocalStorage");
-    });
+    }
+    console.log("end of loadFromLocalStorage");
 }
 function saveToLocalStorage() {
     const boardState = {
         projectId: projectId,
         columns: Array.from(document.querySelectorAll("div ul.dragColumn")).map((column, columnIndex) => {
-            var _a, _b, _c;
             const indexedColumn = column;
             const documents = Array.from(indexedColumn.querySelectorAll(".dragDocument")).map((mappedDoc) => {
-                var _a, _b, _c, _d, _e, _f, _g;
                 const el = mappedDoc;
                 // Get status based on column position
                 const status = getStatusForColumn(columnIndex);
-                let labels = (_b = (_a = el.querySelector(".labelsList")) === null || _a === void 0 ? void 0 : _a.textContent) !== null && _b !== void 0 ? _b : "";
+                let labels = el.querySelector(".labelsList")?.textContent ?? "";
                 console.log("labels:", labels);
                 return {
                     id: el.id,
-                    title: (_c = el.querySelector("h2")) === null || _c === void 0 ? void 0 : _c.textContent,
-                    description: (_d = el.querySelector("p")) === null || _d === void 0 ? void 0 : _d.textContent,
+                    title: el.querySelector("h2")?.textContent,
+                    description: el.querySelector("p")?.textContent,
                     backgroundColor: el.style.backgroundColor || "#08CF65",
                     status,
-                    assignee: ((_e = el.querySelector(".assignedTo")) === null || _e === void 0 ? void 0 : _e.textContent) || "Unassigned",
-                    labels: Array.from(((_g = (_f = el.querySelector(".labelsList")) === null || _f === void 0 ? void 0 : _f.textContent) !== null && _g !== void 0 ? _g : "")
+                    assignee: el.querySelector(".assignedTo")?.textContent || "Unassigned",
+                    labels: Array.from((el.querySelector(".labelsList")?.textContent ?? "")
                         .split(" ")
                         .filter(Boolean)),
                 };
             });
             return {
                 id: indexedColumn.id,
-                title: (_a = indexedColumn.querySelector(".title")) === null || _a === void 0 ? void 0 : _a.textContent,
+                title: indexedColumn.querySelector(".title")?.textContent,
                 backgroundColor: indexedColumn.style.backgroundColor || "#f9f9f9",
                 documents: documents,
-                maxDocuments: (_c = (_b = indexedColumn
-                    .querySelector("span.max-documents")) === null || _b === void 0 ? void 0 : _b.textContent) === null || _c === void 0 ? void 0 : _c.split(" ")[1],
+                maxDocuments: indexedColumn
+                    .querySelector("span.max-documents")
+                    ?.textContent?.split(" ")[1],
                 canAddDocuments: indexedColumn.querySelector(".canAddDocuments")
                     ? true
                     : false,
@@ -309,13 +308,12 @@ function saveToLocalStorage() {
     console.log("end of saveToLocalStorage", "STATUS_BY_POSITION", STATUS_BY_POSITION, "list of columns", listOfColumn);
 }
 function createDocumentFromSaved(savedDoc, columnIndex = 0) {
-    var _a;
     const documentLineItem = document.createElement("li");
     documentLineItem.className = "dragDocument";
     documentLineItem.id = savedDoc.id || "";
     documentLineItem.style.backgroundColor = savedDoc.backgroundColor;
     // Set document status or default based on column
-    const status = (_a = savedDoc.status) !== null && _a !== void 0 ? _a : getStatusForColumn(columnIndex);
+    const status = savedDoc.status ?? getStatusForColumn(columnIndex);
     if (!status) {
         console.warn("missing status on document element line 422");
     }
@@ -444,106 +442,101 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
     console.log("end of createDocumentFromSaved");
     return documentLineItem;
 }
-function createColumnFromSaved(column) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const currentUrl = window.location.href;
-        const id = currentUrl.split("kanban")[1].split("?")[0];
-        const response = yield fetch(`/project/kanban/${id}/isAdmin`);
-        const isAdmin = yield response.json();
-        const newColumn = document.createElement("ul");
-        newColumn.className = "dragColumn";
-        newColumn.id = column.id;
-        newColumn.style.backgroundColor = column.backgroundColor;
-        // Store column index as data attribute for status mapping
-        newColumn.dataset.index = column.index || "0";
-        const columnNav = document.createElement("nav");
-        columnNav.className = "columnNav";
-        // Create button container
-        const buttonContainer = document.createElement("div");
-        buttonContainer.className = "button-container";
-        // Add document button
-        const newDocPopup = document.createElement("button");
-        newDocPopup.className = "newDocPopupButton";
-        newDocPopup.dataset.column = newColumn.id;
-        newDocPopup.addEventListener("click", () => {
-            if (!newDocPopup.dataset.column) {
-                throw new Error("404 newDocPopup.dataset.column is undefined");
-            }
-            else {
-                createDocumentPopup(newDocPopup.dataset.column);
-            }
-        });
-        buttonContainer.appendChild(newDocPopup);
-        // Add color picker
-        const colorPicker = document.createElement("input");
-        colorPicker.type = "color";
-        colorPicker.className = "column-color-picker";
-        colorPicker.value = column.backgroundColor || "#f9f9f9";
-        colorPicker.addEventListener("input", (e) => {
-            const target = e.target;
-            newColumn.style.backgroundColor = target.value;
-            saveToLocalStorage();
-        });
-        buttonContainer.appendChild(colorPicker);
-        // Add delete button
-        const deleteMe = document.createElement("button");
-        deleteMe.className = "deleteButton";
-        deleteMe.dataset.column = newColumn.id;
-        deleteMe.addEventListener("click", () => {
-            if (!deleteMe.dataset.column) {
-                throw new Error("404  Couldn't find deleteMe Dataset.column");
-            }
-            deleteDocument(deleteMe.dataset.column);
-        });
-        buttonContainer.appendChild(deleteMe);
-        columnNav.appendChild(buttonContainer);
-        // Add title
-        const title = document.createElement("h1");
-        title.className = "title";
-        title.textContent = column.title;
-        title.addEventListener("dblclick", () => edit(title));
-        columnNav.appendChild(title);
-        newColumn.appendChild(columnNav);
-        // Create documents container
-        const documentsContainer = document.createElement("div");
-        documentsContainer.className = "documents-container";
-        newColumn.appendChild(documentsContainer);
-        // Add documents to the container
-        if (!column.documents || column.documents.length === 0) {
-            console.warn(`No documents found for column: ${column.title}`);
+async function createColumnFromSaved(column) {
+    // const isAdmin = await areYouAdmin ()
+    const newColumn = document.createElement("ul");
+    newColumn.className = "dragColumn";
+    newColumn.id = column.id;
+    newColumn.style.backgroundColor = column.backgroundColor;
+    // Store column index as data attribute for status mapping
+    newColumn.dataset.index = column.index || "0";
+    const columnNav = document.createElement("nav");
+    columnNav.className = "columnNav";
+    // Create button container
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "button-container";
+    // Add document button
+    const newDocPopup = document.createElement("button");
+    newDocPopup.className = "newDocPopupButton";
+    newDocPopup.dataset.column = newColumn.id;
+    newDocPopup.addEventListener("click", () => {
+        if (!newDocPopup.dataset.column) {
+            throw new Error("404 newDocPopup.dataset.column is undefined");
         }
         else {
-            column.documents.forEach((documentElement) => {
-                const newDocument = createDocumentFromSaved(documentElement, +column.index);
-                if (newDocument !== undefined) {
-                    documentsContainer.appendChild(newDocument);
-                }
-            });
+            createDocumentPopup(newDocPopup.dataset.column);
         }
-        // Add column footer with document count
-        const columnFooter = document.createElement("div");
-        columnFooter.className = "column-footer";
-        const documentCount = document.createElement("span");
-        documentCount.className = "document-count";
-        documentCount.textContent = `Documents: ${column.documents.length}`;
-        columnFooter.appendChild(documentCount);
-        const maxDocumentCount = document.createElement("span");
-        maxDocumentCount.className = "max-document-count";
-        let maxTextContent = () => {
-            if (column.maxDocuments === 0) {
-                return "None";
-            }
-            else {
-                return column.maxDocuments;
-            }
-        };
-        maxDocumentCount.classList.add("max-documents");
-        maxDocumentCount.textContent = `Max: ${maxTextContent()}`;
-        newColumn.appendChild(columnFooter);
-        columnFooter.appendChild(maxDocumentCount);
-        console.log("end of createColumnFromSaved");
-        return newColumn;
     });
+    buttonContainer.appendChild(newDocPopup);
+    // Add color picker
+    const colorPicker = document.createElement("input");
+    colorPicker.type = "color";
+    colorPicker.className = "column-color-picker";
+    colorPicker.value = column.backgroundColor || "#f9f9f9";
+    colorPicker.addEventListener("input", (e) => {
+        const target = e.target;
+        newColumn.style.backgroundColor = target.value;
+        saveToLocalStorage();
+    });
+    buttonContainer.appendChild(colorPicker);
+    // Add delete button
+    const deleteMe = document.createElement("button");
+    deleteMe.className = "deleteButton";
+    deleteMe.dataset.column = newColumn.id;
+    deleteMe.addEventListener("click", () => {
+        if (!deleteMe.dataset.column) {
+            throw new Error("404  Couldn't find deleteMe Dataset.column");
+        }
+        deleteDocument(deleteMe.dataset.column);
+    });
+    buttonContainer.appendChild(deleteMe);
+    columnNav.appendChild(buttonContainer);
+    // Add title
+    const title = document.createElement("h1");
+    title.className = "title";
+    title.textContent = column.title;
+    title.addEventListener("dblclick", () => edit(title));
+    columnNav.appendChild(title);
+    newColumn.appendChild(columnNav);
+    // Create documents container
+    const documentsContainer = document.createElement("div");
+    documentsContainer.className = "documents-container";
+    newColumn.appendChild(documentsContainer);
+    // Add documents to the container
+    if (!column.documents || column.documents.length === 0) {
+        console.warn(`No documents found for column: ${column.title}`);
+    }
+    else {
+        column.documents.forEach((documentElement) => {
+            const newDocument = createDocumentFromSaved(documentElement, +column.index);
+            if (newDocument !== undefined) {
+                documentsContainer.appendChild(newDocument);
+            }
+        });
+    }
+    // Add column footer with document count
+    const columnFooter = document.createElement("div");
+    columnFooter.className = "column-footer";
+    const documentCount = document.createElement("span");
+    documentCount.className = "document-count";
+    documentCount.textContent = `Documents: ${column.documents.length}`;
+    columnFooter.appendChild(documentCount);
+    const maxDocumentCount = document.createElement("span");
+    maxDocumentCount.className = "max-document-count";
+    let maxTextContent = () => {
+        if (column.maxDocuments === 0) {
+            return "None";
+        }
+        else {
+            return column.maxDocuments;
+        }
+    };
+    maxDocumentCount.classList.add("max-documents");
+    maxDocumentCount.textContent = `Max: ${maxTextContent()}`;
+    newColumn.appendChild(columnFooter);
+    columnFooter.appendChild(maxDocumentCount);
+    console.log("end of createColumnFromSaved");
+    return newColumn;
 }
 function updateDocumentCount(requestColumn) {
     const documentCount = requestColumn.querySelector(".document-count");
@@ -558,11 +551,10 @@ function reinitializeDragula(dragparent, listOfColumn) {
         columnDrake.destroy();
     columnDrake = window.dragula([dragparent], {
         moves: (el, container, handle) => {
-            var _a;
             return !!(el &&
                 handle &&
                 el.classList.contains("dragColumn") &&
-                (handle.tagName === "NAV" || ((_a = handle === null || handle === void 0 ? void 0 : handle.parentElement) === null || _a === void 0 ? void 0 : _a.tagName) === "NAV"));
+                (handle.tagName === "NAV" || handle?.parentElement?.tagName === "NAV"));
         },
         accepts: (el, target) => {
             return !!(el &&
@@ -586,10 +578,11 @@ function reinitializeDragula(dragparent, listOfColumn) {
             return !!(el && el.classList && el.classList.contains("dragDocument"));
         },
         accepts: (el, target) => {
-            var _a, _b, _c;
-            let isAcolumn = (_a = target === null || target === void 0 ? void 0 : target.classList) === null || _a === void 0 ? void 0 : _a.contains("documents-container");
-            let currentDocuments = (_b = target === null || target === void 0 ? void 0 : target.children) === null || _b === void 0 ? void 0 : _b.length;
-            let maxDocuments = (_c = target.nextElementSibling) === null || _c === void 0 ? void 0 : _c.querySelector(".max-documents").textContent.split(" ")[1];
+            let isAcolumn = target?.classList?.contains("documents-container");
+            let currentDocuments = target?.children?.length;
+            let maxDocuments = target.nextElementSibling
+                ?.querySelector(".max-documents")
+                .textContent.split(" ")[1];
             if (maxDocuments === "∞") {
                 maxDocuments = String(currentDocuments + 1);
             }
@@ -640,14 +633,13 @@ function reinitializeDragula(dragparent, listOfColumn) {
     console.log("end of reinitializeDragula");
 }
 function deleteDocument(docID) {
-    var _a;
     const theDoomedDocument = document.getElementById(docID);
     if (!theDoomedDocument) {
         console.warn(`Document ${docID} not found for deletion. kanban.js line 509`);
         return;
     }
     if (theDoomedDocument) {
-        (_a = theDoomedDocument === null || theDoomedDocument === void 0 ? void 0 : theDoomedDocument.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(theDoomedDocument);
+        theDoomedDocument?.parentNode?.removeChild(theDoomedDocument);
         saveToLocalStorage();
     }
     console.log("end of deleteDocument end");
@@ -682,9 +674,14 @@ function edit(element) {
     console.log("end of edit");
 }
 function createDocumentPopup(columnData) {
-    var _a, _b, _c, _d, _e, _f;
-    const maxDocuments = (_c = (_b = (_a = document === null || document === void 0 ? void 0 : document.getElementById(`${columnData}`)) === null || _a === void 0 ? void 0 : _a.querySelector(`.max-documents`)) === null || _b === void 0 ? void 0 : _b.textContent) === null || _c === void 0 ? void 0 : _c.split(" ")[1];
-    const currentDocuments = (_f = (_e = (_d = document === null || document === void 0 ? void 0 : document.getElementById(`${columnData}`)) === null || _d === void 0 ? void 0 : _d.querySelector(`.document-count`)) === null || _e === void 0 ? void 0 : _e.textContent) === null || _f === void 0 ? void 0 : _f.split(" ")[1];
+    const maxDocuments = document
+        ?.getElementById(`${columnData}`)
+        ?.querySelector(`.max-documents`)
+        ?.textContent?.split(" ")[1];
+    const currentDocuments = document
+        ?.getElementById(`${columnData}`)
+        ?.querySelector(`.document-count`)
+        ?.textContent?.split(" ")[1];
     if (maxDocuments && currentDocuments && +maxDocuments <= +currentDocuments) {
         alert("Max document limit reached");
         return;
@@ -716,16 +713,15 @@ function createDocumentPopup(columnData) {
     popupButton.setAttribute("data-id", columnData);
     const documentTitle = document.getElementById("documentTitle");
     if (documentTitle !== null) {
-        documentTitle === null || documentTitle === void 0 ? void 0 : documentTitle.focus();
+        documentTitle?.focus();
     }
     console.log("end of createDocumentPopup");
 }
 function init(emittedBoard = null, emitted = false) {
-    var _a;
     const createColumnForm = document.getElementById("createColumnForm");
-    if (!createColumnForm) {
-        throw new Error("404 Couldn't find #createColumnForm");
-    }
+    // if (!createColumnForm) {
+    //   throw new Error("404 Couldn't find #createColumnForm");
+    // }
     const createDocumentForm = document.getElementById("createDocumentForm");
     if (!createDocumentForm) {
         throw new Error("404 Couldn't find #createDocumentForm");
@@ -740,7 +736,7 @@ function init(emittedBoard = null, emitted = false) {
     loadFromLocalStorage(emittedBoard, emitted);
     if (dragparent instanceof HTMLElement) {
         const test = dragparent;
-        if (test.hasChildNodes()) {
+        if (test.hasChildNodes() && isAdmin) {
             reinitializeDragula(test, listOfColumn);
             // Handle the drop event for columns
             if (columnDrake !== undefined) {
@@ -767,66 +763,63 @@ function init(emittedBoard = null, emitted = false) {
         documentDrake.on("drop", saveToLocalStorage);
     }
     if (createColumnForm) {
-        createColumnForm === null || createColumnForm === void 0 ? void 0 : createColumnForm.removeEventListener("submit", handleColumnSubmit);
-        createColumnForm === null || createColumnForm === void 0 ? void 0 : createColumnForm.addEventListener("submit", handleColumnSubmit);
+        createColumnForm?.removeEventListener("submit", handleColumnSubmit);
+        createColumnForm?.addEventListener("submit", handleColumnSubmit);
     }
     if (filterDocumentForm !== null) {
-        filterDocumentForm === null || filterDocumentForm === void 0 ? void 0 : filterDocumentForm.removeEventListener("submit", setDocumentFilter);
-        filterDocumentForm === null || filterDocumentForm === void 0 ? void 0 : filterDocumentForm.addEventListener("submit", setDocumentFilter);
+        filterDocumentForm?.removeEventListener("submit", setDocumentFilter);
+        filterDocumentForm?.addEventListener("submit", setDocumentFilter);
     }
     // filterDocumentForm.addEventListener("click", (e) => setDocumentFilter(e));
-    function handleColumnSubmit(event) {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            event.preventDefault();
-            const columnContent = (_a = document.getElementById("columnContent")) === null || _a === void 0 ? void 0 : _a.value;
-            const maxDocuments = document.getElementById("maxDocuments").value ||
-                "∞";
-            const column = {
-                id: `column-${Date.now()}`,
-                title: columnContent,
-                backgroundColor: "#f9f9f9",
-                documents: [],
-                index: String(listOfColumn.length),
-                maxDocuments,
-            };
-            const newColumn = yield createColumnFromSaved(column);
-            const dragparent = document.getElementById("dragparent");
-            if (!dragparent) {
-                throw new Error("404 Couldn't find the Column from DB");
+    async function handleColumnSubmit(event) {
+        event.preventDefault();
+        const columnContent = document.getElementById("columnContent")?.value;
+        const maxDocuments = document.getElementById("maxDocuments").value ||
+            "∞";
+        const column = {
+            id: `column-${Date.now()}`,
+            title: columnContent,
+            backgroundColor: "#f9f9f9",
+            documents: [],
+            index: String(listOfColumn.length),
+            maxDocuments,
+        };
+        const newColumn = await createColumnFromSaved(column);
+        const dragparent = document.getElementById("dragparent");
+        if (!dragparent) {
+            throw new Error("404 Couldn't find the Column from DB");
+        }
+        dragparent.appendChild(newColumn);
+        listOfColumn.push(newColumn);
+        const modalTemp = document.querySelector(".modalWrapper");
+        if (!modalTemp) {
+            throw new Error("404 Couldn't find the class modalWrapper");
+        }
+        const modal = modalTemp;
+        modal.style.display = "none";
+        // if (!createColumnForm) {
+        //   throw new Error("404 CreateColumnForm was null");
+        // }
+        createDocumentForm.reset();
+        saveToLocalStorage();
+        createStatusMap(projectId);
+        // Reinitialize dragula for documents with new column
+        documentDrake.destroy();
+        listOfColumn = Array.from(document.querySelectorAll(".dragColumn"));
+        // Update to use document containers consistently
+        const documentContainers = listOfColumn
+            .map((column) => column.querySelector(".documents-container"))
+            .filter((container) => container !== null);
+        documentDrake = window.dragula(documentContainers, {
+            moves: (el, container, handle) => !!(el && el.classList.contains("dragDocument")),
+            accepts: (el, target) => !!(target && target.classList.contains("documents-container")),
+        });
+        documentDrake.on("drop", (el, target, source) => {
+            if (source && source !== target) {
+                // Update any necessary data or references for this document
+                el.dataset.status = target.parentElement.innerText.split("\n")[0];
             }
-            dragparent.appendChild(newColumn);
-            listOfColumn.push(newColumn);
-            const modalTemp = document.querySelector(".modalWrapper");
-            if (!modalTemp) {
-                throw new Error("404 Couldn't find the class modalWrapper");
-            }
-            const modal = modalTemp;
-            modal.style.display = "none";
-            if (!createColumnForm) {
-                throw new Error("404 CreateColumnForm was null");
-            }
-            createDocumentForm.reset();
             saveToLocalStorage();
-            createStatusMap(projectId);
-            // Reinitialize dragula for documents with new column
-            documentDrake.destroy();
-            listOfColumn = Array.from(document.querySelectorAll(".dragColumn"));
-            // Update to use document containers consistently
-            const documentContainers = listOfColumn
-                .map((column) => column.querySelector(".documents-container"))
-                .filter((container) => container !== null);
-            documentDrake = window.dragula(documentContainers, {
-                moves: (el, container, handle) => !!(el && el.classList.contains("dragDocument")),
-                accepts: (el, target) => !!(target && target.classList.contains("documents-container")),
-            });
-            documentDrake.on("drop", (el, target, source) => {
-                if (source && source !== target) {
-                    // Update any necessary data or references for this document
-                    el.dataset.status = target.parentElement.innerText.split("\n")[0];
-                }
-                saveToLocalStorage();
-            });
         });
     }
     if (!createDocumentForm) {
@@ -836,18 +829,19 @@ function init(emittedBoard = null, emitted = false) {
     form.removeEventListener("submit", handleDocumentSubmit);
     form.addEventListener("submit", handleDocumentSubmit);
     function handleDocumentSubmit(event) {
-        var _a, _b, _c, _d, _e;
         event.preventDefault();
-        const columnID = (_a = document === null || document === void 0 ? void 0 : document.getElementById("createDoc")) === null || _a === void 0 ? void 0 : _a.dataset.id;
+        const columnID = document?.getElementById("createDoc")?.dataset.id;
         if (!columnID) {
             throw new Error("404 Couldn't find the #createDoc element, kanban.js ~1036");
         }
         const parentColumn = document.getElementById(columnID);
         // Get column index for status
-        const columnIndex = parseInt(((_b = parentColumn === null || parentColumn === void 0 ? void 0 : parentColumn.dataset) === null || _b === void 0 ? void 0 : _b.index) || String(0));
+        const columnIndex = parseInt(parentColumn?.dataset?.index || String(0));
         const status = getStatusForColumn(columnIndex);
-        const title = (_c = document.getElementById("documentTitle").value) !== null && _c !== void 0 ? _c : "Double click to add a Title";
-        let description = (_e = (_d = document.getElementById("documentDescription")) === null || _d === void 0 ? void 0 : _d.value) !== null && _e !== void 0 ? _e : "Description:";
+        const title = document.getElementById("documentTitle").value ??
+            "Double click to add a Title";
+        let description = document.getElementById("documentDescription")
+            ?.value ?? "Description:";
         if (description !== null) {
             description = description;
         }
@@ -862,7 +856,7 @@ function init(emittedBoard = null, emitted = false) {
             labels: Array.from(document.getElementById("documentLabel").value.split(" ")) || [],
         };
         const documentLineItem = createDocumentFromSaved(doc, columnIndex);
-        let documentsContainer = parentColumn === null || parentColumn === void 0 ? void 0 : parentColumn.querySelector(".documents-container");
+        let documentsContainer = parentColumn?.querySelector(".documents-container");
         if (!documentsContainer) {
             throw new Error("404 Couldn't find  class documents-container");
         }
@@ -897,10 +891,14 @@ function init(emittedBoard = null, emitted = false) {
     });
     const clear = document.getElementById("clearFilters");
     if (clear) {
-        (_a = document.getElementById("clearFilters")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", (event) => {
+        document
+            .getElementById("clearFilters")
+            ?.addEventListener("click", (event) => {
             event.preventDefault();
             // setStateList()
-            document.querySelectorAll('.dragDocument').forEach((li) => li.style.display = 'flex');
+            document
+                .querySelectorAll(".dragDocument")
+                .forEach((li) => (li.style.display = "flex"));
             document.querySelector("div:has(#filterDocumentForm)").style.display = "none";
         });
     }
@@ -913,22 +911,20 @@ function init(emittedBoard = null, emitted = false) {
 //   console.log("end of beforeunload");
 // });
 // Add event listener for visibility change
-document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") {
-        saveToLocalStorage();
+// document.addEventListener("visibilitychange", () => {
+//   if (document.visibilityState === "hidden") {
+//     saveToLocalStorage();
+//   }
+// });
+async function getUserId() {
+    try {
+        const response = await fetch("/profile/getId");
+        const userId = await response.json();
+        return userId;
     }
-});
-function getUserId() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const response = yield fetch("/profile/getId");
-            const userId = yield response.json();
-            return userId;
-        }
-        catch (error) {
-            console.error(`${error} Couldn't find the user's ID`);
-        }
-    });
+    catch (error) {
+        console.error(`${error} Couldn't find the user's ID`);
+    }
 }
 // Initialize socket connection
 socket.on("connect", async () => {
@@ -948,61 +944,80 @@ socket.on("disconnect", () => {
         socket.connect(); // Attempt reconnect
     }, 5000);
 });
-function setDocumentFilter(event) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b, _c, _d;
-        event.preventDefault();
-        document.querySelectorAll("li").forEach((li) => li.style.display = "flex");
-        const assignee = (_a = document.getElementById("filterAssignee").value.toLowerCase().trim()) !== null && _a !== void 0 ? _a : "";
-        const labels = (_b = document.getElementById("filterLabel").value.toLowerCase().trim().split(" ")) !== null && _b !== void 0 ? _b : "";
-        const filterTitle = (_c = document.getElementById("filterTitle").value.toLowerCase().trim()) !== null && _c !== void 0 ? _c : "";
-        const filterWord = (_d = document.getElementById("filterWord").value.toLowerCase().trim()) !== null && _d !== void 0 ? _d : "";
-        const filteredCriterion = [assignee, labels, filterTitle, filterWord];
-        setStateList();
-        let documentList = listOfColumn.flatMap((ul) => {
-            let tempList = [];
-            if (assignee) {
-                tempList.push(Array.from(ul.querySelectorAll(".dragDocument")).filter((el) => { var _a; return (_a = el === null || el === void 0 ? void 0 : el.textContent) === null || _a === void 0 ? void 0 : _a.includes(`Assignee:${assignee}`); }));
-            }
-            if (!(labels.length === 1 && labels[0] === '')) {
-                tempList.push(listOfColumn.flatMap((ul) => {
-                    const anArray = Array.from(ul.querySelectorAll(".dragDocument"));
-                    const anotherArray = anArray.filter((li) => {
-                        if (li && li.textContent) {
-                            let liContent = (li.textContent.toLowerCase().split("labels:")[1]).trim().split(" ");
-                            let truth = labels.every((label) => liContent.includes(label));
-                            return !!truth;
-                        }
-                    });
-                    return anotherArray;
-                }));
-            }
-            if (filterTitle) {
-                tempList.push(listOfColumn.flatMap((ul) => {
-                    const anArray = Array.from(ul.querySelectorAll(".dragDocument"));
-                    const anotherArray = anArray.filter((li) => {
-                        if (li && li.textContent) {
-                            let liContent = (li.textContent.toLowerCase().trim().split("description:")[0]);
-                            let truth = (liContent.includes(filterTitle));
-                            return !!truth;
-                        }
-                    });
-                    return anotherArray;
-                }));
-            }
-            if (filterWord) {
-                tempList.push(listOfColumn.flatMap((ul) => Array.from(ul.querySelectorAll(".dragDocument")).filter((li) => {
+async function setDocumentFilter(event) {
+    event.preventDefault();
+    document
+        .querySelectorAll("li")
+        .forEach((li) => (li.style.display = "flex"));
+    const assignee = document.getElementById("filterAssignee").value
+        .toLowerCase()
+        .trim() ?? "";
+    const labels = document.getElementById("filterLabel").value
+        .toLowerCase()
+        .trim()
+        .split(" ") ?? "";
+    const filterTitle = document.getElementById("filterTitle").value
+        .toLowerCase()
+        .trim() ?? "";
+    const filterWord = document.getElementById("filterWord").value
+        .toLowerCase()
+        .trim() ?? "";
+    const filteredCriterion = [assignee, labels, filterTitle, filterWord];
+    setStateList();
+    let documentList = listOfColumn.flatMap((ul) => {
+        let tempList = [];
+        if (assignee) {
+            tempList.push(Array.from(ul.querySelectorAll(".dragDocument")).filter((el) => el?.textContent?.includes(`Assignee:${assignee}`)));
+        }
+        if (!(labels.length === 1 && labels[0] === "")) {
+            tempList.push(listOfColumn.flatMap((ul) => {
+                const anArray = Array.from(ul.querySelectorAll(".dragDocument"));
+                const anotherArray = anArray.filter((li) => {
                     if (li && li.textContent) {
-                        let liContent = (li.textContent.toLowerCase().replace("description:", " ").replace("assignee:", " ").replace("labels:", " "));
-                        let truth = (liContent.includes(filterWord));
+                        let liContent = li.textContent
+                            .toLowerCase()
+                            .split("labels:")[1]
+                            .trim()
+                            .split(" ");
+                        let truth = labels.every((label) => liContent.includes(label));
                         return !!truth;
                     }
-                })));
-            }
-            return tempList.flat();
-        });
-        documentList.forEach((li) => li.style.display = "none");
-        document.querySelector("div:has(#filterDocumentForm)").style.display = "none";
+                });
+                return anotherArray;
+            }));
+        }
+        if (filterTitle) {
+            tempList.push(listOfColumn.flatMap((ul) => {
+                const anArray = Array.from(ul.querySelectorAll(".dragDocument"));
+                const anotherArray = anArray.filter((li) => {
+                    if (li && li.textContent) {
+                        let liContent = li.textContent
+                            .toLowerCase()
+                            .trim()
+                            .split("description:")[0];
+                        let truth = liContent.includes(filterTitle);
+                        return !!truth;
+                    }
+                });
+                return anotherArray;
+            }));
+        }
+        if (filterWord) {
+            tempList.push(listOfColumn.flatMap((ul) => Array.from(ul.querySelectorAll(".dragDocument")).filter((li) => {
+                if (li && li.textContent) {
+                    let liContent = li.textContent
+                        .toLowerCase()
+                        .replace("description:", " ")
+                        .replace("assignee:", " ")
+                        .replace("labels:", " ");
+                    let truth = liContent.includes(filterWord);
+                    return !!truth;
+                }
+            })));
+        }
+        return tempList.flat();
     });
+    documentList.forEach((li) => (li.style.display = "none"));
+    document.querySelector("div:has(#filterDocumentForm)").style.display = "none";
 }
 export {};
