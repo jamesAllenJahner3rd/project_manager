@@ -280,7 +280,7 @@ module.exports = {
           .send("Kanban not found projectConroller getKanbanData line 219");
       }
 
-      res.json(kanban);
+      res.json(kanban[0]);
     } catch (err) {
       console.error(err);
       res.status(500).send("Server Error");
