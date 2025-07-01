@@ -319,7 +319,7 @@ module.exports = {
       const profiles = await Profile.find({
         _id: { $in: ListOfAssignees },
       }).select("displayName");
-      console.log(profiles);
+      console.log(profiles.email);
       res.json(profiles);
     } catch (error) {
       console.error("Error fetching assignees:", error);
@@ -417,9 +417,8 @@ module.exports = {
   isAdmin: async (req,res) => {
     console.log(`isAdmin started and the id is ${req.params.id}`)
     try{const project = await Project.findById(req.params.id);
-      console.log(`isAdmin started and the project is ${project}`)
-    console.log("Project value:", project);
-console.log("Type of project:", typeof project);
+      console.log(`isAdmin started is: ${project.adminId} and the project is ${project.name} `)
+ 
       if(!project){
       throw new Error('500 project not found')
     }
@@ -427,11 +426,11 @@ console.log("Type of project:", typeof project);
    const userProfile = await Profile.findOne({
       googleId: req.user.googleId,
     });
-    console.log(`isAdmin started and the userProfile is ${userProfile}`)
+    console.log(`isAdmin started and the userProfile is ${userProfile.email}`)
     if(!userProfile){
       throw new Error ( '500 profile not found')
     }
-    console.log (userProfile)
+    console.log (`projectController isAdmin: ${userProfile.email}`)
     res.send(project.adminId.some(id => id.toString().includes(userProfile._id.toString())));
 
   }catch(error){
