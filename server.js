@@ -64,9 +64,9 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("join-room", async (roomName, profileId) => {
-    const userId = profileId;
-    socket.userID = userId;
-    console.log(`join-room Room: ${roomName} and userProfile:${socket.userId}`);
+    // const userId = profileId;
+    socket.userID =  profileId;
+    console.log(`join-room Room: ${roomName} and userProfile:${socket.userID}`);
     if (!socket.joinedRooms) socket.joinedRooms = new Set();
 
     if (!socket.joinedRooms.has(roomName)) {
@@ -111,6 +111,11 @@ io.on("connection", async (socket) => {
       const room = `kanban${projectId}`;
       io.to(room).emit("board-updated", foundKanban);
       console.log("Board updated and broadcasted to room:", room);
+      const clients = io.sockets.adapter.rooms;
+    if (clients) {
+      console.log(`this should list the rooms and ids.`);
+      console.dir(clients); // Array of socket IDs
+    }
     } catch (error) {
       console.error("Error handling board update:", error);
       success = false;
@@ -128,7 +133,12 @@ io.on("connection", async (socket) => {
     // socket.broadcast.emit('project-update',data);
   });
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log("User disconnected:", /*socket.id*/ socket.userID);
+    const clients = io.sockets.adapter.rooms;
+    if (clients) {
+      console.log(`this should list the rooms and ids.`);
+      console.dir(clients); // Array of socket IDs
+    }
   });
 });
 

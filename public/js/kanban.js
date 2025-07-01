@@ -31,39 +31,47 @@ async function room() {
         let res = await fetch(`/profile/project/${projectId}/data`);
         if (!res.ok)
             throw new Error(`HTTP Error: ${res.status}`);
-        console.log(res.json, "end of room");
+        console.log(/*res.json,*/ "end of room, async function room() ");
         return await res.json();
     }
     catch (error) {
-        console.error("Fetch failed:", error);
+        console.error("async function room() Fetch failed:", error);
         return null;
     }
 }
 const roomName = await room(); //**************************
 console.log("roomName:", roomName);
-let STATUS_BY_POSITION = {};
+var STATUS_BY_POSITION = [];
 function setStateList() {
-    if (STATUS_BY_POSITION == undefined) {
-        let STATUS_BY_POSITION = {};
-    }
+    let status = [];
     listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
     listOfColumn.forEach((column, index) => {
         // Add column index for status tracking
         column.dataset.index = index.toString();
         listOfColumn[index] = column;
-        STATUS_BY_POSITION[index] = column.innerText.split("\n")[0];
+        status[index] = column.innerText.split("\n")[0];
     });
     console.log("end of setStateList");
-    return { STATUS_BY_POSITION, listOfColumn };
+    return { status, listOfColumn };
 }
 // async
-
-console.log("currentProject:", currentProject);
+// function createStatusMap(projectId: string) {
+//   console.log("STATUS_BY_POSITION:", STATUS_BY_POSITION);
+//   return STATUS_BY_POSITION; // Return it for use elsewhere
+//   console.log("end of createStatusMap");
+// }
+// console.log("currentProject:", currentProject);
 function getNextStatus(currentStatus) {
     if (!STATUS_BY_POSITION) {
-        ({ STATUS_BY_POSITION, listOfColumn } = setStateList());
+        ({ status: STATUS_BY_POSITION, listOfColumn } = setStateList());
     }
-    let key = Object.keys(STATUS_BY_POSITION).find((i) => STATUS_BY_POSITION[+i] === currentStatus);
+    let key = () => {
+        for (let i = 0; i < STATUS_BY_POSITION.length; i++) {
+            if (STATUS_BY_POSITION[+i] === currentStatus) {
+                return i;
+            }
+        }
+    };
     const nextColumnTitle = STATUS_BY_POSITION[+key + 1] || currentStatus;
     const nextColumn = listOfColumn.find((ul) => ul.querySelector("h1.title")?.textContent?.trim() === `${nextColumnTitle}`);
     if (!nextColumn) {
@@ -74,7 +82,7 @@ function getNextStatus(currentStatus) {
     const maxDocumentCount = Number(nextColumn.querySelector("span.max-documents")?.textContent?.split(" ")[1]) || 0;
     if (!maxDocumentCount)
         throw new Error("404 nextColumn was not found");
-    console.log("end of getNextStatus", documentNumber, maxDocumentCount);
+    // console.log("end of getNextStatus", documentNumber, maxDocumentCount);
     if (+documentNumber < +maxDocumentCount || isNaN(maxDocumentCount)) {
         return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
     }
@@ -84,16 +92,26 @@ function getNextStatus(currentStatus) {
     }
 }
 // Get status based on column position
-function getStatusForColumn(columnIndex) {
-    console.log("kanban columnIndex line 81", columnIndex);
-    console.log("kanban columnIndex line 81", STATUS_BY_POSITION, ` ${STATUS_BY_POSITION}`);
-    console.log("end of getStatusForColumn", "STATUS_BY_POSITION", STATUS_BY_POSITION, "list of columns", listOfColumn);
+function getStatusForColumn(status, columnIndex) {
+    console.log("kanban columnIndex, getStatusForColumn()", columnIndex);
+    if (typeof status === "undefined") {
+        console.warn(`kanban.js getStatusForColumn status: ${status}`);
+    }
+    // console.log(
+    //   "end of getStatusForColumn",
+    //   "STATUS_BY_POSITION",
+    //   status,
+    //   "list of columns",
+    //   listOfColumn
+    // );
+    // room() loadFromLocalStorage
+    ({ status: STATUS_BY_POSITION, listOfColumn } = setStateList());
     return STATUS_BY_POSITION[+columnIndex];
 }
 // Handle progress click
 async function handleProgressClick(documentId, currentStatus) {
     try {
-        let { STATUS_BY_POSITION, listOfColumn } = setStateList();
+        let { status: STATUS_BY_POSITION, listOfColumn } = setStateList();
         const nextStatus = getNextStatus(currentStatus);
         if (nextStatus === currentStatus)
             return; // No change needed
@@ -122,7 +140,7 @@ async function handleProgressClick(documentId, currentStatus) {
         console.log(`Moving document ${documentId} from ${currentStatus} → ${nextStatus}`); //*****************************************
         // Find column index of target status
         let targetColumnIndex = -1;
-        for (const [index, status] of Object.entries(STATUS_BY_POSITION)) {
+        for (const [index, status] of STATUS_BY_POSITION) {
             if (status === nextStatus) {
                 targetColumnIndex = parseInt(index);
                 break;
@@ -161,8 +179,8 @@ async function handleProgressClick(documentId, currentStatus) {
         // Save changes
         saveToLocalStorage();
         console.log(" end of handleProgressClick");
-        if (STATUS_BY_POSITION == undefined) {
-            let { STATUS_BY_POSITION, listOfColumn } = setStateList();
+        if (STATUS_BY_POSITION == undefined || STATUS_BY_POSITION.length === 0) {
+            let { status: STATUS_BY_POSITION, listOfColumn } = setStateList();
         }
     }
     catch (error) {
@@ -227,7 +245,7 @@ async function loadFromLocalStorage(emittedBoard, emitted) {
     }
     dragparent.innerHTML = "";
     let listOfColumn = [];
-    let { STATUS_BY_POSITION } = setStateList();
+    let { status: STATUS_BY_POSITION } = setStateList();
     listOfColumn = await Promise.all(boardState.columns.map(async (column, index) => {
         // Add column index for status tracking
         column.index = `${index}`;
@@ -250,7 +268,7 @@ function saveToLocalStorage() {
             const documents = Array.from(indexedColumn.querySelectorAll(".dragDocument")).map((mappedDoc) => {
                 const el = mappedDoc;
                 // Get status based on column position
-                const status = getStatusForColumn(columnIndex);
+                const status = getStatusForColumn(STATUS_BY_POSITION, columnIndex);
                 let labels = el.querySelector(".labelsList")?.textContent ?? "";
                 console.log("labels:", labels);
                 return {
@@ -310,7 +328,8 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
     documentLineItem.id = savedDoc.id || "";
     documentLineItem.style.backgroundColor = savedDoc.backgroundColor;
     // Set document status or default based on column
-    const status = savedDoc.status ?? getStatusForColumn(columnIndex);
+    // doesn't work on loading
+    const status = savedDoc.status ?? getStatusForColumn(STATUS_BY_POSITION, columnIndex);
     if (!status) {
         console.warn("missing status on document element line 422");
     }
@@ -429,7 +448,7 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
     docLabelsList.className = "labelsList";
     docLabelsList.textContent = `${savedDoc.labels.join(" ")}`;
     docLabelsList.addEventListener("dblclick", () => edit(docLabelsList));
-    console.log(docLabelsList.textContent);
+    // console.log(docLabelsList.textContent);
     // Create icon container div
     docLabelsContainer.appendChild(docLabelsTitle);
     docLabelsContainer.appendChild(docLabelsList);
@@ -613,7 +632,7 @@ function reinitializeDragula(dragparent, listOfColumn) {
                 updateDocumentCount(targetColumn);
                 // Update document status based on new column
                 const targetColumnIndex = parseInt(targetColumn.dataset.index || String(0));
-                const newStatus = getStatusForColumn(targetColumnIndex);
+                const newStatus = getStatusForColumn(STATUS_BY_POSITION, targetColumnIndex);
                 // Update document status
                 el.dataset.status = newStatus;
                 // Update progress button appearance
@@ -763,7 +782,7 @@ function init(emittedBoard = null, emitted = false) {
         createColumnForm?.removeEventListener("submit", handleColumnSubmit);
         createColumnForm?.addEventListener("submit", handleColumnSubmit);
     }
-    if (filterDocumentForm !== null) {
+    if (filterDocumentForm !== null && listOfColumn.length > 0) {
         filterDocumentForm?.removeEventListener("submit", setDocumentFilter);
         filterDocumentForm?.addEventListener("submit", setDocumentFilter);
     }
@@ -799,7 +818,7 @@ function init(emittedBoard = null, emitted = false) {
         // }
         createDocumentForm.reset();
         saveToLocalStorage();
-        let { STATUS_BY_POSITION } = setStateList();
+        let { status: STATUS_BY_POSITION } = setStateList();
         // Reinitialize dragula for documents with new column
         documentDrake.destroy();
         listOfColumn = Array.from(document.querySelectorAll(".dragColumn"));
@@ -834,7 +853,10 @@ function init(emittedBoard = null, emitted = false) {
         const parentColumn = document.getElementById(columnID);
         // Get column index for status
         const columnIndex = parseInt(parentColumn?.dataset?.index || String(0));
-        const status = getStatusForColumn(columnIndex);
+        if (STATUS_BY_POSITION.length === 0) {
+            ({ status: STATUS_BY_POSITION, listOfColumn } = setStateList());
+        }
+        const status = getStatusForColumn(STATUS_BY_POSITION, columnIndex);
         const title = document.getElementById("documentTitle").value ??
             "Double click to add a Title";
         let description = document.getElementById("documentDescription")
@@ -900,13 +922,14 @@ function init(emittedBoard = null, emitted = false) {
         });
     }
     console.log("end of init");
+    ({ status: STATUS_BY_POSITION, listOfColumn } = setStateList());
 }
 // Add event listener for page unload
-// window.addEventListener("beforeunload", (event) => {
-//   saveToLocalStorage();
-//   event.returnValue = ""; // Prevent accidental closure without saving
-//   console.log("end of beforeunload");
-// });
+window.addEventListener("beforeunload", (event) => {
+    socket.emit("disconnect");
+    event.returnValue = ""; // Prevent accidental closure without saving
+    console.log("end of beforeunload");
+});
 // Add event listener for visibility change
 // document.addEventListener("visibilitychange", () => {
 //   if (document.visibilityState === "hidden") {
@@ -929,6 +952,17 @@ socket.on("connect", async () => {
     const userId = await getUserId();
     socket.emit("join-room", `kanban${projectId}`, userId);
 });
+if (!socket.connected) {
+    console.log("Socket not connected — connecting now...");
+    socket.connect();
+    const userId = await getUserId();
+    socket.emit("join-room", `kanban${projectId}`, userId);
+}
+else {
+    console.log("Socket already connected.");
+    const userId = await getUserId();
+    socket.emit("join-room", `kanban${projectId}`, userId);
+}
 socket.on("board-updated", (updatedBoard) => {
     console.log("Received board update:", updatedBoard);
     if (updatedBoard && updatedBoard.projectId === projectId) {
@@ -960,7 +994,9 @@ async function setDocumentFilter(event) {
         .toLowerCase()
         .trim() ?? "";
     const filteredCriterion = [assignee, labels, filterTitle, filterWord];
-    setStateList();
+    if (listOfColumn.length > 0) {
+        setStateList();
+    }
     let documentList = listOfColumn.flatMap((ul) => {
         let tempList = [];
         if (assignee) {

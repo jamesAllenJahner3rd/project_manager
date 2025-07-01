@@ -5,7 +5,7 @@ let currentProjectId = currentUrl.split("/project/")[1]?.split("?")[0];
 if (!currentProjectId) {
   console.error("Project ID not found in URL");
 }
-console.log(currentProjectId);
+// console.log(currentProjectId);
 console.log("Fetching project info for ID:", currentProjectId);
 
 const messageInput = document.getElementById("message-input");

@@ -248,7 +248,7 @@ module.exports = {
         listOfTeamMembersID.map(async (id) => {
           console.log(`List of id ${id}`);
           const profile = await Profile.findById(id);
-          console.log(`List of profile ${profile}`);
+          console.log(`List of profile ${profile.email}`);
           return profile.displayName;
         })
       );
