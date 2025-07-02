@@ -119,8 +119,8 @@ module.exports = (io) => {
           return res.status(404).json({ error: "Project not found" });
         }
         let a = project;
-        console.log("a", a);
-        console.log("project", `${project}`);
+        console.log("ProfileController.js getProjectData() project:", a.name);
+        
         res.json(project);
       } catch (error) {
         res.status(500).json({ error: "Server error" });
