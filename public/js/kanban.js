@@ -62,16 +62,19 @@ function setStateList() {
 // }
 // console.log("currentProject:", currentProject);
 function getNextStatus(currentStatus) {
-    if (!STATUS_BY_POSITION) {
+    if (STATUS_BY_POSITION.length === 0 || STATUS_BY_POSITION == null) {
         ({ status: STATUS_BY_POSITION, listOfColumn } = setStateList());
     }
-    let key = () => {
+    let key = (() => {
         for (let i = 0; i < STATUS_BY_POSITION.length; i++) {
             if (STATUS_BY_POSITION[+i] === currentStatus) {
                 return i;
             }
         }
-    };
+    })();
+    if (key == null) {
+        throw new Error("kanban.js getNewStatus key not found");
+    }
     const nextColumnTitle = STATUS_BY_POSITION[+key + 1] || currentStatus;
     const nextColumn = listOfColumn.find((ul) => ul.querySelector("h1.title")?.textContent?.trim() === `${nextColumnTitle}`);
     if (!nextColumn) {
@@ -80,10 +83,10 @@ function getNextStatus(currentStatus) {
     //querySelector(`ul:has( nav h1[title=${STATUS_BY_POSITION[+key + 1]}])`);
     const documentNumber = nextColumn.querySelectorAll(".dragDocument").length;
     const maxDocumentCount = Number(nextColumn.querySelector("span.max-documents")?.textContent?.split(" ")[1]) || 0;
-    if (!maxDocumentCount)
+    if (maxDocumentCount == null)
         throw new Error("404 nextColumn was not found");
     // console.log("end of getNextStatus", documentNumber, maxDocumentCount);
-    if (+documentNumber < +maxDocumentCount || isNaN(maxDocumentCount)) {
+    if (+documentNumber < +maxDocumentCount || maxDocumentCount === 0) {
         return STATUS_BY_POSITION[+key + 1]; // Don't allow loopback
     }
     else {
@@ -140,9 +143,9 @@ async function handleProgressClick(documentId, currentStatus) {
         console.log(`Moving document ${documentId} from ${currentStatus} → ${nextStatus}`); //*****************************************
         // Find column index of target status
         let targetColumnIndex = -1;
-        for (const [index, status] of STATUS_BY_POSITION) {
-            if (status === nextStatus) {
-                targetColumnIndex = parseInt(index);
+        for (let index = 0; index < STATUS_BY_POSITION.length; index++) {
+            if (STATUS_BY_POSITION[index] === nextStatus) {
+                targetColumnIndex = index;
                 break;
             }
         }
