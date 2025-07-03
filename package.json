@@ -15,6 +15,7 @@
         "mongoose": "^8.9.5",
         "morgan": "^1.10.0",
         "multer": "^1.4.5-lts.1",
+        "node": "^22.17.0",
         "npmlog": "^7.0.1",
         "passport": "^0.7.0",
         "passport-google-oauth20": "^2.0.0",
@@ -23,6 +24,7 @@
         "socket.io-client": "^4.8.1"
     },
     "devDependencies": {
+        "@types/dragula": "^3.7.5",
         "@types/node": "^22.14.1",
         "cross-env": "^7.0.3",
         "nodemon": "^3.1.9"
@@ -34,6 +36,4 @@
         "start": "cross-env node server.js",
         "dev": "cross-env NODE_ENV=development nodemon -e js,css,ejs server.js --ignore node_modules --ignore public"
     }
-
 }
-
