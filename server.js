@@ -145,7 +145,7 @@ io.on("connection", async (socket) => {
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-
+console.log("Google callbackURL:", process.env.NODE_ENV, callbackURL);
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
