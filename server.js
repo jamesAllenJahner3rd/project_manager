@@ -145,7 +145,7 @@ io.on("connection", async (socket) => {
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-
+console.log("Google callbackURL:", process.env.NODE_ENV);
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -160,7 +160,9 @@ app.use((req, res, next) => {
 
 // View engine
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
+app.set('trust proxy', 1);
 //Express-session middleware
 app.use(
   session({

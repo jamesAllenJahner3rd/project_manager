@@ -3,7 +3,7 @@ const Project = require("../models/Project");
 const Kanban = require("../models/Kanban");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
-const projectController = require("./projectController");
+
 module.exports = {
   getProjects: async (req, res) => {
     try {
