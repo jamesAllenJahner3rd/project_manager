@@ -14,8 +14,7 @@ module.exports = function (passport) {
        callbackURL:
         process.env.NODE_ENV === "production"
           ? "https://project-manager-a0mx.onrender.com/auth/google/callback"
-          : "https://project-manager-a0mx.onrender.com/auth/google/callback",
-
+          : "http://localhost:8000/auth/google/callback",
       },
       async (accessToken, RefreshToken, profile, done) => {
         console.log("--- Google Profile Received ---");
