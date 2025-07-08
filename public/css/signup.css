@@ -1,0 +1,31 @@
+le > body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+}
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+.error li {
+  margin-bottom: 5px;
+}
+button {
+  padding: 10px 15px;
+  cursor: pointer;
+}
