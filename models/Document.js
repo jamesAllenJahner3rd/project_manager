@@ -42,10 +42,23 @@ const DocumentSchema = new mongoose.Schema({
   status: {
     type: String,
   },
-   assignee: {
+  assignee: {
     type: String,
   },
   labels: [
+    {
+      type: String,
+    },
+  ],
+  columnLifeTime: {
+    type: Object, // Store dynamically the beginning and ending of it's time in a column
+    default: {}, // Ensure default empty object
+  },
+  blocked: {
+    type: Boolean,
+    default: false,
+  },
+  blockTimeStamp: [
     {
       type: String,
     },

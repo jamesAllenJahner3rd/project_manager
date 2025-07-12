@@ -177,6 +177,15 @@ async function handleProgressClick(documentId, currentStatus) {
             updateProgressButtonState(progressBtn, nextStatus);
         }
         // Update document counts
+        if (requestedDoc.dataset.analytics != undefined) {
+            let analytics = JSON.parse(requestedDoc.dataset.analytics);
+            analytics[currentColumn.id].push(Date.now());
+            if (!analytics[targetColumn.id]) {
+                analytics[targetColumn.id] = [];
+            }
+            analytics[targetColumn.id].push(Date.now());
+            requestedDoc.dataset.analytics = JSON.stringify(analytics);
+        }
         updateDocumentCount(currentColumn);
         updateDocumentCount(targetColumn);
         // Save changes
@@ -274,6 +283,12 @@ function saveToLocalStorage() {
                 const status = getStatusForColumn(STATUS_BY_POSITION, columnIndex);
                 let labels = el.querySelector(".labelsList")?.textContent ?? "";
                 console.log("labels:", labels);
+                let tempAnalytics = el.dataset.analytics ?? "{Error Analytics was not found}";
+                console.log(el.dataset.blockTimeStamp);
+                ///string to array
+                let blockTimeStamp = el.dataset.blockTimeStamp ?? "";
+                let blockTimeStampArray = blockTimeStamp.split(",");
+                blockTimeStampArray = blockTimeStampArray.flatMap((aString) => aString ? Number(aString) : []);
                 return {
                     id: el.id,
                     title: el.querySelector("h2")?.textContent,
@@ -284,6 +299,9 @@ function saveToLocalStorage() {
                     labels: Array.from((el.querySelector(".labelsList")?.textContent ?? "")
                         .split(" ")
                         .filter(Boolean)),
+                    columnLifeTime: JSON.parse(tempAnalytics),
+                    blocked: el.dataset.blocked,
+                    blockTimeStamp: blockTimeStampArray,
                 };
             });
             return {
@@ -337,6 +355,9 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
         console.warn("missing status on document element line 422");
     }
     documentLineItem.dataset.status = status;
+    documentLineItem.dataset.analytics = JSON.stringify(savedDoc.columnLifeTime);
+    documentLineItem.dataset.blocked = String(savedDoc.blocked) ?? "false";
+    documentLineItem.dataset.blockTimeStamp = String(savedDoc.blockTimeStamp);
     const docContainer = document.createElement("div");
     docContainer.className = "document-container";
     // Add title and description in a content container
@@ -458,6 +479,64 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
     // docAssigneeContainer.children.forEach((child) => {console.log(child.textContent)});
     contentContainer.appendChild(docLabelsContainer);
     documentLineItem.appendChild(docContainer);
+    const blockedButton = document.createElement("button");
+    blockedButton.className = "document-blocked-button";
+    blockedButton.style.borderRadius = "6px";
+    blockedButton.style.alignSelf = "flex-end";
+    blockedButton.style.flexShrink = "0";
+    if (documentLineItem.dataset.blocked === "false") {
+        blockedButton.textContent = "Blocked?";
+        blockedButton.style.backgroundColor = "lightGrey";
+        blockedButton.style.boxShadow = "1px 1px";
+    }
+    else {
+        blockedButton.style.boxShadow = "-1px -1px";
+        blockedButton.textContent = "Blocked";
+        blockedButton.style.backgroundColor = "red";
+    }
+    blockedButton.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target != null &&
+            target.parentElement &&
+            target.parentElement.dataset.blocked === "false") {
+            blockedButton.textContent = "Blocked?";
+            blockedButton.style.backgroundColor = "lightGrey";
+            blockedButton.style.boxShadow = "1px 1px";
+            target.parentElement.dataset.blocked = "true";
+        }
+        else {
+            blockedButton.style.boxShadow = "-1px -1px";
+            blockedButton.textContent = "Blocked";
+            blockedButton.style.backgroundColor = "red";
+            if (target.parentElement) {
+                target.parentElement.dataset.blocked = "false";
+            }
+        }
+        //console.log(`target.parentElement ${target.parentElement}, target.parentElement.dataset.blockTimeStamp ${target.parentElement.dataset.blockTimeStamp}`)
+        if (target.parentElement != null &&
+            target.parentElement.dataset.blockTimeStamp === null) {
+            target.parentElement.dataset.blockTimeStamp = "";
+        }
+        if (target.parentElement !== null &&
+            target.parentElement.dataset.blockTimeStamp !== undefined &&
+            typeof target.parentElement.dataset.blockTimeStamp === "string") {
+            let tempTimeStamp = "";
+            // savedDoc.blockTimeStamp.forEach((e) => tempTimeStamp.concat(`,${e}`));
+            // target.parentElement.dataset.blockTimeStamp = tempTimeStamp;
+            target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`);
+        }
+        // target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
+        // let tempTimeStamp: (number | string)[] = (target.parentElement.dataset.blockTimeStamp).split(",")
+        // tempTimeStamp.map((aString) => Number(aString))
+        // tempTimeStamp.push(Date.now())
+        // tempTimeStamp.
+        // target.parentElement.dataset.blockTimeStamp = tempTimeStamp
+        // }
+        if (!target)
+            return;
+        saveToLocalStorage();
+    });
+    documentLineItem.appendChild(blockedButton);
     console.log("end of createDocumentFromSaved");
     return documentLineItem;
 }
@@ -527,6 +606,7 @@ async function createColumnFromSaved(column) {
     }
     else {
         column.documents.forEach((documentElement) => {
+            //block time stamp should be a array
             const newDocument = createDocumentFromSaved(documentElement, +column.index);
             if (newDocument !== undefined) {
                 documentsContainer.appendChild(newDocument);
@@ -636,13 +716,21 @@ function reinitializeDragula(dragparent, listOfColumn) {
                 // Update document status based on new column
                 const targetColumnIndex = parseInt(targetColumn.dataset.index || String(0));
                 const newStatus = getStatusForColumn(STATUS_BY_POSITION, targetColumnIndex);
-                // Update document status
-                el.dataset.status = newStatus;
-                // Update progress button appearance
-                const progressBtnTemp = el.querySelector(".progress-button");
-                if (progressBtnTemp) {
-                    const drakeProgressBtn = progressBtnTemp;
-                    updateProgressButtonState(drakeProgressBtn, newStatus);
+                //update analytics
+                if (el.dataset.analytics) {
+                    let analytics = JSON.parse(el.dataset.analytics);
+                    analytics[sourceColumn.id].push(Date.now());
+                    if (!analytics[targetColumn.id]) {
+                        analytics[targetColumn.id] = [];
+                    }
+                    analytics[targetColumn.id].push(Date.now());
+                    el.dataset.analytics = JSON.stringify(analytics);
+                    // Update progress button appearance
+                    const progressBtnTemp = el.querySelector(".progress-button");
+                    if (progressBtnTemp) {
+                        const drakeProgressBtn = progressBtnTemp;
+                        updateProgressButtonState(drakeProgressBtn, newStatus);
+                    }
                 }
             }
         }
@@ -876,6 +964,9 @@ function init(emittedBoard = null, emitted = false) {
             assignee: document.getElementById("documentAssignee")
                 .value || "Unassigned",
             labels: Array.from(document.getElementById("documentLabel").value.split(" ")) || [],
+            blocked: false,
+            columnLifeTime: { [columnID]: [Date.now()] },
+            blockTimeStamp: [],
         };
         const documentLineItem = createDocumentFromSaved(doc, columnIndex);
         let documentsContainer = parentColumn?.querySelector(".documents-container");

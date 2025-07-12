@@ -7,17 +7,17 @@ const KanbanSchema = new mongoose.Schema({
   },
   columns: {
     type: Array,
-    default:[],
+    default: [],
     required: false,
-  },statusMap: {
+  },
+  statusMap: {
     type: Object, // Store dynamically mapped statuses
     default: {}, // Ensure default empty object
   },
 });
 
-
 // Add a pre-save hook to ensure every document has a status
-KanbanSchema.pre('save', function (next) {
+KanbanSchema.pre("save", function (next) {
   if (!Array.isArray(this.columns)) {
     this.columns = [];
   }
@@ -28,7 +28,7 @@ KanbanSchema.pre('save', function (next) {
       column.documents = [];
     }
 
-    column.documents.forEach(doc => {
+    column.documents.forEach((doc) => {
       if (!doc.status) {
         doc.status = column.title || "Submit"; // Use column title instead of hardcoded map
       }
