@@ -20,6 +20,9 @@ type Document = {
   status: string;
   assignee: string;
   labels: string[];
+  columnLifeTime: {};
+  blocked: Boolean;
+  blockTimeStamp: (Number | String)[];
 };
 type Column = {
   backgroundColor: string;
@@ -121,7 +124,7 @@ function setStateList() {
 // console.log("currentProject:", currentProject);
 
 function getNextStatus(currentStatus: string) {
-  if (STATUS_BY_POSITION.length === 0 || STATUS_BY_POSITION == null ) {
+  if (STATUS_BY_POSITION.length === 0 || STATUS_BY_POSITION == null) {
     ({ status: STATUS_BY_POSITION, listOfColumn } = setStateList());
   }
   let key = (() => {
@@ -130,11 +133,12 @@ function getNextStatus(currentStatus: string) {
         return i;
       }
     }
-  })()
-if (key == null)
-  {throw new Error("kanban.js getNewStatus key not found")}
-    const nextColumnTitle: string = STATUS_BY_POSITION[+key + 1] || currentStatus;
-  
+  })();
+  if (key == null) {
+    throw new Error("kanban.js getNewStatus key not found");
+  }
+  const nextColumnTitle: string = STATUS_BY_POSITION[+key + 1] || currentStatus;
+
   const nextColumn = listOfColumn.find(
     (ul) =>
       ul.querySelector("h1.title")?.textContent?.trim() === `${nextColumnTitle}`
@@ -217,7 +221,7 @@ async function handleProgressClick(documentId: string, currentStatus: string) {
     ); //*****************************************
     // Find column index of target status
     let targetColumnIndex = -1;
-    for (let index = 0;index< STATUS_BY_POSITION.length; index++) {
+    for (let index = 0; index < STATUS_BY_POSITION.length; index++) {
       if (STATUS_BY_POSITION[index] === nextStatus) {
         targetColumnIndex = index;
         break;
@@ -258,6 +262,16 @@ async function handleProgressClick(documentId: string, currentStatus: string) {
     }
 
     // Update document counts
+    if (requestedDoc.dataset.analytics != undefined) {
+      let analytics = JSON.parse(requestedDoc.dataset.analytics);
+
+      analytics[currentColumn.id].push(Date.now());
+      if (!analytics[targetColumn.id]) {
+        analytics[targetColumn.id] = [];
+      }
+      analytics[targetColumn.id].push(Date.now());
+      requestedDoc.dataset.analytics = JSON.stringify(analytics);
+    }
     updateDocumentCount(currentColumn);
     updateDocumentCount(targetColumn);
 
@@ -377,6 +391,14 @@ function saveToLocalStorage() {
         const status = getStatusForColumn(STATUS_BY_POSITION, columnIndex);
         let labels = el.querySelector(".labelsList")?.textContent ?? "";
         console.log("labels:", labels);
+        let tempAnalytics =
+          el.dataset.analytics ?? "{Error Analytics was not found}";
+        console.log(el.dataset.blockTimeStamp);
+        ///string to array
+        let blockTimeStamp = el.dataset.blockTimeStamp ?? "";
+        let blockTimeStampArray: any[] = blockTimeStamp.split(",");
+        blockTimeStampArray = blockTimeStampArray.flatMap((aString) =>  aString?  Number(aString): []    
+        );
         return {
           id: el.id,
           title: el.querySelector("h2")?.textContent,
@@ -390,6 +412,9 @@ function saveToLocalStorage() {
               .split(" ")
               .filter(Boolean)
           ),
+          columnLifeTime: JSON.parse(tempAnalytics),
+          blocked: el.dataset.blocked,
+          blockTimeStamp: blockTimeStampArray,
         };
       });
 
@@ -461,7 +486,9 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
     console.warn("missing status on document element line 422");
   }
   documentLineItem.dataset.status = status;
-
+  documentLineItem.dataset.analytics = JSON.stringify(savedDoc.columnLifeTime);
+  documentLineItem.dataset.blocked = String(savedDoc.blocked) ?? "false";
+  documentLineItem.dataset.blockTimeStamp = String(savedDoc.blockTimeStamp);
   const docContainer: HTMLDivElement = document.createElement("div");
   docContainer.className = "document-container";
 
@@ -596,6 +623,72 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
   contentContainer.appendChild(docLabelsContainer);
 
   documentLineItem.appendChild(docContainer);
+  const blockedButton = document.createElement("button") as HTMLButtonElement;
+
+  blockedButton.className = "document-blocked-button";
+  blockedButton.style.borderRadius = "6px";
+
+  blockedButton.style.alignSelf = "flex-end";
+  blockedButton.style.flexShrink = "0";
+  if (documentLineItem.dataset.blocked === "false") {
+    blockedButton.textContent = "Blocked?";
+    blockedButton.style.backgroundColor = "lightGrey";
+    blockedButton.style.boxShadow = "1px 1px";
+  } else {
+    blockedButton.style.boxShadow = "-1px -1px";
+    blockedButton.textContent = "Blocked";
+    blockedButton.style.backgroundColor = "red";
+  }
+  blockedButton.addEventListener("click", (e) => {
+    const target = e.target as HTMLButtonElement;
+    if (
+      target != null &&
+      target.parentElement &&
+      target.parentElement.dataset.blocked === "false"
+    ) {
+      blockedButton.textContent = "Blocked?";
+      blockedButton.style.backgroundColor = "lightGrey";
+      blockedButton.style.boxShadow = "1px 1px";
+      target.parentElement.dataset.blocked = "true";
+    } else {
+      blockedButton.style.boxShadow = "-1px -1px";
+      blockedButton.textContent = "Blocked";
+      blockedButton.style.backgroundColor = "red";
+      if (target.parentElement) {
+        target.parentElement.dataset.blocked = "false";
+      }
+    }
+    //console.log(`target.parentElement ${target.parentElement}, target.parentElement.dataset.blockTimeStamp ${target.parentElement.dataset.blockTimeStamp}`)
+    if (
+      target.parentElement != null &&
+      target.parentElement.dataset.blockTimeStamp === null
+    ) {
+      target.parentElement.dataset.blockTimeStamp = "";
+    }
+    if (
+      target.parentElement !== null &&
+      target.parentElement.dataset.blockTimeStamp !== undefined &&
+      typeof target.parentElement.dataset.blockTimeStamp === "string"
+    ) {
+      let tempTimeStamp: string = "";
+
+      // savedDoc.blockTimeStamp.forEach((e) => tempTimeStamp.concat(`,${e}`));
+      // target.parentElement.dataset.blockTimeStamp = tempTimeStamp;
+      target.parentElement.dataset.blockTimeStamp= target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
+
+    }
+
+    // target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
+    // let tempTimeStamp: (number | string)[] = (target.parentElement.dataset.blockTimeStamp).split(",")
+    // tempTimeStamp.map((aString) => Number(aString))
+    // tempTimeStamp.push(Date.now())
+    // tempTimeStamp.
+    // target.parentElement.dataset.blockTimeStamp = tempTimeStamp
+    // }
+    if (!target) return;
+    saveToLocalStorage();
+  });
+  documentLineItem.appendChild(blockedButton);
   console.log("end of createDocumentFromSaved");
   return documentLineItem;
 }
@@ -675,6 +768,7 @@ async function createColumnFromSaved(column: Column) {
     console.warn(`No documents found for column: ${column.title}`);
   } else {
     column.documents.forEach((documentElement) => {
+      //block time stamp should be a array
       const newDocument = createDocumentFromSaved(
         documentElement,
         +column.index
@@ -821,16 +915,22 @@ function reinitializeDragula(
             targetColumnIndex
           );
 
-          // Update document status
-          el.dataset.status = newStatus;
+          //update analytics
+          if (el.dataset.analytics) {
+            let analytics = JSON.parse(el.dataset.analytics);
+            analytics[sourceColumn.id].push(Date.now());
+            if (!analytics[targetColumn.id]) {
+              analytics[targetColumn.id] = [];
+            }
+            analytics[targetColumn.id].push(Date.now());
+            el.dataset.analytics = JSON.stringify(analytics);
+            // Update progress button appearance
+            const progressBtnTemp = el.querySelector(".progress-button");
 
-          // Update progress button appearance
-
-          const progressBtnTemp = el.querySelector(".progress-button");
-
-          if (progressBtnTemp) {
-            const drakeProgressBtn = progressBtnTemp as HTMLButtonElement;
-            updateProgressButtonState(drakeProgressBtn, newStatus);
+            if (progressBtnTemp) {
+              const drakeProgressBtn = progressBtnTemp as HTMLButtonElement;
+              updateProgressButtonState(drakeProgressBtn, newStatus);
+            }
           }
         }
       }
@@ -1117,6 +1217,9 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
             document.getElementById("documentLabel") as HTMLInputElement
           ).value.split(" ")
         ) || [],
+      blocked: false,
+      columnLifeTime: { [columnID]: [Date.now()] },
+      blockTimeStamp: [],
     };
 
     const documentLineItem = createDocumentFromSaved(doc, columnIndex);
@@ -1211,10 +1314,10 @@ if (!socket.connected) {
   console.log("Socket not connected — connecting now...");
   socket.connect();
   const userId = await getUserId();
-   socket.emit("join-room", `kanban${projectId}`, userId);
+  socket.emit("join-room", `kanban${projectId}`, userId);
 } else {
   console.log("Socket already connected.");
-    const userId = await getUserId();
+  const userId = await getUserId();
 
   socket.emit("join-room", `kanban${projectId}`, userId);
 }

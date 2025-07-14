@@ -29,20 +29,24 @@
         <section class="project-layout">
             <section class="crosswise">
                 <!-- Project Creation Form -->
-                <fieldset class="column">
+                <fieldset class="column" id="ButtonsVisability">
                     <form class="project-button" action="/project/kanban<%= project._id %>" method="GET">
                         <button type="submit" class="btn btn-primary">Kanban Board</button>
                     </form>
-                    <form class="project-button" action="/project/CFD" method="POST">
-                        <button type="submit" class="btn btn-primary">Cumulative Flow Diagram (CFD)</button>
-                    </form>
+                    <!-- <form class="project-button" action="/project/CFD" method="POST"> -->
+                        <button type="button" class="btn btn-primary" id="cfdVisability">Cumulative Flow Diagram (CFD)</button>
+                    <!-- </form> -->
                     <!-- </fieldset>
                 <fieldset class="column"> -->
-                    <button type="submit" class="btn btn-primary">Burnup Chart</button>
-                    <button type="submit" class="btn btn-primary">Task Aging Graph</button>
+                    <button type="button" class="btn btn-primary" id="burnupVisability">Burnup Chart</button>
+                    <button type="button" class="btn btn-primary" id="tagVisability">Task Aging Graph</button>
                     <% if (accessLevel==="admin" ) {%><%- include('partials/addUserModal') %>
                             <%}%>
                 </fieldset>
+                <%- include('partials/cfd') %>
+                <%- include('partials/burnup') %>
+                <%- include('partials/tag') %>
+
 
                 <%- include('partials/chat') %>
             </section>

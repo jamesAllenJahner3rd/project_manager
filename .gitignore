@@ -9,6 +9,9 @@ notes/
 
 # Environment variables
 .env
+*.ts 
+src/
+src/kanban.ts
 
 # Logs
 logs
@@ -62,3 +65,5 @@ ehthumbs_vista.db
 # Cursor IDE specific files
 .cursorrules
 .cursor/
+src/kanban.ts
+.gitignore
