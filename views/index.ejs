@@ -1,63 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- css link -->
-    <link rel="stylesheet" href="/css/reset.css" />
-    <link rel="stylesheet" href="/css/style.css" />
-    <!-- fonts link -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>DevSync - Project Management Tool</title>
-    <style>
-      /* Reveal on scroll animation styles */
-      .reveal {
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.4s ease-out;
-      }
 
-      .reveal.active {
-        opacity: 1;
-        transform: translateY(0);
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- css link -->
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href='/css/index.css'>
+  <!-- fonts link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
 
-      /* Delay animations for different elements */
-      .hero-title {
-        transition-delay: 0.1s;
-      }
+  <title>DevSync - Project Management Tool</title>
 
-      .hero-subtitle {
-        transition-delay: 0.2s;
-      }
+</head>
 
-      .cta-button {
-        transition-delay: 0.3s;
-      }
+<!-- TODO: inspiration from wrike -->
+<!-- don't forget to use template for better design -->
 
-      .feature-card {
-        transition-delay: calc(0.1s * var(--delay));
-      }
-
-      .testimonial-card {
-        transition-delay: 0.2s;
-      }
-
-      .contact-us {
-        transition-delay: 0.3s;
-      }
-    </style>
-  </head>
-
-  <!-- TODO: inspiration from wrike -->
-  <!-- don't forget to use template for better design -->
-  <body>
-    <!-- header -->
-    <%- include('partials/header') %>
+<body>
+  <!-- header -->
+  <%- include('partials/header') %>
 
     <main>
       <section class="hero">
@@ -66,11 +35,11 @@
         </div>
         <h1 class="hero-title reveal">Welcome to DevSync</h1>
         <p class="hero-subtitle reveal">Streamline Your Development Workflow</p>
-        <% if (typeof user !== 'undefined' && user) { %>
+        <% if (typeof user !=='undefined' && user) { %>
           <a href="/profile" class="cta-button reveal">View Your Projects</a>
-        <% } else { %>
-          <a href="/login" class="cta-button reveal">Get Started</a>
-        <% } %>
+          <% } else { %>
+            <a href="/login" class="cta-button reveal">Get Started</a>
+            <% } %>
       </section>
 
       <section class="features">
@@ -116,29 +85,30 @@
     <!-- footer -->
     <%- include('partials/footer') %>
 
-    <script>
-      // Reveal on scroll functionality
-      function reveal() {
-        const reveals = document.querySelectorAll('.reveal');
-        
-        for (let i = 0; i < reveals.length; i++) {
-          const windowHeight = window.innerHeight;
-          const elementTop = reveals[i].getBoundingClientRect().top;
-          const elementVisible = 150;
-          
-          if (elementTop < windowHeight - elementVisible) {
-            reveals[i].classList.add('active');
-          } else {
-            reveals[i].classList.remove('active');
+      <script>
+        // Reveal on scroll functionality
+        function reveal() {
+          const reveals = document.querySelectorAll('.reveal');
+
+          for (let i = 0; i < reveals.length; i++) {
+            const windowHeight = window.innerHeight;
+            const elementTop = reveals[i].getBoundingClientRect().top;
+            const elementVisible = 150;
+
+            if (elementTop < windowHeight - elementVisible) {
+              reveals[i].classList.add('active');
+            } else {
+              reveals[i].classList.remove('active');
+            }
           }
         }
-      }
 
-      // Add scroll event listener
-      window.addEventListener('scroll', reveal);
-      
-      // Initial check for elements in view
-      reveal();
-    </script>
-  </body>
+        // Add scroll event listener
+        window.addEventListener('scroll', reveal);
+
+        // Initial check for elements in view
+        reveal();
+      </script>
+</body>
+
 </html>

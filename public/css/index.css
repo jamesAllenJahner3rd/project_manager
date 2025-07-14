@@ -1,0 +1,36 @@
+/* Reveal on scroll animation styles */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease-out;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Delay animations for different elements */
+.hero-title {
+  transition-delay: 0.1s;
+}
+
+.hero-subtitle {
+  transition-delay: 0.2s;
+}
+
+.cta-button {
+  transition-delay: 0.3s;
+}
+
+.feature-card {
+  transition-delay: calc(0.1s * var(--delay));
+}
+
+.testimonial-card {
+  transition-delay: 0.2s;
+}
+
+.contact-us {
+  transition-delay: 0.3s;
+}

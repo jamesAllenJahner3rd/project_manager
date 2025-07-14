@@ -33,6 +33,7 @@
         "build": "npm install",
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "NODE_ENV=production node server.js",
+        "win": "cross-env NODE_ENV=production node server.js",
         "dev": "cross-env NODE_ENV=development nodemon -e js,css,ejs server.js --ignore node_modules --ignore public"
     }
 }
