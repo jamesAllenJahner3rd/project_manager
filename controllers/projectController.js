@@ -271,7 +271,7 @@ module.exports = {
   },
   getKanbanData: async (req, res) => {
     try {
-      const kanban = await Kanban.find({ projectId: req.params.id });
+      const kanban = await Kanban.find({ projectId: req.params.id }).lean();
       const project = await Project.findById(req.params.id);
       console.dir(kanban[0])
       if (!project) {

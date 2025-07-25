@@ -1,0 +1,33 @@
+  * {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      .cfd{
+        top:0;
+      }
+      .chartMenu {
+        width: 100%; 
+        /* height: 40px; */
+        background: #1A1A1A;
+        color: rgba(54, 162, 235, 1);
+      }
+      /* .chartMenu p {
+        /* padding: 10px; 
+        font-size: 20px;
+       } */ 
+      .chartCard {
+         width: 100%;
+        height: 100%;
+        background: rgba(54, 162, 235, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chartBox {
+        width: 100%;
+        /* padding: 20px; */
+        border-radius: 20px;
+        border: solid 3px rgba(54, 162, 235, 1);
+        background: white;
+      }

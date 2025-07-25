@@ -23,19 +23,23 @@ class ProjectUI {
     burnupToggle = null;
     cfdToggle = null;
     tagToggle = null;
+    cfdChart = null;
+    cfdLabels = undefined;
     currentUrl;
     currentProjectId = null;
     burnupSection = null;
     tagSection = null;
     cfdSection = null;
     kanbanData = null;
+    cfdData = null; // or define your own type/interface if you want
     constructor() {
         this.currentUrl = window.location.href;
         this.init(); // Trigger the initiation of the elements.
-        this.addEventListeners();
-        this.loadInitialData();
+        // this.addEventListeners();
+        // this.loadInitialData();
+        // this.parseCFDdata(this.kanbanData as KanbanData)
     }
-    init() {
+    async init() {
         // Initiate the variables for the elements to be used throughout this class.
         this.modal = document.querySelector(".modalWrapper");
         this.addUserbutton = document.getElementById("addUserModalTrigger");
@@ -47,8 +51,12 @@ class ProjectUI {
         this.burnupSection = document.getElementById("burnupSection");
         this.cfdSection = document.getElementById("cfdSection");
         this.tagSection = document.getElementById("tagSection");
+        this.cfdChart = document.getElementById('cfdChart');
         this.currentProjectId =
             this.currentUrl.split("/project/")[1]?.split("?")[0] ?? null;
+        this.addEventListeners();
+        await this.loadInitialData();
+        this.parseCFDdata(this.kanbanData);
     }
     /**
      * A reusable method to get an HTML element and provide a warning if not found.
@@ -113,10 +121,133 @@ class ProjectUI {
             }
             ;
             this.kanbanData = await response.json();
-            console.log(" Kanban data was fetched successfully, projectTemplate.loadInitialData");
+            // if (this.kanbanData){
+            //   let test = this.kanbanData.columns as object[] 
+            //   let docs:Array<ColumnNameMap> =[]
+            //   test.forEach((columnn ) =>{
+            //     let column =columnn as Column;
+            //     if ( Array.isArray(column.documents) && (column as Column).documents.length > 0){
+            //       (column as Column).documents.forEach((document)=>{
+            //         docs.push( (document as Docu_ment).columnLifeTime)
+            //       })
+            //     }
+            //   })
+            // console.log(" Kanban data was fetched successfully, projectTemplate.loadInitialData")
+            // }
         }
         catch (error) {
             console.error(`Couldn't get kanbanData from server: ${error instanceof Error ? error.message : error}, projectTemplate loadInitialData()`);
+        }
+    }
+    async parseCFDdata(rawdata) {
+        // if (`${typeof rawdata}` === "KanbanData"){
+        let columnArray = rawdata.columns;
+        let docsArray = [];
+        const cfdColumnTitles = columnArray.map((column, i, a) => column.title);
+        // this.cfdLabels =  this will egual oldest dat and news dat and ...5? spaced between them 
+        // We need to grab the column life spans from each document, including their dates
+        columnArray.forEach((column) => {
+            if (column.documents.length > 0) {
+                docsArray.push(...column.documents.flat());
+            }
+            ;
+        }); //docsArray.
+        //get and array of the objects column name: time in ms
+        let columnLifeTimeArray = docsArray.map((aDocument) => aDocument.columnLifeTime);
+        let columnLifeTimeMap = new Map();
+        let ColumnNamesSet = new Set();
+        columnLifeTimeArray.forEach((lifetimeArray) => {
+            Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
+                timestamps.forEach((time, i) => {
+                    const addORSubtract = i % 2 === 0 ? 1 : -1;
+                    const currentMap = columnLifeTimeMap.get(columnName) ?? {};
+                    currentMap[time] = addORSubtract;
+                    columnLifeTimeMap.set(columnName, currentMap);
+                });
+            });
+        });
+        ;
+        // moment().format("MMM Do)
+        //      if (typeof this.cfdChart === HTMLCanvasElement){
+        //   const myChart:Chart = new Chart(
+        //     this.cfdChart as HTMLCanvasElement,
+        //   cfdConfig
+        //   )
+        // };
+        // const cfdConfig:ChartConfiguration ={
+        //   type: 'line',
+        //   // data: {
+        //   //   Labels: this.cfdLabels,
+        //   //   datasets: [...this.cfdData as ChartData],
+        //   // },
+        //   data: {
+        //   labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        //   datasets: [{
+        //     label: '# of Votes',
+        //     data: [12, 19, 3, 5, 2, 3],
+        //     borderWidth: 1
+        //   }],
+        //   options: {
+        //     scales: {
+        //       y: {
+        //         beginAtZero: true
+        //       }
+        //     },
+        //     plugins: {
+        //       colors: {
+        //         forceOverride: true
+        //       },
+        //     },
+        //   },
+        // render init block
+        //  const ctx = document.getElementById('myChart') as HTMLCanvasElement;
+        if (this.cfdChart) {
+            new Chart(this.cfdChart, {
+                type: 'line',
+                data: {
+                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                    datasets: [
+                        {
+                            label: 'Team Alpha',
+                            data: [12, 19, 3, 5, 2, 3],
+                            fill: 'origin',
+                            backgroundColor: 'rgba(151, 151, 151, 1)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            pointBackgroundColor: 'rgb(255, 99, 132)',
+                        },
+                        {
+                            label: 'Team Alpha',
+                            data: [1, 1, 1, 1, 1, 1],
+                            fill: 'origin',
+                            backgroundColor: 'rgba(47, 235, 91, 1)',
+                            borderColor: 'rgb(47, 235, 91)',
+                            pointBackgroundColor: 'rgb(47, 235, 91)',
+                        }, // 4: fill to dataset 2
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stacked: true,
+                        }
+                    },
+                    plugins: {
+                        // filler: {
+                        //   propagate: true
+                        // },
+                        colorschemes: {
+                            scheme: 'brewer.Reds7',
+                            fillAlpha: 1.0
+                        },
+                        //   colors: {
+                        //     enabled:true,
+                        //     forceOverride: true
+                        //   },
+                    }
+                }
+            });
         }
     }
     // The public methods
@@ -149,6 +280,7 @@ class ProjectUI {
             this.hideNav();
         }
     }
+    ;
     /**
      * This will show the TAG figure and close the NAV bar
      * @param event
@@ -159,6 +291,7 @@ class ProjectUI {
             this.hideNav();
         }
     }
+    ;
     /**
      * This will close any of the figures that are open and open the NAV bar
      * @param event
@@ -177,78 +310,28 @@ class ProjectUI {
             this.agileNav.style.display = "flex";
         }
     }
+    ;
 }
 //label project as a ProjectUI class, type annotation I realized the the project wasn't global.
 let project;
-const data = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [{
-            label: 'Weekly Sales',
-            data: [1, 1, 2, 2, 3, 3, 4],
-            backgroundColor: [
-                'rgba(255, 26, 104, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1 )',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(0, 0, 0, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 26, 104, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(0, 0, 0, 1)'
-            ],
-            borderWidth: 1,
-            fill: true,
-        }, {
-            label: 'monthly Sales',
-            data: [0, 2, 3, 3, 4, 5, 6],
-            backgroundColor: [
-                'rgba(255, 26, 104, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1 )',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(0, 0, 0, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 26, 104, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(0, 0, 0, 1)'
-            ],
-            borderWidth: 1,
-            fill: true,
-        }]
-};
-// config 
-const config = {
-    type: 'line',
-    data,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+class CFD_ChartElement {
+    label;
+    data;
+    fill;
+    rawData;
+    constructor(paramData, paramLabel) {
+        this.rawData = paramData;
+        this.label = paramLabel;
+        this.fill = true;
     }
-};
-// render init block
-if (document.getElementById('myChart') instanceof Chart) {
-    const myChart = new Chart(document.getElementById('myChart'), config);
+    create() {
+        return {
+            label: this.label,
+            data: this.rawData,
+            fill: true,
+        };
+    }
 }
-// Instantly assign Chart.js version
-// const chartVersion: = document.getElementById('chartVersion');
-// chartVersion.innerText = myChart.version;
 document.addEventListener("DOMContentLoaded", () => {
     //create the instance Of the project after the DOM is loaded so everything can get initialized correctly
     project = new ProjectUI();
