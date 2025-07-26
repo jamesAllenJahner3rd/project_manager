@@ -1,5 +1,57 @@
-"use strict";
 console.log("projectTemplate script is loaded");
+// Browsers do not support bare module specifiers
+declare var Chart: any;
+type ChartData = any;
+type Color = string;
+type ColumnName = `column-${string}`;
+
+type ColumnNameMap = Record<ColumnName, number[]>;
+type Dataset = Info[];
+
+interface ColumnLifeTime {}
+interface KanbanData {
+  _id: string;
+  projectId: string;
+  columns: Column[];
+}
+interface Docu_ment {
+  id: string;
+  title: string;
+  description: string;
+  backgroundColor: string;
+  status: string;
+  assignee: string;
+  labels: string[];
+  columnLifeTime: ColumnNameMap;
+  blocked: boolean;
+  blockTimeStamp: number[];
+}
+interface Column {
+  id: string;
+  title: string;
+  backgroundColor: Color;
+
+  documents: Docu_ment[];
+  maxDocu_ments: number | string;
+  canAddDocu_ments: boolean;
+  canChangeDocu_mentColor: boolean;
+  canDeleteDocu_ments: boolean;
+}
+interface figureData {
+  labels: string[] | null;
+  datasets: Info[] | null;
+}
+
+interface Info {
+  label: string | null;
+  data: number[] | null;
+
+  backgroundColor: string | null;
+  borderColor: string[];
+  borderWidth: number;
+  fill: boolean;
+}
+
 // --- Constants ---
 // Centralize selectors to avoid magic strings and improve maintainability
 const SELECTORS = {
@@ -16,52 +68,75 @@ const SELECTORS = {
 };
 class ProjectUI {
   // Type the variables
-  modal = null;
-  addUserbutton = null;
-  closeSpan = null;
-  agileNav = null;
-  burnupToggle = null;
-  cfdToggle = null;
-  tagToggle = null;
-  cfdChart = null;
-  burnupChart = null;
-  tagChart = null;
-  cfdLabels = undefined;
-  currentUrl;
-  currentProjectId = null;
-  burnupSection = null;
-  tagSection = null;
-  cfdSection = null;
-  kanbanData = null;
-  cfdData = null;
-  burnupData = null;
-  tagData = null;
+  private modal: HTMLDivElement | null = null;
+  private addUserbutton: HTMLButtonElement | null = null;
+  private closeSpan: HTMLSpanElement[] | null = null;
+  private agileNav: HTMLFieldSetElement | null = null;
+  private burnupToggle: HTMLButtonElement | null = null;
+  private cfdToggle: HTMLButtonElement | null = null;
+  private tagToggle: HTMLButtonElement | null = null;
+  private cfdChart: HTMLCanvasElement | null = null;
+  private burnupChart: HTMLCanvasElement | null = null;
+  private tagChart: HTMLCanvasElement | null = null;
+  private cfdLabels: string[] | undefined = undefined;
+  private currentUrl: string;
+
+  public currentProjectId: string | null = null;
+
+  private burnupSection: HTMLElement | null = null;
+  private tagSection: HTMLElement | null = null;
+  private cfdSection: HTMLElement | null = null;
+  private kanbanData: KanbanData | null = null;
+  private cfdData: any = null;
+  private burnupData: any = null;
+  private tagData: any = null;
   constructor() {
     this.currentUrl = window.location.href;
     this.init(); // Trigger the initiation of the elements.
   }
-  async init() {
+  async init(): Promise<void> {
     // Initiate the variables for the elements to be used throughout this class.
-    this.modal = document.querySelector(".modalWrapper");
-    this.addUserbutton = document.getElementById("addUserModalTrigger");
-    this.agileNav = document.getElementById("ButtonsVisability");
-    this.burnupToggle = document.getElementById("burnupVisability");
-    this.cfdToggle = document.getElementById("cfdVisability");
-    this.tagToggle = this.getHTMLElement("tagVisability", "TAG Toggle");
-    this.closeSpan = Array.from(document.getElementsByClassName("close"));
-    this.burnupSection = document.getElementById("burnupSection");
-    this.cfdSection = document.getElementById("cfdSection");
-    this.cfdChart = document.getElementById("cfdChart");
-    this.tagSection = document.getElementById("tagSection");
-    this.tagChart = document.getElementById("tagChart");
-    this.burnupSection = document.getElementById("burnupSection");
-    this.burnupChart = document.getElementById("burnupChart");
+    this.modal = document.querySelector(".modalWrapper") as HTMLDivElement;
+    this.addUserbutton = document.getElementById(
+      "addUserModalTrigger"
+    ) as HTMLButtonElement;
+    this.agileNav = document.getElementById(
+      "ButtonsVisability"
+    ) as HTMLFieldSetElement;
+    this.burnupToggle = document.getElementById(
+      "burnupVisability"
+    ) as HTMLButtonElement;
+    this.cfdToggle = document.getElementById(
+      "cfdVisability"
+    ) as HTMLButtonElement;
+    this.tagToggle = this.getHTMLElement<HTMLButtonElement>(
+      "tagVisability",
+      "TAG Toggle"
+    );
+
+    this.closeSpan = Array.from(
+      document.getElementsByClassName("close")
+    ) as HTMLSpanElement[];
+
+    this.burnupSection = document.getElementById(
+      "burnupSection"
+    ) as HTMLElement;
+    this.cfdSection = document.getElementById("cfdSection") as HTMLElement;
+    this.cfdChart = document.getElementById("cfdChart") as HTMLCanvasElement;
+    this.tagSection = document.getElementById("tagSection") as HTMLElement;
+    this.tagChart = document.getElementById("tagChart") as HTMLCanvasElement;
+    this.burnupSection = document.getElementById(
+      "burnupSection"
+    ) as HTMLElement;
+    this.burnupChart = document.getElementById(
+      "burnupChart"
+    ) as HTMLCanvasElement;
     this.currentProjectId =
       this.currentUrl.split("/project/")[1]?.split("?")[0] ?? null;
     this.addEventListeners();
     await this.loadInitialData();
-    this.parseCFDdata(this.kanbanData);
-    this.parseBurnupData(this.kanbanData);
+    this.parseCFDdata(this.kanbanData as KanbanData);
+    this.parseBurnupData(this.kanbanData as KanbanData);
   }
   /**
    * A reusable method to get an HTML element and provide a warning if not found.
@@ -69,8 +144,11 @@ class ProjectUI {
    * @param name A descriptive name for the element, used in warnings.
    * @returns The found HTML element or null if not found.
    */
-  getHTMLElement(selector, name) {
-    const element = document.querySelector(selector);
+  private getHTMLElement<T extends HTMLElement>(
+    selector: string,
+    name: string
+  ): T | null {
+    const element = document.querySelector(selector) as T;
     if (!element) {
       console.warn(
         `Warning: UI element "${name}" (selector: "${selector}") not found.`
@@ -78,10 +156,11 @@ class ProjectUI {
     }
     return element;
   }
+
   /**
    * Add the Event listeners for the UI elements
    */
-  addEventListeners() {
+  private addEventListeners() {
     this.burnupToggle?.addEventListener("click", () =>
       this.showSection(this.burnupSection, "burnup Toggle")
     );
@@ -91,17 +170,18 @@ class ProjectUI {
     this.tagToggle?.addEventListener("click", () =>
       this.showSection(this.tagSection, "TAG Toggle")
     );
-    this.closeSpan?.forEach((element) =>
+    this.closeSpan?.forEach((element: HTMLSpanElement) =>
       element?.addEventListener("click", (e) => this.showAgileNav(e))
     );
     this.addUserbutton?.addEventListener("click", (e) =>
       this.showAddUserModal(e)
     );
   }
+
   /**
    * Hides the agile NAV bar
    */
-  hideNav() {
+  private hideNav() {
     if (this.agileNav instanceof HTMLFieldSetElement) {
       this.agileNav.style.display = "none";
     }
@@ -111,7 +191,10 @@ class ProjectUI {
    * @param selector  The CSS selector for the element
    * @param name A descriptive name for the element used in the warning
    */
-  showSection(selector, name) {
+  private showSection<T extends HTMLElement>(
+    selector: T | null,
+    name: string
+  ): void {
     if (!selector) {
       console.warn(`Warning: UI element "${name}" not found.`);
     } else {
@@ -125,18 +208,20 @@ class ProjectUI {
    * Fetches the Kanban data to be used in the figures
    *
    */
-  async loadInitialData() {
+  private async loadInitialData(): Promise<void> {
     try {
       if (!this.currentProjectId) {
         console.warn("ProjectId is missing.");
         return undefined;
       }
+
       const response = await fetch(
         `/project/kanban/${this.currentProjectId}/data`
       );
       if (!response.ok) {
         console.warn(" Project ID is missing.");
       }
+
       this.kanbanData = await response.json();
     } catch (error) {
       console.error(
@@ -146,17 +231,20 @@ class ProjectUI {
       );
     }
   }
-  async parseBurnupData(rawdata) {
+
+  private async parseBurnupData(rawdata: KanbanData) {
     let dataParcer = new Burnup_ChartElement(rawdata);
-    let Burnupdata = dataParcer.create();
+    let Burnupdata: any = dataParcer.create();
     console.dir(Burnupdata);
     console.log(Burnupdata);
+
     if (this.burnupChart) {
       new Chart(this.burnupChart, {
         type: "line",
         data: {
           datasets: Burnupdata,
         },
+
         options: {
           responsive: true,
           scales: {
@@ -190,17 +278,19 @@ class ProjectUI {
       });
     }
   }
-  async parseCFDdata(rawdata) {
+  private async parseCFDdata(rawdata: KanbanData) {
     let dataParcer = new CFD_ChartElement(rawdata);
-    let CFDdata = dataParcer.create();
+    let CFDdata: any = dataParcer.create();
     console.dir(CFDdata);
     console.log(CFDdata);
+
     if (this.cfdChart) {
       new Chart(this.cfdChart, {
         type: "line",
         data: {
           datasets: CFDdata,
         },
+
         options: {
           responsive: true,
           scales: {
@@ -234,12 +324,13 @@ class ProjectUI {
       });
     }
   }
+
   // The public methods
   /**
    * Show the ADD user modal
    * @param event
    */
-  showAddUserModal(event) {
+  public showAddUserModal(event: MouseEvent) {
     if (this.modal) {
       this.modal.style.display = "block";
     }
@@ -248,7 +339,7 @@ class ProjectUI {
    * This will open the burn figure and close the NAV bar
    * @param event
    */
-  showBurnup(event) {
+  public showBurnup(event: MouseEvent) {
     if (this.burnupSection instanceof HTMLElement) {
       this.burnupSection.style.display = "flex";
       this.hideNav();
@@ -258,7 +349,7 @@ class ProjectUI {
    * this will show the CFD figure enclosed the NAV bar
    * @param event
    */
-  async showCFD(event) {
+  public async showCFD(event: MouseEvent) {
     if (this.cfdSection instanceof HTMLElement) {
       this.cfdSection.style.display = "flex";
       this.hideNav();
@@ -268,7 +359,7 @@ class ProjectUI {
    * This will show the TAG figure and close the NAV bar
    * @param event
    */
-  showTAG(event) {
+  public showTAG(event: MouseEvent) {
     if (this.tagSection instanceof HTMLElement) {
       this.tagSection.style.display = "flex";
       this.hideNav();
@@ -278,7 +369,7 @@ class ProjectUI {
    * This will close any of the figures that are open and open the NAV bar
    * @param event
    */
-  showAgileNav(event) {
+  public showAgileNav(event: MouseEvent) {
     if (this.tagSection instanceof HTMLElement) {
       this.tagSection.style.display = "none";
     }
@@ -294,37 +385,38 @@ class ProjectUI {
   }
 }
 //label project as a ProjectUI class, type annotation I realized the the project wasn't global.
-let project;
+let project: ProjectUI;
 /**
  * Class responsible for transforming Kanban lifecycle data into Chart.js-ready datasets for CFD visualization.
  */
 class CFD_ChartElement {
   /** Optional display label for the chart */
-  label;
+  public label?: string;
   /** Optional raw Chart.js data structure (unused directly in this flow) */
-  data;
+  public data?: ChartData;
   /** Fill style used in the chart (usually 'origin' for stacked area effect) */
-  fill;
+  public fill: string | boolean;
   /** Full raw input Kanban data */
-  rawData;
+  public rawData: KanbanData | null;
   /** List of Kanban columns extracted from the raw data */
-  columnArray;
+  public columnArray: Column[];
   /** Flattened list of all documents present in the columns */
-  docsArray;
+  public docsArray: Docu_ment[];
   /**
    * Maps each column ID to a record of timestamp ➝ +1/-1 values.
    * Used to track entry/exit lifecycle deltas.
    */
-  columnLifeTimeMap;
+  public columnLifeTimeMap: Map<string, Record<number, number>>;
   /** Array of columnLifeTime objects extracted per document */
-  columnLifeTimeArray;
+  public columnLifeTimeArray: ColumnNameMap[] | null;
   /** Final dataset array to be passed into Chart.js */
-  dataSet;
+  public dataSet: any;
+
   /**
    * Initializes the parser with Kanban data.
    * @param paramData Raw Kanban structure containing columns and documents
    */
-  constructor(paramData) {
+  constructor(paramData: KanbanData) {
     this.rawData = paramData;
     this.label = "";
     this.fill = true;
@@ -334,6 +426,7 @@ class CFD_ChartElement {
     this.columnLifeTimeArray = null;
     this.dataSet = [];
   }
+
   /**
    * Entry point to generate chart datasets.
    * Extracts documents, lifetimes, and builds cumulative flow data.
@@ -345,6 +438,7 @@ class CFD_ChartElement {
     this.getlifeTimeMap();
     return this.getDateSet();
   }
+
   /**
    * Gathers all documents across columns and flattens them into a single list.
    */
@@ -355,6 +449,7 @@ class CFD_ChartElement {
       }
     });
   }
+
   /**
    * Extracts the columnLifeTime mapping from each document.
    */
@@ -363,13 +458,14 @@ class CFD_ChartElement {
       (aDocument) => aDocument.columnLifeTime
     );
   }
+
   /**
    * Builds a Map of column lifecycle deltas.
    * +1 for entry, -1 for exit based on timestamp order.
    */
   getlifeTimeMap() {
     if (this.columnLifeTimeArray) {
-      this.columnLifeTimeArray.forEach((lifetimeArray) => {
+      this.columnLifeTimeArray.forEach((lifetimeArray: ColumnNameMap) => {
         Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
           timestamps.forEach((time, i) => {
             const addORSubtract = i % 2 === 0 ? 1 : -1;
@@ -381,6 +477,7 @@ class CFD_ChartElement {
       });
     }
   }
+
   /**
    * Converts lifecycle deltas into cumulative flow datasets.
    * Each column gets a line showing cumulative document count over time.
@@ -388,14 +485,16 @@ class CFD_ChartElement {
    */
   getDateSet() {
     //using a set to exclude duplicates
-    const allTimestampsSet = new Set();
+    const allTimestampsSet = new Set<number>();
+
     // Collect all timestamps from all columns to be able to add up the values to stack. in milliseconds
+
     this.columnLifeTimeMap.forEach((timeMap) => {
       Object.keys(timeMap).forEach((t) => allTimestampsSet.add(Number(t)));
     });
     // Sort all unique timestamps because they were in order or some reason
     const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
-    const datasets = [];
+    const datasets: any = [];
     // For each column, create a cumulative Y array
     this.columnLifeTimeMap.forEach((timeMap, columnId) => {
       const labelColumn = this.rawData?.columns.find(
@@ -405,6 +504,7 @@ class CFD_ChartElement {
       // for stacking the lines.
       const dataPoints = [];
       let cumulative = 0;
+
       //loop through all the x points(allTimestamps) if the column(timeMap) changes at one(t)  make the change, else don't.
       // this adds ALL the x point to each column.
       for (const t of allTimestamps) {
@@ -413,48 +513,52 @@ class CFD_ChartElement {
         }
         dataPoints.push({ x: t, y: cumulative });
       }
+
       // Force start at 0 and extend last point
       dataPoints.unshift({ x: allTimestamps[0], y: 0 });
       dataPoints.push({
         x: allTimestamps[allTimestamps.length - 1] + 1,
         y: cumulative,
       });
+
       datasets.push({
         label,
         data: dataPoints,
         fill: "origin",
       });
     });
+
     return datasets;
   }
 }
 class Burnup_ChartElement {
   /** Optional display label for the chart */
-  label;
+  public label?: string;
   /** Optional raw Chart.js data structure (unused directly in this flow) */
-  data;
+  public data?: ChartData;
   /** Fill style used in the chart (usually 'origin' for stacked area effect) */
-  fill;
+  public fill: string | boolean;
   /** Full raw input Kanban data */
-  rawData;
+  public rawData: KanbanData | null;
   /** List of Kanban columns extracted from the raw data */
-  columnArray;
+  public columnArray: Column[];
   /** Flattened list of all documents present in the columns */
-  docsArray;
+  public docsArray: Docu_ment[];
   /**
    * Maps each column ID to a record of timestamp ➝ +1/-1 values.
    * Used to track entry/exit lifecycle deltas.
    */
-  columnLifeTimeMap;
+  public columnLifeTimeMap: Map<string, Record<number, number>>;
   /** Array of columnLifeTime objects extracted per document */
-  columnLifeTimeArray;
+  public columnLifeTimeArray: ColumnNameMap[] | null;
   /** Final dataset array to be passed into Chart.js */
-  dataSet;
+  public dataSet: any;
+
   /**
    * Initializes the parser with Kanban data.
    * @param paramData Raw Kanban structure containing columns and documents
    */
-  constructor(paramData) {
+  constructor(paramData: KanbanData) {
     this.rawData = paramData;
     this.label = "";
     this.fill = true;
@@ -464,6 +568,7 @@ class Burnup_ChartElement {
     this.columnLifeTimeArray = null;
     this.dataSet = [];
   }
+
   /**
    * Entry point to generate chart datasets.
    * Extracts documents, lifetimes, and builds cumulative flow data.
@@ -475,6 +580,7 @@ class Burnup_ChartElement {
     this.getlifeTimeMap();
     return this.getDateSet();
   }
+
   /**
    * Gathers all documents across columns and flattens them into a single list.
    */
@@ -485,6 +591,7 @@ class Burnup_ChartElement {
       }
     });
   }
+
   /**
    * Extracts the columnLifeTime mapping from each document.
    */
@@ -493,13 +600,14 @@ class Burnup_ChartElement {
       (aDocument) => aDocument.columnLifeTime
     );
   }
+
   /**
    * Builds a Map of column lifecycle deltas.
    * +1 for entry, -1 for exit based on timestamp order.
    */
   getlifeTimeMap() {
     if (this.columnLifeTimeArray) {
-      this.columnLifeTimeArray.forEach((lifetimeArray) => {
+      this.columnLifeTimeArray.forEach((lifetimeArray: ColumnNameMap) => {
         Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
           timestamps.forEach((time, i) => {
             const addORSubtract = i % 2 === 0 ? 1 : -1;
@@ -511,6 +619,7 @@ class Burnup_ChartElement {
       });
     }
   }
+
   /**
    * Converts lifecycle deltas into cumulative flow datasets.
    * Each column gets a line showing cumulative document count over time.
@@ -518,14 +627,16 @@ class Burnup_ChartElement {
    */
   getDateSet() {
     //using a set to exclude duplicates
-    const allTimestampsSet = new Set();
+    const allTimestampsSet = new Set<number>();
+
     // Collect all timestamps from all columns to be able to add up the values to stack. in milliseconds
+
     this.columnLifeTimeMap.forEach((timeMap) => {
       Object.keys(timeMap).forEach((t) => allTimestampsSet.add(Number(t)));
     });
     // Sort all unique timestamps because they were in order or some reason
     const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
-    const datasets = [];
+    const datasets: any = [];
     // For each column, create a cumulative Y array
     this.columnLifeTimeMap.forEach((timeMap, columnId) => {
       const labelColumn = this.rawData?.columns.find(
@@ -535,6 +646,7 @@ class Burnup_ChartElement {
       // for stacking the lines.
       const dataPoints = [];
       let cumulative = 0;
+
       //loop through all the x points(allTimestamps) if the column(timeMap) changes at one(t)  make the change, else don't.
       // this adds ALL the x point to each column.
       for (const t of allTimestamps) {
@@ -543,18 +655,21 @@ class Burnup_ChartElement {
         }
         dataPoints.push({ x: t, y: cumulative });
       }
+
       // Force start at 0 and extend last point
       dataPoints.unshift({ x: allTimestamps[0], y: 0 });
       dataPoints.push({
         x: allTimestamps[allTimestamps.length - 1] + 1,
         y: cumulative,
       });
+
       datasets.push({
         label,
         data: dataPoints,
         fill: "origin",
       });
     });
+
     return datasets;
   }
 }

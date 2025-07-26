@@ -9,9 +9,7 @@ notes/
 
 # Environment variables
 .env
-*.ts 
-src/
-src/kanban.ts
+
 
 # Logs
 logs
