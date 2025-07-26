@@ -271,19 +271,19 @@ module.exports = {
   },
   getKanbanData: async (req, res) => {
     try {
-      const kanban = await Kanban.find({ projectId: req.params.id });
+      const kanban = await Kanban.find({ projectId: req.params.id }).lean();
       const project = await Project.findById(req.params.id);
-
+      console.dir(kanban[0])
       if (!project) {
         return res
           .status(404)
-          .send("Kanban not found projectConroller getKanbanData line 219");
+          .json({Error:"Kanban not found projectConroller getKanbanData line 219"});
       }
 
       res.json(kanban[0]);
     } catch (err) {
       console.error(err);
-      res.status(500).send("Server Error");
+      res.status(500).json({Error:"Server Error"});
     }
   },
   updateKanban: async (req, res) => {
