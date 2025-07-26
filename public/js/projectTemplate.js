@@ -51,7 +51,7 @@ class ProjectUI {
         this.burnupSection = document.getElementById("burnupSection");
         this.cfdSection = document.getElementById("cfdSection");
         this.tagSection = document.getElementById("tagSection");
-        this.cfdChart = document.getElementById('cfdChart');
+        this.cfdChart = document.getElementById("cfdChart");
         this.currentProjectId =
             this.currentUrl.split("/project/")[1]?.split("?")[0] ?? null;
         this.addEventListeners();
@@ -106,9 +106,9 @@ class ProjectUI {
         }
     }
     /**
-   * Fetches the Kanban data to be used in the figures
-   *
-   */
+     * Fetches the Kanban data to be used in the figures
+     *
+     */
     async loadInitialData() {
         try {
             if (!this.currentProjectId) {
@@ -119,111 +119,21 @@ class ProjectUI {
             if (!response.ok) {
                 console.warn(" Project ID is missing.");
             }
-            ;
             this.kanbanData = await response.json();
-            // if (this.kanbanData){
-            //   let test = this.kanbanData.columns as object[] 
-            //   let docs:Array<ColumnNameMap> =[]
-            //   test.forEach((columnn ) =>{
-            //     let column =columnn as Column;
-            //     if ( Array.isArray(column.documents) && (column as Column).documents.length > 0){
-            //       (column as Column).documents.forEach((document)=>{
-            //         docs.push( (document as Docu_ment).columnLifeTime)
-            //       })
-            //     }
-            //   })
-            // console.log(" Kanban data was fetched successfully, projectTemplate.loadInitialData")
-            // }
         }
         catch (error) {
             console.error(`Couldn't get kanbanData from server: ${error instanceof Error ? error.message : error}, projectTemplate loadInitialData()`);
         }
     }
     async parseCFDdata(rawdata) {
-        // if (`${typeof rawdata}` === "KanbanData"){
-        let columnArray = rawdata.columns;
-        let docsArray = [];
-        const cfdColumnTitles = columnArray.map((column, i, a) => column.title);
-        // this.cfdLabels =  this will egual oldest dat and news dat and ...5? spaced between them 
-        // We need to grab the column life spans from each document, including their dates
-        columnArray.forEach((column) => {
-            if (column.documents.length > 0) {
-                docsArray.push(...column.documents.flat());
-            }
-            ;
-        }); //docsArray.
-        //get and array of the objects column name: time in ms
-        let columnLifeTimeArray = docsArray.map((aDocument) => aDocument.columnLifeTime);
-        let columnLifeTimeMap = new Map();
-        let ColumnNamesSet = new Set();
-        columnLifeTimeArray.forEach((lifetimeArray) => {
-            Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
-                timestamps.forEach((time, i) => {
-                    const addORSubtract = i % 2 === 0 ? 1 : -1;
-                    const currentMap = columnLifeTimeMap.get(columnName) ?? {};
-                    currentMap[time] = addORSubtract;
-                    columnLifeTimeMap.set(columnName, currentMap);
-                });
-            });
-        });
-        ;
-        // moment().format("MMM Do)
-        //      if (typeof this.cfdChart === HTMLCanvasElement){
-        //   const myChart:Chart = new Chart(
-        //     this.cfdChart as HTMLCanvasElement,
-        //   cfdConfig
-        //   )
-        // };
-        // const cfdConfig:ChartConfiguration ={
-        //   type: 'line',
-        //   // data: {
-        //   //   Labels: this.cfdLabels,
-        //   //   datasets: [...this.cfdData as ChartData],
-        //   // },
-        //   data: {
-        //   labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        //   datasets: [{
-        //     label: '# of Votes',
-        //     data: [12, 19, 3, 5, 2, 3],
-        //     borderWidth: 1
-        //   }],
-        //   options: {
-        //     scales: {
-        //       y: {
-        //         beginAtZero: true
-        //       }
-        //     },
-        //     plugins: {
-        //       colors: {
-        //         forceOverride: true
-        //       },
-        //     },
-        //   },
-        // render init block
-        //  const ctx = document.getElementById('myChart') as HTMLCanvasElement;
+        let dataParcer = new CFD_ChartElement(rawdata);
+        let CFDdata = dataParcer.create();
+        
         if (this.cfdChart) {
             new Chart(this.cfdChart, {
-                type: 'line',
+                type: "line",
                 data: {
-                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                    datasets: [
-                        {
-                            label: 'Team Alpha',
-                            data: [12, 19, 3, 5, 2, 3],
-                            fill: 'origin',
-                            backgroundColor: 'rgba(151, 151, 151, 1)',
-                            borderColor: 'rgb(255, 99, 132)',
-                            pointBackgroundColor: 'rgb(255, 99, 132)',
-                        },
-                        {
-                            label: 'Team Alpha',
-                            data: [1, 1, 1, 1, 1, 1],
-                            fill: 'origin',
-                            backgroundColor: 'rgba(47, 235, 91, 1)',
-                            borderColor: 'rgb(47, 235, 91)',
-                            pointBackgroundColor: 'rgb(47, 235, 91)',
-                        }, // 4: fill to dataset 2
-                    ]
+                    datasets: CFDdata,
                 },
                 options: {
                     responsive: true,
@@ -231,22 +141,29 @@ class ProjectUI {
                         y: {
                             beginAtZero: true,
                             stacked: true,
-                        }
+                            min: 0,
+                            ticks: {
+                                stepSize: 1,
+                            },
+                        },
+                        x: {
+                            type: "time",
+                            ticks: {
+                                source: "data",
+                            },
+                            time: {
+                                displayFormats: {
+                                    quarter: "MMM Do",
+                                },
+                            },
+                        },
                     },
                     plugins: {
-                        // filler: {
-                        //   propagate: true
-                        // },
                         colorschemes: {
-                            scheme: 'brewer.Reds7',
-                            fillAlpha: 1.0
+                            scheme: "brewer.Reds7",
+                            fillAlpha: 1.0,
                         },
-                        //   colors: {
-                        //     enabled:true,
-                        //     forceOverride: true
-                        //   },
-                    }
-                }
+                    },
             });
         }
     }
@@ -280,7 +197,6 @@ class ProjectUI {
             this.hideNav();
         }
     }
-    ;
     /**
      * This will show the TAG figure and close the NAV bar
      * @param event
@@ -291,7 +207,6 @@ class ProjectUI {
             this.hideNav();
         }
     }
-    ;
     /**
      * This will close any of the figures that are open and open the NAV bar
      * @param event
@@ -310,7 +225,6 @@ class ProjectUI {
             this.agileNav.style.display = "flex";
         }
     }
-    ;
 }
 //label project as a ProjectUI class, type annotation I realized the the project wasn't global.
 let project;
@@ -319,17 +233,86 @@ class CFD_ChartElement {
     data;
     fill;
     rawData;
-    constructor(paramData, paramLabel) {
+    columnArray;
+    docsArray;
+    columnLifeTimeMap;
+    columnLifeTimeArray;
+    dataSet;
+    constructor(paramData) {
         this.rawData = paramData;
-        this.label = paramLabel;
+        this.label = "";
         this.fill = true;
+        this.columnArray = this.rawData.columns;
+        this.docsArray = [];
+        this.columnLifeTimeMap = new Map();
+        this.columnLifeTimeArray = null;
+        this.dataSet = [];
     }
     create() {
-        return {
-            label: this.label,
-            data: this.rawData,
-            fill: true,
-        };
+        this.getDocumentArray();
+        this.getColumnLifeTimeArray();
+        this.getlifeTimeMap();
+        return this.getDateSet();
+        
+    }
+    getDocumentArray() {
+        this.columnArray.forEach((column) => {
+            if (column.documents.length > 0) {
+                this.docsArray.push(...column.documents.flat());
+            }
+        });
+    }
+    getColumnLifeTimeArray() {
+        this.columnLifeTimeArray = this.docsArray.map((aDocument) => aDocument.columnLifeTime);
+    }
+    getlifeTimeMap() {
+        if (this.columnLifeTimeArray) {
+            this.columnLifeTimeArray.forEach((lifetimeArray) => {
+                Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
+                    timestamps.forEach((time, i) => {
+                        const addORSubtract = i % 2 === 0 ? 1 : -1;
+                        const currentMap = this.columnLifeTimeMap.get(columnName) ?? {};
+                        currentMap[time] = addORSubtract;
+                        this.columnLifeTimeMap.set(columnName, currentMap);
+                    });
+                });
+            });
+        }
+    }
+    getDateSet() {
+        //using a set to exclude duplicates
+        const allTimestampsSet = new Set();
+        // Collect all timestamps from all columns to be able to add up the values to stack. in milliseconds
+        this.columnLifeTimeMap.forEach((timeMap) => {
+            Object.keys(timeMap).forEach((t) => allTimestampsSet.add(Number(t)));
+        });
+        // Sort all unique timestamps because they were in order or some reason
+        const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
+        // Initialize dataset array
+        const datasets = [];
+        // For each column, create a cumulative Y array
+        this.columnLifeTimeMap.forEach((timeMap, columnId) => {
+            const labelColumn = this.rawData?.columns.find(column => column.id === columnId);
+            const label = labelColumn?.title || columnId; // grab the title
+            const dataPoints = [];
+            // for stacking the lines.
+            let cumulative = 0;
+            for (const t of allTimestamps) {
+                if (timeMap[t] !== undefined) {
+                    cumulative += timeMap[t]; // apply delta
+                }
+                dataPoints.push({ x: t, y: cumulative });
+            }
+            // Force start at 0 and extend last point
+            dataPoints.unshift({ x: allTimestamps[0], y: 0 });
+            dataPoints.push({ x: allTimestamps[allTimestamps.length - 1] + 1, y: cumulative });
+            datasets.push({
+                label,
+                data: dataPoints,
+                fill: 'origin',
+            });
+        });
+        return datasets;
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
