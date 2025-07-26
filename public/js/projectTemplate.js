@@ -120,19 +120,6 @@ class ProjectUI {
                 console.warn(" Project ID is missing.");
             }
             this.kanbanData = await response.json();
-            // if (this.kanbanData){
-            //   let test = this.kanbanData.columns as object[]
-            //   let docs:Array<ColumnNameMap> =[]
-            //   test.forEach((columnn ) =>{
-            //     let column =columnn as Column;
-            //     if ( Array.isArray(column.documents) && (column as Column).documents.length > 0){
-            //       (column as Column).documents.forEach((document)=>{
-            //         docs.push( (document as Docu_ment).columnLifeTime)
-            //       })
-            //     }
-            //   })
-            // console.log(" Kanban data was fetched successfully, projectTemplate.loadInitialData")
-            // }
         }
         catch (error) {
             console.error(`Couldn't get kanbanData from server: ${error instanceof Error ? error.message : error}, projectTemplate loadInitialData()`);
@@ -181,10 +168,6 @@ class ProjectUI {
                             fillAlpha: 1.0,
                         },
                     },
-                    //        parsing: {
-                    //   xAxisKey: 'data\\.key',
-                    //   yAxisKey: 'data\\.value'
-                    // }
                 },
             });
         }
@@ -250,16 +233,35 @@ class ProjectUI {
 }
 //label project as a ProjectUI class, type annotation I realized the the project wasn't global.
 let project;
+/**
+ * Class responsible for transforming Kanban lifecycle data into Chart.js-ready datasets for CFD visualization.
+ */
 class CFD_ChartElement {
+    /** Optional display label for the chart */
     label;
+    /** Optional raw Chart.js data structure (unused directly in this flow) */
     data;
+    /** Fill style used in the chart (usually 'origin' for stacked area effect) */
     fill;
+    /** Full raw input Kanban data */
     rawData;
+    /** List of Kanban columns extracted from the raw data */
     columnArray;
+    /** Flattened list of all documents present in the columns */
     docsArray;
+    /**
+     * Maps each column ID to a record of timestamp ➝ +1/-1 values.
+     * Used to track entry/exit lifecycle deltas.
+     */
     columnLifeTimeMap;
+    /** Array of columnLifeTime objects extracted per document */
     columnLifeTimeArray;
+    /** Final dataset array to be passed into Chart.js */
     dataSet;
+    /**
+     * Initializes the parser with Kanban data.
+     * @param paramData Raw Kanban structure containing columns and documents
+     */
     constructor(paramData) {
         this.rawData = paramData;
         this.label = "";
@@ -270,17 +272,20 @@ class CFD_ChartElement {
         this.columnLifeTimeArray = null;
         this.dataSet = [];
     }
+    /**
+     * Entry point to generate chart datasets.
+     * Extracts documents, lifetimes, and builds cumulative flow data.
+     * @returns Array of Chart.js dataset objects
+     */
     create() {
         this.getDocumentArray();
         this.getColumnLifeTimeArray();
         this.getlifeTimeMap();
         return this.getDateSet();
-        // {
-        //   label: this.label,
-        //   data: this.rawData,
-        //   fill: 'origin',
-        // };
     }
+    /**
+     * Gathers all documents across columns and flattens them into a single list.
+     */
     getDocumentArray() {
         this.columnArray.forEach((column) => {
             if (column.documents.length > 0) {
@@ -288,9 +293,16 @@ class CFD_ChartElement {
             }
         });
     }
+    /**
+     * Extracts the columnLifeTime mapping from each document.
+     */
     getColumnLifeTimeArray() {
         this.columnLifeTimeArray = this.docsArray.map((aDocument) => aDocument.columnLifeTime);
     }
+    /**
+     * Builds a Map of column lifecycle deltas.
+     * +1 for entry, -1 for exit based on timestamp order.
+     */
     getlifeTimeMap() {
         if (this.columnLifeTimeArray) {
             this.columnLifeTimeArray.forEach((lifetimeArray) => {
@@ -305,17 +317,11 @@ class CFD_ChartElement {
             });
         }
     }
-    // getDateSet(){
-    //   //Object.fromEntries( this.columnLifeTimeMap)
-    //   this.columnLifeTimeMap.forEach((value, key)=>{
-    //   this.dataSet.push({
-    //     label :key,
-    //     data : value,
-    //     fill: "origin",
-    //   })
-    //   });
-    //   return[this.dataSet]
-    // }
+    /**
+     * Converts lifecycle deltas into cumulative flow datasets.
+     * Each column gets a line showing cumulative document count over time.
+     * @returns Array of Chart.js dataset objects
+     */
     getDateSet() {
         //using a set to exclude duplicates
         const allTimestampsSet = new Set();
@@ -325,30 +331,32 @@ class CFD_ChartElement {
         });
         // Sort all unique timestamps because they were in order or some reason
         const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
-        // Initialize dataset array
         const datasets = [];
         // For each column, create a cumulative Y array
         this.columnLifeTimeMap.forEach((timeMap, columnId) => {
-            const labelColumn = this.rawData?.columns.find(column => column.id === columnId);
+            const labelColumn = this.rawData?.columns.find((column) => column.id === columnId);
             const label = labelColumn?.title || columnId; // grab the title
-            const dataPoints = [];
             // for stacking the lines.
+            const dataPoints = [];
             let cumulative = 0;
             //loop through all the x points(allTimestamps) if the column(timeMap) changes at one(t)  make the change, else don't.
             // this adds ALL the x point to each column.
             for (const t of allTimestamps) {
                 if (timeMap[t] !== undefined) {
-                    cumulative += timeMap[t]; // apply delta
+                    cumulative += timeMap[t];
                 }
                 dataPoints.push({ x: t, y: cumulative });
             }
             // Force start at 0 and extend last point
             dataPoints.unshift({ x: allTimestamps[0], y: 0 });
-            dataPoints.push({ x: allTimestamps[allTimestamps.length - 1] + 1, y: cumulative });
+            dataPoints.push({
+                x: allTimestamps[allTimestamps.length - 1] + 1,
+                y: cumulative,
+            });
             datasets.push({
                 label,
                 data: dataPoints,
-                fill: 'origin',
+                fill: "origin",
             });
         });
         return datasets;
