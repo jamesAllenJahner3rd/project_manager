@@ -120,6 +120,19 @@ class ProjectUI {
                 console.warn(" Project ID is missing.");
             }
             this.kanbanData = await response.json();
+            // if (this.kanbanData){
+            //   let test = this.kanbanData.columns as object[]
+            //   let docs:Array<ColumnNameMap> =[]
+            //   test.forEach((columnn ) =>{
+            //     let column =columnn as Column;
+            //     if ( Array.isArray(column.documents) && (column as Column).documents.length > 0){
+            //       (column as Column).documents.forEach((document)=>{
+            //         docs.push( (document as Docu_ment).columnLifeTime)
+            //       })
+            //     }
+            //   })
+            // console.log(" Kanban data was fetched successfully, projectTemplate.loadInitialData")
+            // }
         }
         catch (error) {
             console.error(`Couldn't get kanbanData from server: ${error instanceof Error ? error.message : error}, projectTemplate loadInitialData()`);
@@ -128,7 +141,8 @@ class ProjectUI {
     async parseCFDdata(rawdata) {
         let dataParcer = new CFD_ChartElement(rawdata);
         let CFDdata = dataParcer.create();
-        
+        console.dir(CFDdata);
+        console.log(CFDdata);
         if (this.cfdChart) {
             new Chart(this.cfdChart, {
                 type: "line",
@@ -159,11 +173,19 @@ class ProjectUI {
                         },
                     },
                     plugins: {
+                        // filler: {
+                        //   propagate: true
+                        // },
                         colorschemes: {
                             scheme: "brewer.Reds7",
                             fillAlpha: 1.0,
                         },
                     },
+                    //        parsing: {
+                    //   xAxisKey: 'data\\.key',
+                    //   yAxisKey: 'data\\.value'
+                    // }
+                },
             });
         }
     }
@@ -253,7 +275,11 @@ class CFD_ChartElement {
         this.getColumnLifeTimeArray();
         this.getlifeTimeMap();
         return this.getDateSet();
-        
+        // {
+        //   label: this.label,
+        //   data: this.rawData,
+        //   fill: 'origin',
+        // };
     }
     getDocumentArray() {
         this.columnArray.forEach((column) => {
@@ -279,6 +305,17 @@ class CFD_ChartElement {
             });
         }
     }
+    // getDateSet(){
+    //   //Object.fromEntries( this.columnLifeTimeMap)
+    //   this.columnLifeTimeMap.forEach((value, key)=>{
+    //   this.dataSet.push({
+    //     label :key,
+    //     data : value,
+    //     fill: "origin",
+    //   })
+    //   });
+    //   return[this.dataSet]
+    // }
     getDateSet() {
         //using a set to exclude duplicates
         const allTimestampsSet = new Set();
@@ -297,6 +334,8 @@ class CFD_ChartElement {
             const dataPoints = [];
             // for stacking the lines.
             let cumulative = 0;
+            //loop through all the x points(allTimestamps) if the column(timeMap) changes at one(t)  make the change, else don't.
+            // this adds ALL the x point to each column.
             for (const t of allTimestamps) {
                 if (timeMap[t] !== undefined) {
                     cumulative += timeMap[t]; // apply delta
