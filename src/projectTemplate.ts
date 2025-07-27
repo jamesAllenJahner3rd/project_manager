@@ -6,6 +6,7 @@ type Color = string;
 type ColumnName = `column-${string}`;
 
 type ColumnNameMap = { [columnId: string]: number[] };
+
 type Dataset = Info[];
 
 interface ColumnLifeTime {}
@@ -32,6 +33,7 @@ interface Column {
   backgroundColor: Color;
 
   documents: Docu_ment[];
+
   maxDocu_ments: number | string;
   canAddDocu_ments: boolean;
   canChangeDocu_mentColor: boolean;
@@ -278,6 +280,7 @@ class ProjectUI {
       });
     }
   }
+
   private async parseCFDdata(rawdata: KanbanData) {
     let dataParcer = new CFD_ChartElement(rawdata);
     let CFDdata: any = dataParcer.create();
@@ -531,6 +534,7 @@ class CFD_ChartElement {
     return datasets;
   }
 }
+
 class Burnup_ChartElement {
   /** Optional display label for the chart */
   public label?: string;
