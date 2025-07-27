@@ -162,7 +162,7 @@ class ProjectUI {
           scales: {
             y: {
               beginAtZero: true,
-              stacked: true,
+              stacked: false,
               min: 0,
               ticks: {
                 stepSize: 1,
@@ -512,49 +512,102 @@ class Burnup_ChartElement {
     }
   }
   /**
-   * Converts lifecycle deltas into cumulative flow datasets.
+   * This grabs column information and extracts the documents lifetime from the very last column.
+   * Then returns the data points.
+   * @returns[{x:number, y: number}]
+   */
+  getCompletedDocumentArray() {
+    let output = [];
+    let label = "";
+    this.columnArray.forEach((column, i) => {
+      if (column.documents.length > 0 && i === this.columnArray.length - 1) {
+        label = column.title;
+        output = [...column.documents.flat()].map((document) =>
+          Number(document.columnLifeTime[column.id][0])
+        );
+        output.sort((a, b) => a - b);
+      }
+    });
+    let data = output.map((number, i) => {
+      return { x: number, y: i + 1 };
+    });
+    return {
+      label,
+      data,
+    };
+  }
+  /**
+   * Converts document infomations including column life timestamps to datasets. to Track Flow of completion versus total documents.
    * Each column gets a line showing cumulative document count over time.
    * @returns Array of Chart.js dataset objects
    */
   getDateSet() {
-    //using a set to exclude duplicates
-    const allTimestampsSet = new Set();
-    // Collect all timestamps from all columns to be able to add up the values to stack. in milliseconds
-    this.columnLifeTimeMap.forEach((timeMap) => {
-      Object.keys(timeMap).forEach((t) => allTimestampsSet.add(Number(t)));
+    // This'll be the creation times for each document.
+    let docBirthTimes = [];
+    // This will be the title for the last column
+    let lastColumnTitle = "";
+    // This will be where I gather The Times where documents have been completed
+    let completedBirthTimes = [];
+    // And this is going to represent X & Y data for the total of documents.
+    let totalDocs = [];
+    // I realized that I already had an array of all the documents.
+    // And since the documents names included creation time it was the easy way to grab that.
+    docBirthTimes = this.docsArray
+      .map((element) => {
+        return Number(element.id.split("doc-")[1]);
+      })
+      .sort((a, b) => a - b);
+    totalDocs = docBirthTimes.map((creationTime, i) => {
+      return {
+        x: creationTime,
+        y: i + 1,
+      };
     });
-    // Sort all unique timestamps because they were in order or some reason
-    const allTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b);
+    // I create another method to do this keep this more organized.
+    completedBirthTimes = this.getCompletedDocumentArray();
+    // But here's where I real that I didn't have a trailing data point To match the completed data set
+    let sittingY = totalDocs.length;
+    completedBirthTimes.data.forEach((object) => {
+      totalDocs.push({ x: object.x, y: sittingY });
+      totalDocs.sort((a, b) => a.x - b.x);
+    });
+    /*if(this.rawData){
+          const requestedData = this.rawData?.columns
+          for (let i =0 ;i < requestedData.length;i++){
+            requestedData[i].documents.forEach(document => {
+    
+    
+              for (const [key, value] of Object.entries(document.columnLifeTime)) {
+                console.log(`${key}: ${value}`);
+                docBirthTimes.push({
+                    x: value[0],
+                    y: docBirthTimes.length,
+                  });
+                  completedBirthTimes.push({
+                    x: value[0],
+                    y: completedBirthTimes.length,
+                  });
+              if (i === requestedData.length-1){
+                for (const [key, value] of Object.entries(document.columnLifeTime)) {
+                  console.log(`${key}: ${value}`);
+                  // completedBirthTimes.push (value[0])
+                  completedBirthTimes.push({
+                    x: value[0],
+                    y: completedBirthTimes.length,
+                  });
+                }
+              }
+                return
+              }
+            });
+          }
+        }*/
     const datasets = [];
-    // For each column, create a cumulative Y array
-    this.columnLifeTimeMap.forEach((timeMap, columnId) => {
-      const labelColumn = this.rawData?.columns.find(
-        (column) => column.id === columnId
-      );
-      const label = labelColumn?.title || columnId; // grab the title
-      // for stacking the lines.
-      const dataPoints = [];
-      let cumulative = 0;
-      //loop through all the x points(allTimestamps) if the column(timeMap) changes at one(t)  make the change, else don't.
-      // this adds ALL the x point to each column.
-      for (const t of allTimestamps) {
-        if (timeMap[t] !== undefined) {
-          cumulative += timeMap[t];
-        }
-        dataPoints.push({ x: t, y: cumulative });
-      }
-      // Force start at 0 and extend last point
-      dataPoints.unshift({ x: allTimestamps[0], y: 0 });
-      dataPoints.push({
-        x: allTimestamps[allTimestamps.length - 1] + 1,
-        y: cumulative,
-      });
-      datasets.push({
-        label,
-        data: dataPoints,
-        fill: "origin",
-      });
+    datasets.push({
+      label: "Total Documents",
+      data: totalDocs,
     });
+    datasets.push(completedBirthTimes);
     return datasets;
   }
 }
