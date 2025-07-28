@@ -9,10 +9,13 @@ const SELECTORS = {
   BURNUP_TOGGLE: "burnupVisability",
   CFD_TOGGLE: "cfdVisability",
   TAG_TOGGLE: "tagVisability",
-  CLOSE_BUTTONS: ".close",
+  CLOSE_BUTTONS: "close",
   BURNUP_SECTION: "burnupSection",
   CFD_SECTION: "cfdSection",
   TAG_SECTION: "tagSection",
+  BURNUP_CHART: "burnupChart",
+  CFD_CHART: "cfdChart",
+  TAG_CHART: "tagChart",
 };
 class ProjectUI {
   // Type the variables
@@ -42,26 +45,30 @@ class ProjectUI {
   }
   async init() {
     // Initiate the variables for the elements to be used throughout this class.
-    this.modal = document.querySelector(".modalWrapper");
-    this.addUserbutton = document.getElementById("addUserModalTrigger");
-    this.agileNav = document.getElementById("ButtonsVisability");
-    this.burnupToggle = document.getElementById("burnupVisability");
-    this.cfdToggle = document.getElementById("cfdVisability");
-    this.tagToggle = this.getHTMLElement("tagVisability", "TAG Toggle");
-    this.closeSpan = Array.from(document.getElementsByClassName("close"));
-    this.burnupSection = document.getElementById("burnupSection");
-    this.cfdSection = document.getElementById("cfdSection");
-    this.cfdChart = document.getElementById("cfdChart");
-    this.tagSection = document.getElementById("tagSection");
-    this.tagChart = document.getElementById("tagChart");
-    this.burnupSection = document.getElementById("burnupSection");
-    this.burnupChart = document.getElementById("burnupChart");
+    this.modal = document.querySelector(SELECTORS.MODAL_WRAPPER);
+    this.addUserbutton = document.getElementById(
+      SELECTORS.ADD_USER_MODAL_TRIGGER
+    );
+    this.agileNav = document.getElementById(SELECTORS.AGILE_NAV);
+    this.burnupToggle = document.getElementById(SELECTORS.BURNUP_TOGGLE);
+    this.cfdToggle = document.getElementById(SELECTORS.CFD_TOGGLE);
+    this.tagToggle = document.getElementById(SELECTORS.TAG_TOGGLE);
+    this.closeSpan = Array.from(
+      document.getElementsByClassName(SELECTORS.CLOSE_BUTTONS)
+    );
+    this.cfdSection = document.getElementById(SELECTORS.CFD_SECTION);
+    this.cfdChart = document.getElementById(SELECTORS.CFD_CHART);
+    this.tagSection = document.getElementById(SELECTORS.TAG_SECTION);
+    this.tagChart = document.getElementById(SELECTORS.TAG_CHART);
+    this.burnupSection = document.getElementById(SELECTORS.BURNUP_SECTION);
+    this.burnupChart = document.getElementById(SELECTORS.BURNUP_CHART);
     this.currentProjectId =
       this.currentUrl.split("/project/")[1]?.split("?")[0] ?? null;
     this.addEventListeners();
     await this.loadInitialData();
     this.parseCFDdata(this.kanbanData);
     this.parseBurnupData(this.kanbanData);
+    this.parseTAGData(this.kanbanData);
   }
   /**
    * A reusable method to get an HTML element and provide a warning if not found.
@@ -207,6 +214,50 @@ class ProjectUI {
             y: {
               beginAtZero: true,
               stacked: true,
+              min: 0,
+              ticks: {
+                stepSize: 1,
+              },
+            },
+            x: {
+              type: "time",
+              ticks: {
+                source: "data",
+              },
+              time: {
+                displayFormats: {
+                  quarter: "MMM Do",
+                },
+              },
+            },
+          },
+          plugins: {
+            colorschemes: {
+              scheme: "brewer.Reds7",
+              fillAlpha: 1.0,
+            },
+          },
+        },
+      });
+    }
+  }
+  async parseTAGData(rawdata) {
+    let dataParcer = new TAG_ChartElement(rawdata);
+    let tagData = dataParcer.create();
+    console.dir(tagData);
+    console.log(tagData);
+    if (this.tagChart) {
+      new Chart(this.tagChart, {
+        type: "line",
+        data: {
+          datasets: tagData,
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              stacked: false,
               min: 0,
               ticks: {
                 stepSize: 1,
@@ -571,37 +622,158 @@ class Burnup_ChartElement {
       totalDocs.push({ x: object.x, y: sittingY });
       totalDocs.sort((a, b) => a.x - b.x);
     });
-    /*if(this.rawData){
-          const requestedData = this.rawData?.columns
-          for (let i =0 ;i < requestedData.length;i++){
-            requestedData[i].documents.forEach(document => {
-    
-    
-              for (const [key, value] of Object.entries(document.columnLifeTime)) {
-                console.log(`${key}: ${value}`);
-                docBirthTimes.push({
-                    x: value[0],
-                    y: docBirthTimes.length,
-                  });
-                  completedBirthTimes.push({
-                    x: value[0],
-                    y: completedBirthTimes.length,
-                  });
-              if (i === requestedData.length-1){
-                for (const [key, value] of Object.entries(document.columnLifeTime)) {
-                  console.log(`${key}: ${value}`);
-                  // completedBirthTimes.push (value[0])
-                  completedBirthTimes.push({
-                    x: value[0],
-                    y: completedBirthTimes.length,
-                  });
-                }
-              }
-                return
-              }
-            });
-          }
-        }*/
+    const datasets = [];
+    datasets.push({
+      label: "Total Documents",
+      data: totalDocs,
+    });
+    datasets.push(completedBirthTimes);
+    return datasets;
+  }
+}
+class TAG_ChartElement {
+  /** Optional display label for the chart */
+  label;
+  /** Optional raw Chart.js data structure (unused directly in this flow) */
+  data;
+  /** Fill style used in the chart (usually 'origin' for stacked area effect) */
+  fill;
+  /** Full raw input Kanban data */
+  rawData;
+  /** List of Kanban columns extracted from the raw data */
+  columnArray;
+  /** Flattened list of all documents present in the columns */
+  docsArray;
+  /**
+   * Maps each column ID to a record of timestamp ➝ +1/-1 values.
+   * Used to track entry/exit lifecycle deltas.
+   */
+  columnLifeTimeMap;
+  /** Array of columnLifeTime objects extracted per document */
+  columnLifeTimeArray;
+  /** Final dataset array to be passed into Chart.js */
+  dataSet;
+  /**
+   * Initializes the parser with Kanban data.
+   * @param paramData Raw Kanban structure containing columns and documents
+   */
+  constructor(paramData) {
+    this.rawData = paramData;
+    this.label = "";
+    this.fill = true;
+    this.columnArray = this.rawData.columns;
+    this.docsArray = [];
+    this.columnLifeTimeMap = new Map();
+    this.columnLifeTimeArray = null;
+    this.dataSet = [];
+  }
+  /**
+   * Entry point to generate chart datasets.
+   * Extracts documents, lifetimes, and builds cumulative flow data.
+   * @returns Array of Chart.js dataset objects
+   */
+  create() {
+    this.getDocumentArray();
+    this.getColumnLifeTimeArray();
+    this.getlifeTimeMap();
+    return this.getDateSet();
+  }
+  /**
+   * Gathers all documents across columns and flattens them into a single list.
+   */
+  getDocumentArray() {
+    this.columnArray.forEach((column) => {
+      if (column.documents.length > 0) {
+        this.docsArray.push(...column.documents.flat());
+      }
+    });
+  }
+  /**
+   * Extracts the columnLifeTime mapping from each document.
+   */
+  getColumnLifeTimeArray() {
+    this.columnLifeTimeArray = this.docsArray.map(
+      (aDocument) => aDocument.columnLifeTime
+    );
+  }
+  /**
+   * Builds a Map of column lifecycle deltas.
+   * +1 for entry, -1 for exit based on timestamp order.
+   */
+  getlifeTimeMap() {
+    if (this.columnLifeTimeArray) {
+      this.columnLifeTimeArray.forEach((lifetimeArray) => {
+        Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
+          timestamps.forEach((time, i) => {
+            const addORSubtract = i % 2 === 0 ? 1 : -1;
+            const currentMap = this.columnLifeTimeMap.get(columnName) ?? {};
+            currentMap[time] = addORSubtract;
+            this.columnLifeTimeMap.set(columnName, currentMap);
+          });
+        });
+      });
+    }
+  }
+  /**
+   * This grabs column information and extracts the documents lifetime from the very last column.
+   * Then returns the data points.
+   * @returns[{x:number, y: number}]
+   */
+  getCompletedDocumentArray() {
+    let output = [];
+    let label = "";
+    this.columnArray.forEach((column, i) => {
+      if (column.documents.length > 0 && i === this.columnArray.length - 1) {
+        label = column.title;
+        output = [...column.documents.flat()].map((document) =>
+          Number(document.columnLifeTime[column.id][0])
+        );
+        output.sort((a, b) => a - b);
+      }
+    });
+    let data = output.map((number, i) => {
+      return { x: number, y: i + 1 };
+    });
+    return {
+      label,
+      data,
+    };
+  }
+  /**
+   * Converts document infomations including column life timestamps to datasets. to Track Flow of completion versus total documents.
+   * Each column gets a line showing cumulative document count over time.
+   * @returns Array of Chart.js dataset objects
+   */
+  getDateSet() {
+    // This'll be the creation times for each document.
+    let docBirthTimes = [];
+    // This will be the title for the last column
+    let lastColumnTitle = "";
+    // This will be where I gather The Times where documents have been completed
+    let completedBirthTimes = [];
+    // And this is going to represent X & Y data for the total of documents.
+    let totalDocs = [];
+    // I realized that I already had an array of all the documents.
+    // And since the documents names included creation time it was the easy way to grab that.
+    docBirthTimes = this.docsArray
+      .map((element) => {
+        return Number(element.id.split("doc-")[1]);
+      })
+      .sort((a, b) => a - b);
+    totalDocs = docBirthTimes.map((creationTime, i) => {
+      return {
+        x: creationTime,
+        y: i + 1,
+      };
+    });
+    // I create another method to do this keep this more organized.
+    completedBirthTimes = this.getCompletedDocumentArray();
+    // But here's where I real that I didn't have a trailing data point To match the completed data set
+    let sittingY = totalDocs.length;
+    completedBirthTimes.data.forEach((object) => {
+      totalDocs.push({ x: object.x, y: sittingY });
+      totalDocs.sort((a, b) => a.x - b.x);
+    });
     const datasets = [];
     datasets.push({
       label: "Total Documents",
