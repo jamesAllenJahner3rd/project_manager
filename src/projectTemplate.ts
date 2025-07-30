@@ -337,17 +337,23 @@ class ProjectUI {
 
   private async parseTAGData(rawdata: KanbanData) {
     let dataParcer = new TAG_ChartElement(rawdata);
-    let tagData: any = dataParcer.create();
-    console.dir(tagData);
-    console.log(tagData);
+    let tagData: any = dataParcer.getDataSet();
+    tagData = tagData.flat();
+    let labels = dataParcer.getXVariables();
 
     if (this.tagChart) {
       new Chart(this.tagChart, {
-        type: "line",
+        type: "scatter",
         data: {
-          datasets: tagData,
+          labels,
+          datasets: [
+            {
+              label: "Aging Work In Progress",
+              data: tagData,
+              backgroundColor: "rgb(0,0,0)",
+            },
+          ],
         },
-
         options: {
           responsive: true,
           scales: {
@@ -356,29 +362,71 @@ class ProjectUI {
               stacked: false,
               min: 0,
               ticks: {
-                stepSize: 1,
+                stepSize: 5,
               },
             },
             x: {
-              type: "time",
+              type: "category",
               ticks: {
-                source: "data",
-              },
-              time: {
-                displayFormats: {
-                  quarter: "MMM Do",
-                },
+                source: labels,
               },
             },
           },
           plugins: {
             colorschemes: {
-              scheme: "brewer.Reds7",
-              fillAlpha: 1.0,
+              scheme: "office.Advantage6",
+              fillAlpha: 0.7,
             },
           },
         },
       });
+      //  new Chart(this.tagChart, {
+      //   type: "scatter",
+      //   data: {
+      //     labels:['Column A', 'Column B', 'Column C', 'Column D'],
+      //     datasets: [
+      //       {
+      //         label: "Aging Work In Progress",
+      //         data: [{
+      //           x: 'Column A', y: 4
+      //         },{
+      //           x: 'Column C', y: 4
+      //         },{
+      //           x: 'Column C', y: 4
+      //         },{
+      //           x: 'Column D', y: 4
+      //         }],
+      //         backgroundColor: "rgb(0,0,0)",
+      //       },
+      //     ],
+      //   },
+      //   options: {
+      //     responsive: true,
+      //     scales: {
+      //       y: {
+      //         beginAtZero: true,
+      //         stacked: false,
+      //         min: 0,
+      //         ticks: {
+      //           stepSize: 5,
+      //         },
+      //       },
+      //        x: {
+      //         type: "category",
+      //         ticks: {
+      //           source: labels,
+      //         },
+
+      //       },
+      //     },
+      //     plugins: {
+      //       colorschemes: {
+      //         scheme: "office.Advantage6",
+      //         fillAlpha: 1.0,
+      //       },
+      //     },
+      //   },
+      // });
     }
   }
   // The public methods
@@ -492,7 +540,7 @@ class CFD_ChartElement {
     this.getDocumentArray();
     this.getColumnLifeTimeArray();
     this.getlifeTimeMap();
-    return this.getDateSet();
+    return this.getDataSet();
   }
 
   /**
@@ -539,7 +587,7 @@ class CFD_ChartElement {
    * Each column gets a line showing cumulative document count over time.
    * @returns Array of Chart.js dataset objects
    */
-  getDateSet() {
+  getDataSet() {
     //using a set to exclude duplicates
     const allTimestampsSet = new Set<number>();
 
@@ -634,7 +682,7 @@ class Burnup_ChartElement {
     this.getDocumentArray();
     this.getColumnLifeTimeArray();
     this.getlifeTimeMap();
-    return this.getDateSet();
+    return this.getDataSet();
   }
 
   /**
@@ -705,7 +753,7 @@ class Burnup_ChartElement {
    * Each column gets a line showing cumulative document count over time.
    * @returns Array of Chart.js dataset objects
    */
-  getDateSet() {
+  getDataSet() {
     // This'll be the creation times for each document.
     let docBirthTimes: any = [];
     // This will be the title for the last column
@@ -794,37 +842,75 @@ class TAG_ChartElement {
    * @returns Array of Chart.js dataset objects
    */
   create() {
-    this.getDocumentArray();
-    this.getColumnLifeTimeArray();
-    this.getlifeTimeMap();
-    return this.getDateSet();
+    // this.getDocumentArray();
+    // this.getColumnLifeTimeArray();
+    // this.getlifeTimeMap();
+    return this.getDataSet();
   }
 
   /**
    * Gathers all documents across columns and flattens them into a single list.
    */
-  getDocumentArray() {
+  /*getDocumentArray() {
     this.columnArray.forEach((column) => {
       if (column.documents.length > 0) {
         this.docsArray.push(...column.documents.flat());
       }
     });
-  }
+  }*/
 
   /**
    * Extracts the columnLifeTime mapping from each document.
    */
-  getColumnLifeTimeArray() {
+  /*getColumnLifeTimeArray() {
     this.columnLifeTimeArray = this.docsArray.map(
       (aDocument) => aDocument.columnLifeTime
     );
+  }*/
+  /**
+   * get the x Axis, Extract the column Titles
+   * return string[]
+   */
+  getXVariables(): string[] {
+    let xAxisTitles: string[] = this.columnArray.map(
+      (column: any) => column.title
+    );
+    return xAxisTitles;
+  }
+  /**
+   *  get the y Axis, Extract the time the document enter the currnt column and compare it to the current time. convert to Days.
+   * @returns number[]
+   */
+  getYAxisAges(): number[][] {
+    let timeStamps: number[][] = this.getTimeEnteredColumn();
+    return this.daysSince(timeStamps);
+  }
+  /**
+   * Take the time stamps that's in milliseconds and return it as days
+   * @param number[]
+   */
+  daysSince(ArrayDateArray: number[][]): number[][] {
+    const now: number = Date.now();
+    const output: number[][] = ArrayDateArray.map((dateArray: number[]) =>
+      dateArray.map((aDate: number) => this.convertToDays(now - aDate))
+    );
+    return output;
+  }
+  getTimeEnteredColumn(): number[][] {
+    const timeStampArray: number[][] = this.columnArray.map((column: Column) =>
+      column.documents.map((doc: Docu_ment) => doc.columnLifeTime[column.id][0])
+    );
+    return timeStampArray;
+  }
+  convertToDays(ms: number): number {
+    return Math.floor(ms / 86400000);
   }
 
   /**
    * Builds a Map of column lifecycle deltas.
    * +1 for entry, -1 for exit based on timestamp order.
    */
-  getlifeTimeMap() {
+  /*getlifeTimeMap() {
     if (this.columnLifeTimeArray) {
       this.columnLifeTimeArray.forEach((lifetimeArray: ColumnNameMap) => {
         Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
@@ -837,13 +923,13 @@ class TAG_ChartElement {
         });
       });
     }
-  }
+  }*/
   /**
    * This grabs column information and extracts the documents lifetime from the very last column.
    * Then returns the data points.
    * @returns[{x:number, y: number}]
    */
-  getCompletedDocumentArray() {
+  /*getCompletedDocumentArray() {*************************
     let output: number[] = [];
     let label: string = "";
     this.columnArray.forEach((column, i) => {
@@ -862,55 +948,34 @@ class TAG_ChartElement {
       label,
       data,
     };
-  }
+  }*/
   /**
-   * Converts document infomations including column life timestamps to datasets. to Track Flow of completion versus total documents.
-   * Each column gets a line showing cumulative document count over time.
+   * a. A dataset of each documents age and column.
+   *
    * @returns Array of Chart.js dataset objects
    */
-  getDateSet() {
-    // This'll be the creation times for each document.
-    let docBirthTimes: any = [];
-    // This will be the title for the last column
-    let lastColumnTitle: string = "";
-    // This will be where I gather The Times where documents have been completed
-    let completedBirthTimes: any = [];
-    // And this is going to represent X & Y data for the total of documents.
-    let totalDocs = [];
+  getDataSet() {
+    const yAxis: number[][] = this.getYAxisAges();
+    const xAxis: string[] = this.getXVariables();
+    let sign: number = -1;
+    const jitter = (): number => {
+      let a: number = sign * 0.05;
+      sign = sign * -1;
+      return a;
+    };
 
-    // I realized that I already had an array of all the documents.
-    // And since the documents names included creation time it was the easy way to grab that.
-    docBirthTimes = this.docsArray
-      .map((element) => {
-        return Number(element.id.split("doc-")[1]);
-      })
-      .sort((a, b) => a - b);
-
-    totalDocs = docBirthTimes.map((creationTime: number, i: number) => {
-      return {
-        x: creationTime,
-        y: i + 1,
-      };
-    });
-    // I create another method to do this keep this more organized.
-    completedBirthTimes = this.getCompletedDocumentArray();
-    // But here's where I real that I didn't have a trailing data point To match the completed data set
-    let sittingY = totalDocs.length;
-    completedBirthTimes.data.forEach((object: { x: number; y: number }) => {
-      totalDocs.push({ x: object.x, y: sittingY });
-      totalDocs.sort(
-        (a: { x: number; y: number }, b: { x: number; y: number }) => a.x - b.x
-      );
-    });
-
-    const datasets: any = [];
-
-    datasets.push({
-      label: "Total Documents",
-      data: totalDocs,
-    });
-    datasets.push(completedBirthTimes);
-    return datasets;
+    const data: Array<{ x: string; y: number | null }[]> = yAxis.map(
+      (column: number[], i: number) => {
+        if (i !== 0 && i !== yAxis.length - 1) {
+          return column.map((days: number) => {
+            return { x: xAxis[i], y: days + jitter() };
+          });
+        } else {
+          return [{ x: xAxis[i], y: null }];
+        }
+      }
+    );
+    return data;
   }
 }
 document.addEventListener("DOMContentLoaded", () => {
