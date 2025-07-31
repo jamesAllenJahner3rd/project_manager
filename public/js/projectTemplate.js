@@ -246,6 +246,7 @@ class ProjectUI {
     let tagData = dataParcer.getDataSet();
     tagData = tagData.flat();
     let labels = dataParcer.getXVariables();
+    let docLabels = dataParcer.getDocumentTitlesArray();
     if (this.tagChart) {
       new Chart(this.tagChart, {
         type: "scatter",
@@ -254,7 +255,9 @@ class ProjectUI {
           datasets: [
             {
               label: "Aging Work In Progress",
-              data: tagData,
+              data:
+                // [{ x: 1, y: 1 },{x: 2, y: 2 },{x: 3, y: 3 },{x: 4, y: 4 },{x: 1, y: 5 },{x: 2, y: 6 },],
+                tagData,
               backgroundColor: "rgb(0,0,0)",
             },
           ],
@@ -281,6 +284,24 @@ class ProjectUI {
             colorschemes: {
               scheme: "office.Advantage6",
               fillAlpha: 0.7,
+            },
+            tooltip: {
+              callbacks: {
+                title: function (tooltipItems) {
+                  return (
+                    `${docLabels[tooltipItems[0]?.dataIndex]}` || "Unknown"
+                  );
+                },
+                label: function (context) {
+                  // let labels = ["a","b","c","d","e","f"];
+                  console.log(context.raw[context.dataIndex]);
+                  console.log(docLabels[context.dataIndex]);
+                  return [
+                    `Age: ${Math.round(context.raw.y)} days`,
+                    `Column: ${context.raw.x}`,
+                  ];
+                },
+              },
             },
           },
         },
@@ -729,13 +750,17 @@ class TAG_ChartElement {
   /**
    * Gathers all documents across columns and flattens them into a single list.
    */
-  /*getDocumentArray() {
-      this.columnArray.forEach((column) => {
-        if (column.documents.length > 0) {
-          this.docsArray.push(...column.documents.flat());
-        }
-      });
-    }*/
+  getDocumentArray() {
+    this.columnArray.forEach((column) => {
+      if (column.documents.length > 0) {
+        this.docsArray.push(...column.documents.flat());
+      }
+    });
+  }
+  getDocumentTitlesArray() {
+    this.getDocumentArray();
+    return this.docsArray.map((e) => e.title);
+  }
   /**
    * Extracts the columnLifeTime mapping from each document.
    */
@@ -838,7 +863,6 @@ class TAG_ChartElement {
       return a;
     };
     const data = yAxis.map((column, i) => {
-      console.log(i, yAxis.length - 1);
       if (i !== 0 && i !== yAxis.length - 1) {
         return column.map((days) => {
           return { x: xAxis[i], y: days + jitter() };
