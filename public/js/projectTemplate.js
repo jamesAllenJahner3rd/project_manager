@@ -156,8 +156,6 @@ class ProjectUI {
   async parseBurnupData(rawdata) {
     let dataParcer = new Burnup_ChartElement(rawdata);
     let Burnupdata = dataParcer.create();
-    console.dir(Burnupdata);
-    console.log(Burnupdata);
     if (this.burnupChart) {
       new Chart(this.burnupChart, {
         type: "line",
@@ -188,10 +186,7 @@ class ProjectUI {
             },
           },
           plugins: {
-            colorschemes: {
-              scheme: "brewer.Reds7",
-              fillAlpha: 1.0,
-            },
+            colorschemes: false,
           },
         },
       });
@@ -242,27 +237,45 @@ class ProjectUI {
     }
   }
   async parseTAGData(rawdata) {
-    let dataParcer = new TAG_ChartElement(rawdata);
-    let tagData = dataParcer.getDataSet();
-    tagData = tagData.flat();
-    let labels = dataParcer.getXVariables();
-    let docLabels = dataParcer.getDocumentTitlesArray();
+    const dataParcer = new TAG_ChartElement(rawdata);
+    const tagData = dataParcer.getDataSet().flat();
+    // tagData = tagData;
+    const labels = dataParcer.getXVariables();
+    const docLabels = dataParcer.getDocumentTitlesArray();
+    const percentiles = dataParcer.getPercentiles();
     if (this.tagChart) {
       new Chart(this.tagChart, {
-        type: "scatter",
         data: {
           labels,
           datasets: [
             {
+              type: "scatter",
               label: "Aging Work In Progress",
               data:
                 // [{ x: 1, y: 1 },{x: 2, y: 2 },{x: 3, y: 3 },{x: 4, y: 4 },{x: 1, y: 5 },{x: 2, y: 6 },],
                 tagData,
               backgroundColor: "rgb(0,0,0)",
             },
+            {
+              type: "bar",
+              label: "Bar Dataset",
+              data: percentiles,
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              fill: false,
+            },
           ],
         },
         options: {
+          elements: {
+            bar: {
+              backgroundColor: "rgba(255,255,255,0)",
+            },
+          },
+          barPercentage: 100,
+          //  borderColor:'rgb(255, 0, 0)',
+          //  backgroundColor: "rgba(255,255,255,0)",
+          borderWidth: 1,
           responsive: true,
           scales: {
             y: {
@@ -281,10 +294,7 @@ class ProjectUI {
             },
           },
           plugins: {
-            colorschemes: {
-              scheme: "office.Advantage6",
-              fillAlpha: 0.7,
-            },
+            colorschemes: false,
             tooltip: {
               callbacks: {
                 title: function (tooltipItems) {
@@ -306,52 +316,6 @@ class ProjectUI {
           },
         },
       });
-      //  new Chart(this.tagChart, {
-      //   type: "scatter",
-      //   data: {
-      //     labels:['Column A', 'Column B', 'Column C', 'Column D'],
-      //     datasets: [
-      //       {
-      //         label: "Aging Work In Progress",
-      //         data: [{
-      //           x: 'Column A', y: 4
-      //         },{
-      //           x: 'Column C', y: 4
-      //         },{
-      //           x: 'Column C', y: 4
-      //         },{
-      //           x: 'Column D', y: 4
-      //         }],
-      //         backgroundColor: "rgb(0,0,0)",
-      //       },
-      //     ],
-      //   },
-      //   options: {
-      //     responsive: true,
-      //     scales: {
-      //       y: {
-      //         beginAtZero: true,
-      //         stacked: false,
-      //         min: 0,
-      //         ticks: {
-      //           stepSize: 5,
-      //         },
-      //       },
-      //        x: {
-      //         type: "category",
-      //         ticks: {
-      //           source: labels,
-      //         },
-      //       },
-      //     },
-      //     plugins: {
-      //       colorschemes: {
-      //         scheme: "office.Advantage6",
-      //         fillAlpha: 1.0,
-      //       },
-      //     },
-      //   },
-      // });
     }
   }
   // The public methods
@@ -654,6 +618,8 @@ class Burnup_ChartElement {
     return {
       label,
       data,
+      backgroundColor: "rgb(204, 65, 58)",
+      borderColor: "rgb(204, 65, 58)",
     };
   }
   /**
@@ -695,6 +661,8 @@ class Burnup_ChartElement {
     datasets.push({
       label: "Total Documents",
       data: totalDocs,
+      backgroundColor: "rgb(116, 27, 26)",
+      borderColor: "rgb(116, 27, 26)",
     });
     datasets.push(completedBirthTimes);
     return datasets;
@@ -742,10 +710,66 @@ class TAG_ChartElement {
    * @returns Array of Chart.js dataset objects
    */
   create() {
-    // this.getDocumentArray();
-    // this.getColumnLifeTimeArray();
-    // this.getlifeTimeMap();
     return this.getDataSet();
+  }
+  /**
+   * Get an array of the percentage of when 50%,75%,85%, and 95% of the documents are done.
+   * @returns number[]
+   */
+  getPercentiles() {
+    let fiftith;
+    let seventyFifth;
+    let eightyFifth;
+    let ninetyFifth;
+    const documentCount = this.docsArray;
+    let completedList = [];
+    let fullCycleTimes;
+    const lastColumn =
+      this.rawData?.columns[this.rawData?.columns.length - 1].id ||
+      " Couldn't find the last column";
+    this.getDocumentArray();
+    this.getlifeTimeMap();
+    this.getColumnLifeTimeArray();
+    console.log(this.columnLifeTimeArray);
+    this.columnLifeTimeArray?.forEach((doc, i, array) => {
+      let lifeSpan = [9999999999999, 0];
+      if (Object.hasOwn(doc, lastColumn)) {
+        for (let column in doc) {
+          doc[column].forEach((timeStamp) => {
+            if (timeStamp > lifeSpan[1]) {
+              lifeSpan[1] = timeStamp;
+            }
+            if (timeStamp < lifeSpan[0]) {
+              lifeSpan[0] = timeStamp;
+            }
+          });
+        }
+        completedList.push(lifeSpan);
+      }
+    });
+    fullCycleTimes = completedList.map(([start, end]) =>
+      this.convertToDays(end - start)
+    );
+    fullCycleTimes = fullCycleTimes.sort((a, b) => a - b);
+    const n = fullCycleTimes.length;
+    const thePercentiles = [50, 70, 85, 95];
+    return thePercentiles.map(
+      (p) => fullCycleTimes[Math.floor((p / 100) * (n - 1) + 1)]
+    );
+  }
+  getlifeTimeMap() {
+    if (this.columnLifeTimeArray) {
+      this.columnLifeTimeArray.forEach((lifetimeArray) => {
+        Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
+          timestamps.forEach((time, i) => {
+            const addORSubtract = i % 2 === 0 ? 1 : -1;
+            const currentMap = this.columnLifeTimeMap.get(columnName) ?? {};
+            currentMap[time] = addORSubtract;
+            this.columnLifeTimeMap.set(columnName, currentMap);
+          });
+        });
+      });
+    }
   }
   /**
    * Gathers all documents across columns and flattens them into a single list.
@@ -764,11 +788,11 @@ class TAG_ChartElement {
   /**
    * Extracts the columnLifeTime mapping from each document.
    */
-  /*getColumnLifeTimeArray() {
-      this.columnLifeTimeArray = this.docsArray.map(
-        (aDocument) => aDocument.columnLifeTime
-      );
-    }*/
+  getColumnLifeTimeArray() {
+    this.columnLifeTimeArray = this.docsArray.map(
+      (aDocument) => aDocument.columnLifeTime
+    );
+  }
   /**
    * get the x Axis, Extract the column Titles
    * return string[]
@@ -805,49 +829,6 @@ class TAG_ChartElement {
   convertToDays(ms) {
     return Math.floor(ms / 86400000);
   }
-  /**
-   * Builds a Map of column lifecycle deltas.
-   * +1 for entry, -1 for exit based on timestamp order.
-   */
-  /*getlifeTimeMap() {
-      if (this.columnLifeTimeArray) {
-        this.columnLifeTimeArray.forEach((lifetimeArray: ColumnNameMap) => {
-          Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
-            timestamps.forEach((time, i) => {
-              const addORSubtract = i % 2 === 0 ? 1 : -1;
-              const currentMap = this.columnLifeTimeMap.get(columnName) ?? {};
-              currentMap[time] = addORSubtract;
-              this.columnLifeTimeMap.set(columnName, currentMap);
-            });
-          });
-        });
-      }
-    }*/
-  /**
-   * This grabs column information and extracts the documents lifetime from the very last column.
-   * Then returns the data points.
-   * @returns[{x:number, y: number}]
-   */
-  /*getCompletedDocumentArray() {*************************
-      let output: number[] = [];
-      let label: string = "";
-      this.columnArray.forEach((column, i) => {
-        if (column.documents.length > 0 && i === this.columnArray.length - 1) {
-          label = column.title;
-          output = [...column.documents.flat()].map((document) =>
-            Number(document.columnLifeTime[column.id][0])
-          );
-          output.sort((a, b) => a - b);
-        }
-      });
-      let data = output.map((number, i) => {
-        return { x: number, y: i + 1 };
-      });
-      return {
-        label,
-        data,
-      };
-    }*/
   /**
    * a. A dataset of each documents age and column.
    *
