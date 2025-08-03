@@ -1,6 +1,8 @@
 console.log("projectTemplate script is loaded");
 // Browsers do not support bare module specifiers
 declare var Chart: any;
+// import {Chart} from 'chart.js';
+declare var ChartDataLabels: any;
 type ChartData = any;
 type Color = string;
 type ColumnName = `column-${string}`;
@@ -286,8 +288,6 @@ class ProjectUI {
   private async parseCFDdata(rawdata: KanbanData) {
     let dataParcer = new CFD_ChartElement(rawdata);
     let CFDdata: any = dataParcer.create();
-    console.dir(CFDdata);
-    console.log(CFDdata);
 
     if (this.cfdChart) {
       new Chart(this.cfdChart, {
@@ -332,12 +332,11 @@ class ProjectUI {
 
   private async parseTAGData(rawdata: KanbanData) {
     const dataParcer = new TAG_ChartElement(rawdata);
-    const tagData: any = dataParcer.getDataSet().flat();
+    const tagData = dataParcer.getDataSet().flat();
     // tagData = tagData;
     const labels = dataParcer.getXVariables();
     const docLabels = dataParcer.getDocumentTitlesArray();
     const percentiles = dataParcer.getPercentiles();
-
     if (this.tagChart) {
       new Chart(this.tagChart, {
         data: {
@@ -346,166 +345,158 @@ class ProjectUI {
             {
               type: "scatter",
               label: "Aging Work In Progress",
-              data:
-                // [{ x: 1, y: 1 },{x: 2, y: 2 },{x: 3, y: 3 },{x: 4, y: 4 },{x: 1, y: 5 },{x: 2, y: 6 },],
-                tagData,
+              data: tagData,
               backgroundColor: "rgb(0,0,0)",
+              datalabels: { display: false },
             },
             {
               type: "bar",
-              label: "Bar Dataset",
-              data: percentiles,
+              label: "50%", // "% Effort vs. Aging ",
+              data: [percentiles[0]],
               backgroundColor: "rgba(255, 255, 255, 0)",
               borderColor: "rgb(0, 0, 0)",
 
-              fill: false,
+              datalabels: {
+                formatter: function (value:any, context:any) {
+                  return "50%";
+                },
+                display: "auto",
+                anchor: "end",
+                align: "top",
+                offset: -3,
+                fill: false,
+              },
+            },
+            {
+              type: "bar",
+              label: "70%", // "% Effort vs. Aging ",
+              data: [percentiles[1]],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value:any, context:any) {
+                  return "70%";
+                },
+                display: "auto",
+                anchor: "end",
+                align: "bottom",
+                offset: -3,
+                fill: false,
+              },
+            },
+            {
+              type: "bar",
+              label: "85", // "% Effort vs. Aging ",
+              data: [percentiles[2]],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value:any, context:any) {
+                  return "85%";
+                },
+                display: "auto",
+                anchor: "end",
+                align: "bottom",
+                offset: 0,
+                fill: false,
+              },
+                title: false,
+            },
+            {
+              type: "bar",
+              label: "95%", // "% Effort vs. Aging ",
+              data: [percentiles[3]],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value:any, context:any) {
+                  return "95%";
+                },
+                display: true,
+                anchor: "end",
+                align: "bottom",
+                offset: -3,
+                fill: false,
+              },
+              legend: { hidden: true },
             },
           ],
         },
         options: {
           elements: {
             bar: {
-              backgroundColor: "rgba(255,255,255,0)",
+              backgroundColor: "rgba(212, 16, 16, 0)",
+              y: { stacked: false },
+              x: { stacked: false },
             },
           },
-
           barPercentage: 100,
-          //  borderColor:'rgb(255, 0, 0)',
-          //  backgroundColor: "rgba(255,255,255,0)",
           borderWidth: 1,
-
           responsive: true,
           scales: {
             y: {
+              position: "left",
               beginAtZero: true,
-              stacked: false,
+              // stacked: true,
               min: 0,
               ticks: {
+                color: "#000000",
                 stepSize: 5,
               },
             },
             x: {
               type: "category",
+              stacked: true,
               ticks: {
                 source: labels,
               },
             },
           },
           plugins: {
-            colorschemes: false,
-
-            tooltip: {
-              callbacks: {
-                title: function (tooltipItems: any) {
-                  return (
-                    `${docLabels[tooltipItems[0]?.dataIndex]}` || "Unknown"
-                  );
-                },
-                label: function (context: any) {
-                  // let labels = ["a","b","c","d","e","f"];
-                  console.log(context.raw[context.dataIndex]);
-                  console.log(docLabels[context.dataIndex]);
-                  return [
-                    `Age: ${Math.round(context.raw.y)} days`,
-                    `Column: ${context.raw.x}`,
-                  ];
+            legend: {
+              labels: {
+                filter: function (item:any, chart:any) {
+                  return item.text === "Aging Work In Progress";
                 },
               },
             },
+
+            colorschemes: false,
+            tooltip: {
+              callbacks: {
+                title: function (tooltipItems:any) {
+                  if (tooltipItems[0].dataset.type !== "bar") {
+                    return (
+                      `${docLabels[tooltipItems[0]?.dataIndex]}` || "Unknown"
+                    );
+                  }
+                  return "";
+                },
+                label: function (context:any) {
+                  console.log("test", context.dataset.labels, context.dataset);
+                  if (context.dataset.type === "bar") {
+                    return [
+                      `${context.dataset.label} of task`,
+                      `are completed in ${context.formattedValue} days`,
+                    ];
+                  }
+
+                  if (context.dataset.type === "scatter") {
+                    return [
+                      `Age: ${Math.round(context.raw.y)} days`,
+                      `Column: ${context.raw.x}`,
+                    ];
+                  }
+                },
+              },
+              intersect: false,
+            },
           },
         },
+        plugins: [ChartDataLabels],
       });
-      /**const config = {
-  type: 'line',
-  data: data,
-  options: {
-  //barThickness:89,
-  barPercentage :100,
-  //inflateAmount:12//'auto'
-  //ackgroundColor: '#FFFFFF',
-  borderColor:'rgba(0, 0, 0, 1)',
-  borderWidth:3
-  ,
-   y: {
-        beginAtZero: true
-      },
-    interaction: {
-      intersect: true,
-      mode: 'index',
-    },
-    plugins: {
-    tooltip: {
-    callbacks:{
-    title:()=> "",
-                usePointStyle: true,
-                callbacks: {
-                    labelPointStyle: function(context) {
-                        return {
-                            pointStyle: 'triangle',
-                            rotation: 0
-                        };
-                    },
-                },}
-              },
-      title: {
-        display: false,
-        text: (ctx) => {
-          const {axis = 'xy', intersect, mode} = ctx.chart.options.interaction;
-          return 'Mode: ' + mode + ', axis: ' + axis + ', intersect: ' + intersect;
-        }
-      },
     }
-  }
-}; */
-      //  new Chart(this.tagChart, {
-      //   type: "scatter",
-      //   data: {
-      //     labels:['Column A', 'Column B', 'Column C', 'Column D'],
-      //     datasets: [
-      //       {
-      //         label: "Aging Work In Progress",
-      //         data: [{
-      //           x: 'Column A', y: 4
-      //         },{
-      //           x: 'Column C', y: 4
-      //         },{
-      //           x: 'Column C', y: 4
-      //         },{
-      //           x: 'Column D', y: 4
-      //         }],
-      //         backgroundColor: "rgb(0,0,0)",
-      //       },
-      //     ],
-      //   },
-      //   options: {
-      //     responsive: true,
-      //     scales: {
-      //       y: {
-      //         beginAtZero: true,
-      //         stacked: false,
-      //         min: 0,
-      //         ticks: {
-      //           stepSize: 5,
-      //         },
-      //       },
-      //        x: {
-      //         type: "category",
-      //         ticks: {
-      //           source: labels,
-      //         },
-
-      //       },
-      //     },
-      //     plugins: {
-      //       colorschemes: {
-      //         scheme: "office.Advantage6",
-      //         fillAlpha: 1.0,
-      //       },
-      //     },
-      //   },
-      // });
-    }
-  }
+  } 
   // The public methods
   /**
    * Show the ADD user modal
@@ -935,37 +926,40 @@ class TAG_ChartElement {
     let eightyFifth;
     let ninetyFifth;
     const documentCount = this.docsArray;
-    let completedList: number[][]=[];
-    let fullCycleTimes:number[];
-    const lastColumn:string = this.rawData?.columns[this.rawData?.columns.length - 1].id||" Couldn't find the last column"
+    let completedList: number[][] = [];
+    let fullCycleTimes: number[];
+    const lastColumn: string =
+      this.rawData?.columns[this.rawData?.columns.length - 1].id ||
+      " Couldn't find the last column";
     this.getDocumentArray();
     this.getlifeTimeMap();
     this.getColumnLifeTimeArray();
-    console.log(this.columnLifeTimeArray);
     this.columnLifeTimeArray?.forEach((doc: any, i: any, array: any) => {
-      let lifeSpan=[9999999999999,0]
-      if (
-        Object.hasOwn(doc,lastColumn)
-      ) {
+      let lifeSpan = [9999999999999, 0];
+      if (Object.hasOwn(doc, lastColumn)) {
         for (let column in doc) {
-          doc[column].forEach((timeStamp:number)=>{
-            if( timeStamp >lifeSpan[1]){
-              lifeSpan[1] = timeStamp
+          doc[column].forEach((timeStamp: number) => {
+            if (timeStamp > lifeSpan[1]) {
+              lifeSpan[1] = timeStamp;
             }
-            if( timeStamp <lifeSpan[0]){
-              lifeSpan[0] = timeStamp
+            if (timeStamp < lifeSpan[0]) {
+              lifeSpan[0] = timeStamp;
             }
-          })
+          });
         }
-       completedList.push(lifeSpan)
+        completedList.push(lifeSpan);
       }
-      
     });
-    fullCycleTimes = completedList.map(([start,end]):number => (this.convertToDays(end - start)));
-    fullCycleTimes =fullCycleTimes.sort((a,b) => a-b)
+    fullCycleTimes = completedList.map(([start, end]): number =>
+      this.convertToDays(end - start)
+    );
     const n = fullCycleTimes.length;
-    const thePercentiles: number[]  = [50,70,85,95];
-    return thePercentiles.map((p) => fullCycleTimes[Math.floor((p / 100) * (n - 1) + 1)])
+    const thePercentiles: number[] = [50, 70, 85, 95];
+    const sorted = [...fullCycleTimes].sort((a, b) => a - b);
+
+    return thePercentiles.map(
+      (p) => sorted[Math.ceil((p / 100) * n)-1]
+    );
   }
   getlifeTimeMap() {
     if (this.columnLifeTimeArray) {
