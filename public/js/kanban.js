@@ -45,8 +45,10 @@ var STATUS_BY_POSITION = [];
 function setStateList() {
     let status = [];
     listOfColumn = Array.from(document.querySelectorAll("div ul.dragColumn"));
+
     listOfColumn.forEach((column, index) => {
         // Add column index for status tracking
+
         column.dataset.index = index.toString();
         listOfColumn[index] = column;
         status[index] = column.innerText.split("\n")[0];
@@ -1035,6 +1037,7 @@ async function getUserId() {
         const response = await fetch("/profile/getId");
         const userId = await response.json();
         return userId;
+
     }
     catch (error) {
         console.error(`${error} Couldn't find the user's ID`);
