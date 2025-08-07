@@ -1,4 +1,3 @@
-"use strict";
 console.log("projectTemplate script is loaded");
 // --- Constants ---
 // Centralize selectors to avoid magic strings and improve maintainability
@@ -9,12 +8,16 @@ const SELECTORS = {
   BURNUP_TOGGLE: "burnupVisability",
   CFD_TOGGLE: "cfdVisability",
   TAG_TOGGLE: "tagVisability",
-  CLOSE_BUTTONS: ".close",
+  CLOSE_BUTTONS: "close",
   BURNUP_SECTION: "burnupSection",
   CFD_SECTION: "cfdSection",
   TAG_SECTION: "tagSection",
+  BURNUP_CHART: "burnupChart",
+  CFD_CHART: "cfdChart",
+  TAG_CHART: "tagChart",
 };
 class ProjectUI {
+  // public dataSet: ChartDataset<"line" | "bar", number[]>[];
   // Type the variables
   modal = null;
   addUserbutton = null;
@@ -33,35 +36,37 @@ class ProjectUI {
   tagSection = null;
   cfdSection = null;
   kanbanData = null;
-  cfdData = null;
-  burnupData = null;
-  tagData = null;
+  oldestTask = null;
   constructor() {
     this.currentUrl = window.location.href;
     this.init(); // Trigger the initiation of the elements.
   }
   async init() {
     // Initiate the variables for the elements to be used throughout this class.
-    this.modal = document.querySelector(".modalWrapper");
-    this.addUserbutton = document.getElementById("addUserModalTrigger");
-    this.agileNav = document.getElementById("ButtonsVisability");
-    this.burnupToggle = document.getElementById("burnupVisability");
-    this.cfdToggle = document.getElementById("cfdVisability");
-    this.tagToggle = this.getHTMLElement("tagVisability", "TAG Toggle");
-    this.closeSpan = Array.from(document.getElementsByClassName("close"));
-    this.burnupSection = document.getElementById("burnupSection");
-    this.cfdSection = document.getElementById("cfdSection");
-    this.cfdChart = document.getElementById("cfdChart");
-    this.tagSection = document.getElementById("tagSection");
-    this.tagChart = document.getElementById("tagChart");
-    this.burnupSection = document.getElementById("burnupSection");
-    this.burnupChart = document.getElementById("burnupChart");
+    this.modal = document.querySelector(SELECTORS.MODAL_WRAPPER);
+    this.addUserbutton = document.getElementById(
+      SELECTORS.ADD_USER_MODAL_TRIGGER
+    );
+    this.agileNav = document.getElementById(SELECTORS.AGILE_NAV);
+    this.burnupToggle = document.getElementById(SELECTORS.BURNUP_TOGGLE);
+    this.cfdToggle = document.getElementById(SELECTORS.CFD_TOGGLE);
+    this.tagToggle = document.getElementById(SELECTORS.TAG_TOGGLE);
+    this.closeSpan = Array.from(
+      document.getElementsByClassName(SELECTORS.CLOSE_BUTTONS)
+    );
+    this.cfdSection = document.getElementById(SELECTORS.CFD_SECTION);
+    this.cfdChart = document.getElementById(SELECTORS.CFD_CHART);
+    this.tagSection = document.getElementById(SELECTORS.TAG_SECTION);
+    this.tagChart = document.getElementById(SELECTORS.TAG_CHART);
+    this.burnupSection = document.getElementById(SELECTORS.BURNUP_SECTION);
+    this.burnupChart = document.getElementById(SELECTORS.BURNUP_CHART);
     this.currentProjectId =
       this.currentUrl.split("/project/")[1]?.split("?")[0] ?? null;
     this.addEventListeners();
     await this.loadInitialData();
     this.parseCFDdata(this.kanbanData);
     this.parseBurnupData(this.kanbanData);
+    this.parseTAGData(this.kanbanData);
   }
   /**
    * A reusable method to get an HTML element and provide a warning if not found.
@@ -149,8 +154,6 @@ class ProjectUI {
   async parseBurnupData(rawdata) {
     let dataParcer = new Burnup_ChartElement(rawdata);
     let Burnupdata = dataParcer.create();
-    console.dir(Burnupdata);
-    console.log(Burnupdata);
     if (this.burnupChart) {
       new Chart(this.burnupChart, {
         type: "line",
@@ -181,10 +184,7 @@ class ProjectUI {
             },
           },
           plugins: {
-            colorschemes: {
-              scheme: "brewer.Reds7",
-              fillAlpha: 1.0,
-            },
+            colorschemes: false,
           },
         },
       });
@@ -193,8 +193,6 @@ class ProjectUI {
   async parseCFDdata(rawdata) {
     let dataParcer = new CFD_ChartElement(rawdata);
     let CFDdata = dataParcer.create();
-    console.dir(CFDdata);
-    console.log(CFDdata);
     if (this.cfdChart) {
       new Chart(this.cfdChart, {
         type: "line",
@@ -231,6 +229,262 @@ class ProjectUI {
             },
           },
         },
+      });
+    }
+  }
+  async parseTAGData(rawdata) {
+    const dataParcer = new TAG_ChartElement(rawdata);
+    const tagData = dataParcer.getDataSet().flat();
+    const labels = dataParcer.getXVariables();
+    const docLabels = dataParcer.getDocumentTitlesArray();
+    const percentiles = dataParcer.getPercentiles();
+    const columnPercentiles = dataParcer.perColumnPercents();
+    this.oldestTask = dataParcer.firstTaskEver;
+    if (this.tagChart) {
+      new Chart(this.tagChart, {
+        data: {
+          labels,
+          datasets: [
+            {
+              type: "scatter",
+              label: "Aging Work In Progress",
+              data: tagData,
+              backgroundColor: "rgb(0,0,0)",
+              datalabels: { display: false },
+            },
+            {
+              type: "line",
+              borderDash: [5, 5],
+              radius: 0,
+              label: "50%",
+              data: [
+                { x: -99, y: percentiles[0] },
+                { x: 2, y: percentiles[0] },
+                { x: 99, y: percentiles[0] },
+              ],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value, context) {
+                  return "50%";
+                },
+                display: "auto",
+                anchor: "end",
+                align: "top",
+                offset: -3,
+                fill: false,
+              },
+            },
+            {
+              type: "line",
+              borderDash: [5, 5],
+              radius: 0,
+              label: "70%",
+              data: [
+                { x: -99, y: percentiles[1] },
+                { x: 3, y: percentiles[1] },
+                { x: 99, y: percentiles[1] },
+              ],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value, context) {
+                  return "70%";
+                },
+                display: "auto",
+                anchor: "end",
+                align: "bottom",
+                offset: -3,
+                fill: false,
+              },
+            },
+            {
+              type: "line",
+              borderDash: [5, 5],
+              radius: 0,
+              label: "85",
+              data: [
+                { x: -99, y: percentiles[2] },
+                { x: 2, y: percentiles[2] },
+                { x: 99, y: percentiles[2] },
+              ],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value, context) {
+                  return "85%";
+                },
+                display: "auto",
+                anchor: "end",
+                align: "bottom",
+                offset: -3,
+                fill: false,
+              },
+            },
+            {
+              type: "line",
+              borderDash: [5, 5],
+              radius: 0,
+              label: "95%",
+              data: [
+                { x: -99, y: percentiles[3] },
+                { x: 3, y: percentiles[3] },
+                { x: 99, y: percentiles[3] },
+              ],
+              backgroundColor: "rgba(255, 255, 255, 0)",
+              borderColor: "rgb(0, 0, 0)",
+              datalabels: {
+                formatter: function (value, context) {
+                  return "95%";
+                },
+                display: true,
+                anchor: "end",
+                align: "bottom",
+                offset: -3,
+                fill: false,
+              },
+              legend: { hidden: true },
+            },
+            {
+              type: "bar",
+              label: "0-49",
+              data: columnPercentiles[0],
+              backgroundColor: "rgba(0, 255, 127, .4)",
+              borderSkipped: true,
+              categoryPercentage: 1,
+              barPercentage: 1,
+              stack: "columns",
+              datalabels: {
+                display: false,
+              },
+              legend: { hidden: true },
+            },
+            {
+              type: "bar",
+              label: "51-70",
+              data: columnPercentiles[1],
+              backgroundColor: "rgba(0, 255, 0, .6)",
+              borderSkipped: true,
+              stack: "columns",
+              categoryPercentage: 1,
+              barPercentage: 1,
+              datalabels: {
+                display: false,
+              },
+              legend: { hidden: true },
+            },
+            {
+              type: "bar",
+              label: "70-84",
+              data: columnPercentiles[2],
+              backgroundColor: "rgba(255, 255, 0, 1)",
+              borderSkipped: true,
+              stack: "columns",
+              categoryPercentage: 1,
+              barPercentage: 1,
+              datalabels: {
+                display: false,
+              },
+              legend: { hidden: true },
+            },
+            {
+              type: "bar",
+              label: "85-94",
+              data: columnPercentiles[3],
+              backgroundColor: "rgba(255, 127, 0, 1)",
+              borderSkipped: true,
+              stack: "columns",
+              categoryPercentage: 1,
+              barPercentage: 1,
+              datalabels: {
+                display: false,
+              },
+              legend: { hidden: true },
+            },
+            {
+              type: "bar",
+              label: "95-100",
+              data: columnPercentiles[4],
+              backgroundColor: "rgba(255, 0, 0, 1)",
+              borderColor: "rgb(0, 0, 0)",
+              borderSkipped: true,
+              stack: "columns",
+              categoryPercentage: 1,
+              barPercentage: 1,
+              datalabels: {
+                display: false,
+              },
+              legend: { hidden: true },
+            },
+          ],
+        },
+        options: {
+          borderWidth: 1,
+          responsive: true,
+          scales: {
+            y: {
+              position: "left",
+              beginAtZero: true,
+              max: this.oldestTask,
+              ticks: {
+                color: "#000000",
+              },
+            },
+            x: {
+              offset: true,
+              position: "left",
+              min: 0,
+              max: 3,
+              type: "linear",
+              display: true,
+              ticks: {
+                align: "center",
+                stepSize: 1,
+                callback: function (val, index) {
+                  return labels[index] || "";
+                },
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              labels: {
+                filter: function (item, chart) {
+                  return item.text === "Aging Work In Progress";
+                },
+              },
+            },
+            colorschemes: false,
+            tooltip: {
+              callbacks: {
+                title: function (tooltipItems) {
+                  if (tooltipItems[0].dataset.type !== "bar") {
+                    return (
+                      `${docLabels[tooltipItems[0]?.dataIndex]}` || "Unknown"
+                    );
+                  }
+                  return "";
+                },
+                label: function (context) {
+                  if (context.dataset.type === "bar") {
+                    return [
+                      `${context.dataset.label} of task`,
+                      `are completed in ${context.formattedValue} days`,
+                    ];
+                  }
+                  if (context.dataset.type === "scatter") {
+                    return [
+                      `Age: ${Math.round(context.raw.y)} days`,
+                      `Column: ${context.raw.x}`,
+                    ];
+                  }
+                },
+              },
+              intersect: false,
+            },
+          },
+        },
+        plugins: [ChartDataLabels],
       });
     }
   }
@@ -301,8 +555,6 @@ let project;
 class CFD_ChartElement {
   /** Optional display label for the chart */
   label;
-  /** Optional raw Chart.js data structure (unused directly in this flow) */
-  data;
   /** Fill style used in the chart (usually 'origin' for stacked area effect) */
   fill;
   /** Full raw input Kanban data */
@@ -328,7 +580,7 @@ class CFD_ChartElement {
     this.rawData = paramData;
     this.label = "";
     this.fill = true;
-    this.columnArray = this.rawData.columns;
+    this.columnArray = paramData?.columns ?? [];
     this.docsArray = [];
     this.columnLifeTimeMap = new Map();
     this.columnLifeTimeArray = null;
@@ -342,13 +594,14 @@ class CFD_ChartElement {
   create() {
     this.getDocumentArray();
     this.getColumnLifeTimeArray();
-    this.getlifeTimeMap();
-    return this.getDateSet();
+    this.getLifeTimeMap();
+    return this.getDataSet();
   }
   /**
    * Gathers all documents across columns and flattens them into a single list.
    */
   getDocumentArray() {
+    this.docsArray = [];
     this.columnArray.forEach((column) => {
       if (column.documents.length > 0) {
         this.docsArray.push(...column.documents.flat());
@@ -367,7 +620,7 @@ class CFD_ChartElement {
    * Builds a Map of column lifecycle deltas.
    * +1 for entry, -1 for exit based on timestamp order.
    */
-  getlifeTimeMap() {
+  getLifeTimeMap() {
     if (this.columnLifeTimeArray) {
       this.columnLifeTimeArray.forEach((lifetimeArray) => {
         Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
@@ -386,7 +639,7 @@ class CFD_ChartElement {
    * Each column gets a line showing cumulative document count over time.
    * @returns Array of Chart.js dataset objects
    */
-  getDateSet() {
+  getDataSet() {
     //using a set to exclude duplicates
     const allTimestampsSet = new Set();
     // Collect all timestamps from all columns to be able to add up the values to stack. in milliseconds
@@ -431,8 +684,6 @@ class CFD_ChartElement {
 class Burnup_ChartElement {
   /** Optional display label for the chart */
   label;
-  /** Optional raw Chart.js data structure (unused directly in this flow) */
-  data;
   /** Fill style used in the chart (usually 'origin' for stacked area effect) */
   fill;
   /** Full raw input Kanban data */
@@ -472,8 +723,8 @@ class Burnup_ChartElement {
   create() {
     this.getDocumentArray();
     this.getColumnLifeTimeArray();
-    this.getlifeTimeMap();
-    return this.getDateSet();
+    this.getLifeTimeMap();
+    return this.getDataSet();
   }
   /**
    * Gathers all documents across columns and flattens them into a single list.
@@ -497,7 +748,7 @@ class Burnup_ChartElement {
    * Builds a Map of column lifecycle deltas.
    * +1 for entry, -1 for exit based on timestamp order.
    */
-  getlifeTimeMap() {
+  getLifeTimeMap() {
     if (this.columnLifeTimeArray) {
       this.columnLifeTimeArray.forEach((lifetimeArray) => {
         Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
@@ -534,6 +785,8 @@ class Burnup_ChartElement {
     return {
       label,
       data,
+      backgroundColor: "rgb(204, 65, 58)",
+      borderColor: "rgb(204, 65, 58)",
     };
   }
   /**
@@ -541,7 +794,7 @@ class Burnup_ChartElement {
    * Each column gets a line showing cumulative document count over time.
    * @returns Array of Chart.js dataset objects
    */
-  getDateSet() {
+  getDataSet() {
     // This'll be the creation times for each document.
     let docBirthTimes = [];
     // This will be the title for the last column
@@ -571,47 +824,288 @@ class Burnup_ChartElement {
       totalDocs.push({ x: object.x, y: sittingY });
       totalDocs.sort((a, b) => a.x - b.x);
     });
-    /*if(this.rawData){
-          const requestedData = this.rawData?.columns
-          for (let i =0 ;i < requestedData.length;i++){
-            requestedData[i].documents.forEach(document => {
-    
-    
-              for (const [key, value] of Object.entries(document.columnLifeTime)) {
-                console.log(`${key}: ${value}`);
-                docBirthTimes.push({
-                    x: value[0],
-                    y: docBirthTimes.length,
-                  });
-                  completedBirthTimes.push({
-                    x: value[0],
-                    y: completedBirthTimes.length,
-                  });
-              if (i === requestedData.length-1){
-                for (const [key, value] of Object.entries(document.columnLifeTime)) {
-                  console.log(`${key}: ${value}`);
-                  // completedBirthTimes.push (value[0])
-                  completedBirthTimes.push({
-                    x: value[0],
-                    y: completedBirthTimes.length,
-                  });
-                }
-              }
-                return
-              }
-            });
-          }
-        }*/
     const datasets = [];
     datasets.push({
       label: "Total Documents",
       data: totalDocs,
+      backgroundColor: "rgb(116, 27, 26)",
+      borderColor: "rgb(116, 27, 26)",
     });
     datasets.push(completedBirthTimes);
     return datasets;
+  }
+}
+/**
+ * TAG_ChartElement transforms Kanban board data into visual insights using Chart.js.
+ * It’s designed to reveal document flow, aging trends, and lifecycle patterns — not just to display data,
+ * but to help teams understand bottlenecks and optimize throughput.
+ */
+class TAG_ChartElement {
+  /** Label shown on the chart — useful for identifying the dataset when multiple charts are rendered. */
+  label;
+  /** Determines how the area under the chart is filled — 'origin' creates a stacked effect for cumulative flow. */
+  fill;
+  /** Stores the original Kanban data so downstream methods can trace back to source structure. */
+  rawData;
+  /** Extracted column definitions — used to map document flow and build axes. */
+  columnArray;
+  /** Flattened list of all documents — centralizing them simplifies lifecycle and aging calculations. */
+  docsArray;
+  /**
+   * Tracks when documents enter and exit each column.
+   * The +1/-1 pattern enables cumulative flow analysis by showing net document movement over time.
+   */
+  columnLifeTimeMap;
+  /**
+   * Captures each document’s journey through the board.
+   * This structure is critical for understanding individual document aging and column-specific cycle times.
+   */
+  columnLifeTimeArray;
+  /**
+   * Final dataset passed to Chart.js.
+   * Built to reflect document aging and flow, not just raw counts — enabling more meaningful visualizations.
+   */
+  dataSet;
+  /**
+   * Tracks the longest document cycle time.
+   * Used as a baseline for percentile calculations and aging comparisons.
+   */
+  firstTaskEver = null;
+  /**
+   * Initializes the parser with Kanban data.
+   * @param paramData Raw Kanban structure containing columns and documents
+   */
+  constructor(paramData) {
+    this.rawData = paramData;
+    this.label = "";
+    this.fill = true;
+    this.columnArray = this.rawData.columns;
+    this.docsArray = [];
+    this.columnLifeTimeMap = new Map();
+    this.columnLifeTimeArray = null;
+    this.dataSet = [];
+  }
+  /**
+   * Main entry point for dataset generation.
+   * Separates chart logic from data parsing, making it easier to plug into external renderers or pipelines.
+   */
+  create() {
+    return this.getDataSet();
+  }
+  /**
+   * Calculates how long it takes for 50%, 70%, 85%, 95%, and 100% of documents to complete each column.
+   * This helps teams identify which stages are slowing down progress — not just how long tasks take,
+   * but how consistently they flow through each phase.
+   */
+  perColumnPercents() {
+    let columnMap = new Map();
+    this.columnArray.forEach((e, i) => columnMap.set(e.id, i));
+    let daysPerColumnArray = Array.from({ length: columnMap.size }, () => []);
+    this.columnLifeTimeArray?.forEach((doc, i, a) => {
+      for (let [key, columnTemp] of Object.entries(doc)) {
+        let column = columnTemp;
+        if (column.length % 2 === 0) {
+          for (let j = 0; j < column.length; j = j + 2) {
+            let days = this.convertToDays(column[j + 1] - column[j]);
+            daysPerColumnArray[columnMap.get(key)].push(days);
+          }
+        }
+      }
+    });
+    const p = [50, 70, 85, 95, 100];
+    let oldestDoc = 0;
+    daysPerColumnArray
+      .flat()
+      .forEach((e) =>
+        e > oldestDoc ? (oldestDoc = e) : (oldestDoc = oldestDoc)
+      );
+    this.firstTaskEver = oldestDoc;
+    daysPerColumnArray = daysPerColumnArray.map((e) => e.sort((a, b) => a - b));
+    let cDay = 0;
+    let FivePercentileArrays = [
+      [],
+      [],
+      [],
+      [],
+      [Array.from({ length: columnMap.size }, () => oldestDoc)],
+    ];
+    let memo = [[], [], [], [], []];
+    let columnAging = FivePercentileArrays.map((per, i) => {
+      return daysPerColumnArray.map((aArray, j, a) => {
+        let perNum = per.flat() ?? 0;
+        let n = aArray.length;
+        let c = Math.max(0, Math.ceil((p[i] / 100) * n - 1));
+        memo[i][j] = aArray[c];
+        if (i - 1 >= 0) {
+          const curr = perNum[j] ?? 0;
+          const mem = memo[i]?.[j] ?? 0;
+          const prev = memo[i - 1]?.[j] ?? 0;
+          cDay = Math.abs(Math.max(mem, curr) - prev);
+          memo[i][j] = cDay + prev || 0;
+        } else {
+          cDay = Math.max(0, memo[i][j]);
+        }
+        if (j === daysPerColumnArray.length - 1) {
+          cDay = 0;
+        }
+        return { x: j, y: cDay };
+      });
+    });
+    return columnAging;
+  }
+  /**
+   * Finds the value at a given percentile in a sorted array.
+   * Used to quantify aging trends — e.g., “How long does it take for 85% of tasks to finish?”
+   */
+  getPercentile(sorted, percentile) {
+    const index = Math.ceil((percentile / 100) * sorted.length) - 1;
+    return sorted[Math.max(0, index)];
+  }
+  /**
+   * Measures overall cycle time percentiles for completed documents.
+   * Focuses on the last column to determine when tasks are truly done — filtering out partial progress.
+   */
+  getPercentiles() {
+    const lastColumn = this.rawData?.columns.at(-1)?.id;
+    if (!lastColumn) return [];
+    this.getLifeTimeMap();
+    this.getColumnLifeTimeArray();
+    const completedList =
+      this.columnLifeTimeArray?.flatMap((doc) => {
+        if (!Object.hasOwn(doc, lastColumn)) return [];
+        let lifeSpan = [Number.MAX_SAFE_INTEGER, 0];
+        for (let column in doc) {
+          doc[column].forEach((ts) => {
+            lifeSpan[0] = Math.min(lifeSpan[0], ts);
+            lifeSpan[1] = Math.max(lifeSpan[1], ts);
+          });
+        }
+        return [lifeSpan];
+      }) ?? [];
+    const fullCycleTimes = completedList.map(([start, end]) =>
+      this.convertToDays(end - start)
+    );
+    const sorted = fullCycleTimes.sort((a, b) => a - b);
+    return [50, 70, 85, 95].map((p) => this.getPercentile(sorted, p));
+  }
+  /**
+   * Builds a timestamp map showing when documents enter and exit each column.
+   * The alternating +1/-1 pattern is intentional: it enables cumulative flow tracking by simulating net movement.
+   */
+  getLifeTimeMap() {
+    if (this.columnLifeTimeArray) {
+      this.columnLifeTimeArray.forEach((lifetimeArray) => {
+        Object.entries(lifetimeArray).forEach(([columnName, timestamps]) => {
+          timestamps.forEach((time, i) => {
+            const addORSubtract = i % 2 === 0 ? 1 : -1;
+            const currentMap = this.columnLifeTimeMap.get(columnName) ?? {};
+            currentMap[time] = addORSubtract;
+            this.columnLifeTimeMap.set(columnName, currentMap);
+          });
+        });
+      });
+    }
+  }
+  /**
+   * Extracts document titles for display or debugging.
+   * Useful when you need to trace specific tasks through the chart or validate dataset integrity.
+   */
+  getDocumentArray() {
+    this.columnArray.forEach((column) => {
+      if (column.documents.length > 0) {
+        this.docsArray.push(...column.documents.flat());
+      }
+    });
+  }
+  /**
+   * Extracts document titles for display or debugging.
+   * Useful when you need to trace specific tasks through the chart or validate dataset integrity.
+   */
+  getDocumentTitlesArray() {
+    return this.docsArray.map((e) => e.title);
+  }
+  /**
+   * Pulls lifecycle data from each document.
+   * This step is crucial — it connects raw timestamps to column IDs, enabling aging and flow analysis.
+   */
+  getColumnLifeTimeArray() {
+    this.columnLifeTimeArray = this.docsArray.map(
+      (aDocument) => aDocument.columnLifeTime
+    );
+  }
+  /**
+   * Extracts column titles to use as X-axis labels.
+   * These labels reflect workflow stages — not just categories, but the actual process flow.
+   */
+  getXVariables() {
+    let xAxisTitles = this.columnArray.map((column) => column.title);
+    return xAxisTitles;
+  }
+  /**
+   * Calculates how long each document has been in its current column.
+   * This reveals aging patterns — helping teams spot tasks that are stagnating or overdue.
+   */
+  getYAxisAges() {
+    let timeStamps = this.getTimeEnteredColumn();
+    return this.daysSince(timeStamps);
+  }
+  /**
+   * Converts timestamps to age in days.
+   * Normalizes data to a human-readable format — milliseconds aren’t intuitive for cycle time analysis.
+   */
+  daysSince(ArrayDateArray) {
+    const now = Date.now();
+    const output = ArrayDateArray.map((dateArray) =>
+      dateArray.map((aDate) => this.convertToDays(now - aDate))
+    );
+    return output;
+  }
+  /**
+   * Extracts the entry time for each document in each column.
+   * Assumes the first timestamp marks entry — this simplifies aging calculations but relies on consistent data structure.
+   */
+  getTimeEnteredColumn() {
+    const timeStampArray = this.columnArray.map((column) =>
+      column.documents.map((doc) => doc.columnLifeTime[column.id][0])
+    );
+    return timeStampArray;
+  }
+  /**
+   * Converts milliseconds to days.
+   * Used throughout aging and percentile calculations to keep units consistent and interpretable.
+   */
+  convertToDays(ms) {
+    return Math.floor(ms / 86400000);
+  }
+  /**
+   * Builds the final dataset for Chart.js.
+   * Each point represents a document’s age in a column — jitter is added to reduce visual overlap and improve readability.
+   * The goal isn’t just to show data, but to make patterns in document aging immediately visible.
+   */
+  getDataSet() {
+    this.getDocumentArray();
+    const yAxis = this.getYAxisAges();
+    const xAxis = this.getXVariables();
+    let sign = -1;
+    const jitter = () => {
+      let a = sign * 0.05;
+      sign = sign * -1;
+      return a;
+    };
+    const data = yAxis.map((column, i) => {
+      if (i !== 0 && i !== yAxis.length - 1) {
+        return column.map((days) => {
+          return { x: i, y: Math.abs(days) + jitter() };
+        });
+      } else {
+        return [{ x: i, y: null }];
+      }
+    });
+    return data;
   }
 }
 document.addEventListener("DOMContentLoaded", () => {
   //create the instance Of the project after the DOM is loaded so everything can get initialized correctly
   project = new ProjectUI();
 });
+export {};
