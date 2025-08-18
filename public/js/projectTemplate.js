@@ -2,19 +2,19 @@ console.log("projectTemplate script is loaded");
 // --- Constants ---
 // Centralize selectors to avoid magic strings and improve maintainability
 const SELECTORS = {
-  MODAL_WRAPPER: ".modalWrapper",
-  ADD_USER_MODAL_TRIGGER: "addUserModalTrigger",
-  AGILE_NAV: "ButtonsVisability",
-  BURNUP_TOGGLE: "burnupVisability",
-  CFD_TOGGLE: "cfdVisability",
-  TAG_TOGGLE: "tagVisability",
-  CLOSE_BUTTONS: "close",
-  BURNUP_SECTION: "burnupSection",
-  CFD_SECTION: "cfdSection",
-  TAG_SECTION: "tagSection",
-  BURNUP_CHART: "burnupChart",
-  CFD_CHART: "cfdChart",
-  TAG_CHART: "tagChart",
+    MODAL_WRAPPER: ".modalWrapper",
+    ADD_USER_MODAL_TRIGGER: "addUserModalTrigger",
+    AGILE_NAV: "ButtonsVisability",
+    BURNUP_TOGGLE: "burnupVisability",
+    CFD_TOGGLE: "cfdVisability",
+    TAG_TOGGLE: "tagVisability",
+    CLOSE_BUTTONS: "close",
+    BURNUP_SECTION: "burnupSection",
+    CFD_SECTION: "cfdSection",
+    TAG_SECTION: "tagSection",
+    BURNUP_CHART: "burnupChart",
+    CFD_CHART: "cfdChart",
+    TAG_CHART: "tagChart",
 };
 class ProjectUI {
   // public dataSet: ChartDataset<"line" | "bar", number[]>[];
@@ -840,6 +840,11 @@ class Burnup_ChartElement {
  * It’s designed to reveal document flow, aging trends, and lifecycle patterns — not just to display data,
  * but to help teams understand bottlenecks and optimize throughput.
  */
+/**
+ * TAG_ChartElement transforms Kanban board data into visual insights using Chart.js.
+ * It’s designed to reveal document flow, aging trends, and lifecycle patterns — not just to display data,
+ * but to help teams understand bottlenecks and optimize throughput.
+ */
 class TAG_ChartElement {
   /** Label shown on the chart — useful for identifying the dataset when multiple charts are rendered. */
   label;
@@ -1105,7 +1110,8 @@ class TAG_ChartElement {
   }
 }
 document.addEventListener("DOMContentLoaded", () => {
-  //create the instance Of the project after the DOM is loaded so everything can get initialized correctly
-  project = new ProjectUI();
+    //create the instance Of the project after the DOM is loaded so everything can get initialized correctly
+    project = new ProjectUI();
 });
+export {};
 export {};

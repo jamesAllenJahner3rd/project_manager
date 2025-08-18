@@ -883,8 +883,10 @@ function init(emittedBoard = null, emitted = false) {
     async function handleColumnSubmit(event) {
         event.preventDefault();
         const columnContent = document.getElementById("columnContent")?.value;
-        const maxDocuments = document.getElementById("maxDocuments").value ||
+        let maxDocuments = document.getElementById("maxDocuments").value ||
             "∞";
+        if (maxDocuments === "0")
+            maxDocuments = "∞";
         const column = {
             id: `column-${Date.now()}`,
             title: columnContent,
