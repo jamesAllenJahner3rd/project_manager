@@ -397,7 +397,8 @@ function saveToLocalStorage() {
         ///string to array
         let blockTimeStamp = el.dataset.blockTimeStamp ?? "";
         let blockTimeStampArray: any[] = blockTimeStamp.split(",");
-        blockTimeStampArray = blockTimeStampArray.flatMap((aString) =>  aString?  Number(aString): []    
+        blockTimeStampArray = blockTimeStampArray.flatMap((aString) =>
+          aString ? Number(aString) : []
         );
         return {
           id: el.id,
@@ -674,8 +675,8 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
 
       // savedDoc.blockTimeStamp.forEach((e) => tempTimeStamp.concat(`,${e}`));
       // target.parentElement.dataset.blockTimeStamp = tempTimeStamp;
-      target.parentElement.dataset.blockTimeStamp= target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
-
+      target.parentElement.dataset.blockTimeStamp =
+        target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`);
     }
 
     // target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
@@ -1098,22 +1099,21 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
     createColumnForm?.removeEventListener("submit", handleColumnSubmit);
     createColumnForm?.addEventListener("submit", handleColumnSubmit);
   }
-  if (filterDocumentForm !== null && listOfColumn.length > 0) {
-    filterDocumentForm?.removeEventListener("submit", setDocumentFilter);
-    filterDocumentForm?.addEventListener("submit", setDocumentFilter);
+  // Always attach submit handler so event.preventDefault() prevents reload
+  if (filterDocumentForm !== null) {
+    filterDocumentForm.removeEventListener("submit", setDocumentFilter);
+    filterDocumentForm.addEventListener("submit", setDocumentFilter);
   }
-
-  // filterDocumentForm.addEventListener("click", (e) => setDocumentFilter(e));
 
   async function handleColumnSubmit(event: SubmitEvent) {
     event.preventDefault();
     const columnContent = (
       document.getElementById("columnContent") as HTMLInputElement
     )?.value;
-    let maxDocuments :string =
+    let maxDocuments: string =
       (document.getElementById("maxDocuments") as HTMLInputElement).value ||
       "∞";
-      if(maxDocuments === "0" )  maxDocuments = "∞";
+    if (maxDocuments === "0") maxDocuments = "∞";
     const column: Column = {
       id: `column-${Date.now()}`,
       title: columnContent,
@@ -1434,7 +1434,7 @@ async function setDocumentFilter(event: any) {
   (documentList as HTMLLIElement[]).forEach(
     (li) => (li.style.display = "none")
   );
-  (
-    document.querySelector("div:has(#filterDocumentForm)") as HTMLDivElement
-  ).style.display = "none";
+  // hide the modal wrapper safely (avoid unsupported :has selector)
+  const filterModal = document.querySelector(".modal.modalWrapper") as HTMLElement | null;
+  if (filterModal) filterModal.style.display = "none";
 }

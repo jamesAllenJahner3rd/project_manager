@@ -5,14 +5,15 @@ console.log("Modal.js loaded");
 
 // let openedModal = null;
 function openModal(event) {
-  let target = event.target;
-  let currenttarget = event.currentTarget;
+  // let target = event.target;
+  // let currenttarget = event.currentTarget;
 
   const openedModal = event.target;
   let toggledElement = openedModal.nextElementSibling;
   const span = toggledElement.querySelector(".close");
 
-  let theForm = toggledElement?.firstElementChild || null; //fixed an error before the element loads.
+  // locate the form element inside the modal (guarded)
+  const theForm = toggledElement?.querySelector("form") || null;
   toggledElement.addEventListener("click", function (event) {
     // console.log("click modal.js line 11");
     if (!theForm.contains(event.target)) {
@@ -52,4 +53,3 @@ const openFilterDocumentbutton = document.getElementById(
   "filterDocumentModalButton"
 );
 openFilterDocumentbutton?.addEventListener("click", openModal);
-
