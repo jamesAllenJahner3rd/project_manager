@@ -5,7 +5,7 @@
 export {};
 declare global {
   interface Window {
-    dragula: typeof import("dragula");
+    dragula: any;
   }
 }
 
@@ -613,7 +613,7 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
   docLabelsTitle.textContent = "Labels:";
   const docLabelsList = document.createElement("p");
   docLabelsList.className = "labelsList";
-  docLabelsList.textContent = `${savedDoc.labels.join(" ")}`;
+  docLabelsList.textContent = `${savedDoc.labels.join(" ")} `;
   docLabelsList.addEventListener("dblclick", () => edit(docLabelsList));
   // console.log(docLabelsList.textContent);
 
@@ -647,7 +647,7 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
       target.parentElement &&
       target.parentElement.dataset.blocked === "false"
     ) {
-      blockedButton.textContent = "Blocked?";
+      blockedButton.textContent = "Actionable";
       blockedButton.style.backgroundColor = "lightGrey";
       blockedButton.style.boxShadow = "1px 1px";
       target.parentElement.dataset.blocked = "true";
@@ -821,7 +821,7 @@ function reinitializeDragula(
   if (columnDrake) columnDrake.destroy();
 
   columnDrake = window.dragula([dragparent], {
-    moves: (el, container, handle) => {
+    moves: (el: any, container: any, handle: any) => {
       return !!(
         el &&
         handle &&
@@ -829,7 +829,7 @@ function reinitializeDragula(
         (handle.tagName === "NAV" || handle?.parentElement?.tagName === "NAV")
       );
     },
-    accepts: (el, target) => {
+    accepts: (el: any, target: any) => {
       return !!(
         el &&
         el.classList &&
@@ -854,7 +854,7 @@ function reinitializeDragula(
     .filter((container): container is HTMLUListElement => container !== null);
 
   documentDrake = window.dragula(documentContainers, {
-    moves: (el, container, handle) => {
+    moves: (el: any, container: any, handle: any) => {
       return !!(el && el.classList && el.classList.contains("dragDocument"));
     },
     accepts: (el: any, target: any) => {
@@ -1155,9 +1155,9 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
       .filter((container): container is HTMLDivElement => container !== null);
 
     documentDrake = window.dragula(documentContainers, {
-      moves: (el, container, handle) =>
+      moves: (el: any, container: any, handle: any) =>
         !!(el && el.classList.contains("dragDocument")),
-      accepts: (el, target) =>
+      accepts: (el: any, target: any) =>
         !!(target && target.classList.contains("documents-container")),
     });
 
@@ -1338,6 +1338,7 @@ socket.on("disconnect", () => {
 });
 async function setDocumentFilter(event: any) {
   event.preventDefault();
+
   document
     .querySelectorAll("li")
     .forEach((li) => ((li as HTMLLIElement).style.display = "flex"));
@@ -1345,11 +1346,12 @@ async function setDocumentFilter(event: any) {
     (document.getElementById("filterAssignee") as HTMLInputElement).value
       .toLowerCase()
       .trim() ?? "";
-  const labels: string[] =
-    (document.getElementById("filterLabel") as HTMLInputElement).value
-      .toLowerCase()
-      .trim()
-      .split(" ") ?? "";
+  const labels: string[] = (
+    document.getElementById("filterLabel") as HTMLInputElement
+  ).value
+    .toLowerCase()
+    .trim()
+    .split(" ") ?? [""];
   const filterTitle: string =
     (document.getElementById("filterTitle") as HTMLInputElement).value
       .toLowerCase()
@@ -1360,8 +1362,8 @@ async function setDocumentFilter(event: any) {
       .trim() ?? "";
 
   const filteredCriterion = [assignee, labels, filterTitle, filterWord];
-  if (listOfColumn.length > 0) {
-    setStateList();
+  if (listOfColumn.length === 0) {
+    let { listOfColumn } = setStateList();
   }
   let documentList = listOfColumn.flatMap((ul) => {
     let tempList = [];
@@ -1435,6 +1437,8 @@ async function setDocumentFilter(event: any) {
     (li) => (li.style.display = "none")
   );
   // hide the modal wrapper safely (avoid unsupported :has selector)
-  const filterModal = document.querySelector(".modal.modalWrapper") as HTMLElement | null;
+  const filterModal = document.querySelector(
+    "div:has(#filterDocumentForm)"
+  ) as HTMLElement | null;
   if (filterModal) filterModal.style.display = "none";
 }
