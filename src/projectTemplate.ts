@@ -38,11 +38,13 @@ interface Column {
   title: string;
   backgroundColor: Color;
 
+
   documents: KanbanDocument[];
   maxKanbanDocuments: number | string;
   canAddKanbanDocuments: boolean;
   canChangeKanbanDocumentColor: boolean;
   canDeleteKanbanDocuments: boolean;
+
 }
 interface figureData {
   labels: string[] | null;
@@ -291,6 +293,7 @@ class ProjectUI {
       });
     }
   }
+
   private async parseCFDdata(rawdata: KanbanData) {
     let dataParcer = new CFD_ChartElement(rawdata);
     let CFDdata: any = dataParcer.create();
@@ -801,6 +804,7 @@ class CFD_ChartElement {
     return datasets;
   }
 }
+
 class Burnup_ChartElement {
   /** Optional display label for the chart */
   public label?: string;
