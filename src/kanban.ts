@@ -1110,10 +1110,12 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
     const columnContent = (
       document.getElementById("columnContent") as HTMLInputElement
     )?.value;
+
     let maxDocuments: string =
       (document.getElementById("maxDocuments") as HTMLInputElement).value ||
       "∞";
     if (maxDocuments === "0") maxDocuments = "∞";
+      
     const column: Column = {
       id: `column-${Date.now()}`,
       title: columnContent,
