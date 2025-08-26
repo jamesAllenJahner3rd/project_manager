@@ -472,7 +472,7 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
     docLabelsTitle.textContent = "Labels:";
     const docLabelsList = document.createElement("p");
     docLabelsList.className = "labelsList";
-    docLabelsList.textContent = `${savedDoc.labels.join(" ")}`;
+    docLabelsList.textContent = `${savedDoc.labels.join(" ")} `;
     docLabelsList.addEventListener("dblclick", () => edit(docLabelsList));
     // console.log(docLabelsList.textContent);
     // Create icon container div
@@ -501,7 +501,7 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
         if (target != null &&
             target.parentElement &&
             target.parentElement.dataset.blocked === "false") {
-            blockedButton.textContent = "Blocked?";
+            blockedButton.textContent = "Actionable";
             blockedButton.style.backgroundColor = "lightGrey";
             blockedButton.style.boxShadow = "1px 1px";
             target.parentElement.dataset.blocked = "true";
@@ -525,7 +525,8 @@ function createDocumentFromSaved(savedDoc, columnIndex = 0) {
             let tempTimeStamp = "";
             // savedDoc.blockTimeStamp.forEach((e) => tempTimeStamp.concat(`,${e}`));
             // target.parentElement.dataset.blockTimeStamp = tempTimeStamp;
-            target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`);
+            target.parentElement.dataset.blockTimeStamp =
+                target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`);
         }
         // target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
         // let tempTimeStamp: (number | string)[] = (target.parentElement.dataset.blockTimeStamp).split(",")
@@ -875,11 +876,11 @@ function init(emittedBoard = null, emitted = false) {
         createColumnForm?.removeEventListener("submit", handleColumnSubmit);
         createColumnForm?.addEventListener("submit", handleColumnSubmit);
     }
-    if (filterDocumentForm !== null && listOfColumn.length > 0) {
-        filterDocumentForm?.removeEventListener("submit", setDocumentFilter);
-        filterDocumentForm?.addEventListener("submit", setDocumentFilter);
+    // Always attach submit handler so event.preventDefault() prevents reload
+    if (filterDocumentForm !== null) {
+        filterDocumentForm.removeEventListener("submit", setDocumentFilter);
+        filterDocumentForm.addEventListener("submit", setDocumentFilter);
     }
-    // filterDocumentForm.addEventListener("click", (e) => setDocumentFilter(e));
     async function handleColumnSubmit(event) {
         event.preventDefault();
         const columnContent = document.getElementById("columnContent")?.value;
@@ -1085,7 +1086,7 @@ async function setDocumentFilter(event) {
     const labels = document.getElementById("filterLabel").value
         .toLowerCase()
         .trim()
-        .split(" ") ?? "";
+        .split(" ") ?? [""];
     const filterTitle = document.getElementById("filterTitle").value
         .toLowerCase()
         .trim() ?? "";
@@ -1093,8 +1094,8 @@ async function setDocumentFilter(event) {
         .toLowerCase()
         .trim() ?? "";
     const filteredCriterion = [assignee, labels, filterTitle, filterWord];
-    if (listOfColumn.length > 0) {
-        setStateList();
+    if (listOfColumn.length === 0) {
+        let { listOfColumn } = setStateList();
     }
     let documentList = listOfColumn.flatMap((ul) => {
         let tempList = [];
@@ -1150,6 +1151,9 @@ async function setDocumentFilter(event) {
         return tempList.flat();
     });
     documentList.forEach((li) => (li.style.display = "none"));
-    document.querySelector("div:has(#filterDocumentForm)").style.display = "none";
+    // hide the modal wrapper safely (avoid unsupported :has selector)
+    const filterModal = document.querySelector("div:has(#filterDocumentForm)");
+    if (filterModal)
+        filterModal.style.display = "none";
 }
 export {};

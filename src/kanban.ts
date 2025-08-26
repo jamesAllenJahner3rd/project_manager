@@ -5,7 +5,7 @@
 export {};
 declare global {
   interface Window {
-    dragula: typeof import("dragula");
+    dragula: any;
   }
 }
 
@@ -397,7 +397,8 @@ function saveToLocalStorage() {
         ///string to array
         let blockTimeStamp = el.dataset.blockTimeStamp ?? "";
         let blockTimeStampArray: any[] = blockTimeStamp.split(",");
-        blockTimeStampArray = blockTimeStampArray.flatMap((aString) =>  aString?  Number(aString): []    
+        blockTimeStampArray = blockTimeStampArray.flatMap((aString) =>
+          aString ? Number(aString) : []
         );
         return {
           id: el.id,
@@ -612,7 +613,7 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
   docLabelsTitle.textContent = "Labels:";
   const docLabelsList = document.createElement("p");
   docLabelsList.className = "labelsList";
-  docLabelsList.textContent = `${savedDoc.labels.join(" ")}`;
+  docLabelsList.textContent = `${savedDoc.labels.join(" ")} `;
   docLabelsList.addEventListener("dblclick", () => edit(docLabelsList));
   // console.log(docLabelsList.textContent);
 
@@ -646,7 +647,7 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
       target.parentElement &&
       target.parentElement.dataset.blocked === "false"
     ) {
-      blockedButton.textContent = "Blocked?";
+      blockedButton.textContent = "Actionable";
       blockedButton.style.backgroundColor = "lightGrey";
       blockedButton.style.boxShadow = "1px 1px";
       target.parentElement.dataset.blocked = "true";
@@ -674,8 +675,8 @@ function createDocumentFromSaved(savedDoc: Document, columnIndex = 0) {
 
       // savedDoc.blockTimeStamp.forEach((e) => tempTimeStamp.concat(`,${e}`));
       // target.parentElement.dataset.blockTimeStamp = tempTimeStamp;
-      target.parentElement.dataset.blockTimeStamp= target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
-
+      target.parentElement.dataset.blockTimeStamp =
+        target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`);
     }
 
     // target.parentElement.dataset.blockTimeStamp = target.parentElement.dataset.blockTimeStamp.concat(`,${Date.now()}`)
@@ -820,7 +821,7 @@ function reinitializeDragula(
   if (columnDrake) columnDrake.destroy();
 
   columnDrake = window.dragula([dragparent], {
-    moves: (el, container, handle) => {
+    moves: (el: any, container: any, handle: any) => {
       return !!(
         el &&
         handle &&
@@ -828,7 +829,7 @@ function reinitializeDragula(
         (handle.tagName === "NAV" || handle?.parentElement?.tagName === "NAV")
       );
     },
-    accepts: (el, target) => {
+    accepts: (el: any, target: any) => {
       return !!(
         el &&
         el.classList &&
@@ -853,7 +854,7 @@ function reinitializeDragula(
     .filter((container): container is HTMLUListElement => container !== null);
 
   documentDrake = window.dragula(documentContainers, {
-    moves: (el, container, handle) => {
+    moves: (el: any, container: any, handle: any) => {
       return !!(el && el.classList && el.classList.contains("dragDocument"));
     },
     accepts: (el: any, target: any) => {
@@ -1098,22 +1099,23 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
     createColumnForm?.removeEventListener("submit", handleColumnSubmit);
     createColumnForm?.addEventListener("submit", handleColumnSubmit);
   }
-  if (filterDocumentForm !== null && listOfColumn.length > 0) {
-    filterDocumentForm?.removeEventListener("submit", setDocumentFilter);
-    filterDocumentForm?.addEventListener("submit", setDocumentFilter);
+  // Always attach submit handler so event.preventDefault() prevents reload
+  if (filterDocumentForm !== null) {
+    filterDocumentForm.removeEventListener("submit", setDocumentFilter);
+    filterDocumentForm.addEventListener("submit", setDocumentFilter);
   }
-
-  // filterDocumentForm.addEventListener("click", (e) => setDocumentFilter(e));
 
   async function handleColumnSubmit(event: SubmitEvent) {
     event.preventDefault();
     const columnContent = (
       document.getElementById("columnContent") as HTMLInputElement
     )?.value;
-    let maxDocuments :string =
+
+    let maxDocuments: string =
       (document.getElementById("maxDocuments") as HTMLInputElement).value ||
       "∞";
-      if(maxDocuments === "0" )  maxDocuments = "∞";
+    if (maxDocuments === "0") maxDocuments = "∞";
+      
     const column: Column = {
       id: `column-${Date.now()}`,
       title: columnContent,
@@ -1155,9 +1157,9 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
       .filter((container): container is HTMLDivElement => container !== null);
 
     documentDrake = window.dragula(documentContainers, {
-      moves: (el, container, handle) =>
+      moves: (el: any, container: any, handle: any) =>
         !!(el && el.classList.contains("dragDocument")),
-      accepts: (el, target) =>
+      accepts: (el: any, target: any) =>
         !!(target && target.classList.contains("documents-container")),
     });
 
@@ -1338,6 +1340,7 @@ socket.on("disconnect", () => {
 });
 async function setDocumentFilter(event: any) {
   event.preventDefault();
+
   document
     .querySelectorAll("li")
     .forEach((li) => ((li as HTMLLIElement).style.display = "flex"));
@@ -1345,11 +1348,12 @@ async function setDocumentFilter(event: any) {
     (document.getElementById("filterAssignee") as HTMLInputElement).value
       .toLowerCase()
       .trim() ?? "";
-  const labels: string[] =
-    (document.getElementById("filterLabel") as HTMLInputElement).value
-      .toLowerCase()
-      .trim()
-      .split(" ") ?? "";
+  const labels: string[] = (
+    document.getElementById("filterLabel") as HTMLInputElement
+  ).value
+    .toLowerCase()
+    .trim()
+    .split(" ") ?? [""];
   const filterTitle: string =
     (document.getElementById("filterTitle") as HTMLInputElement).value
       .toLowerCase()
@@ -1360,8 +1364,8 @@ async function setDocumentFilter(event: any) {
       .trim() ?? "";
 
   const filteredCriterion = [assignee, labels, filterTitle, filterWord];
-  if (listOfColumn.length > 0) {
-    setStateList();
+  if (listOfColumn.length === 0) {
+    let { listOfColumn } = setStateList();
   }
   let documentList = listOfColumn.flatMap((ul) => {
     let tempList = [];
@@ -1434,7 +1438,9 @@ async function setDocumentFilter(event: any) {
   (documentList as HTMLLIElement[]).forEach(
     (li) => (li.style.display = "none")
   );
-  (
-    document.querySelector("div:has(#filterDocumentForm)") as HTMLDivElement
-  ).style.display = "none";
+  // hide the modal wrapper safely (avoid unsupported :has selector)
+  const filterModal = document.querySelector(
+    "div:has(#filterDocumentForm)"
+  ) as HTMLElement | null;
+  if (filterModal) filterModal.style.display = "none";
 }
