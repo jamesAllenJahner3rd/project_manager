@@ -1,0 +1,22 @@
+version: '3
+# services object where each key in that object represents adifferent container that we want to run
+services:
+  web:
+  # web to define our node.js app we've built
+    build: .
+    # use build to point the current weoking directory which  is where you can find the docker file
+    ports:
+      -"8080":8080"
+      # define the port forwarding configuration
+  db:
+  #  a separate contrainer  which is the mysql database process
+    image: "mysql"
+    environment:
+      - MYSQL_ROOT_PASSWORD:PASSWORD
+    volumnes:
+    - db-data:/foo
+
+#define a volume to store the database data across  multiple containers
+# then mount the volume in our db container
+volumes: 
+  db-data:
