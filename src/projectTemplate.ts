@@ -38,13 +38,11 @@ interface Column {
   title: string;
   backgroundColor: Color;
 
-
   documents: KanbanDocument[];
   maxKanbanDocuments: number | string;
   canAddKanbanDocuments: boolean;
   canChangeKanbanDocumentColor: boolean;
   canDeleteKanbanDocuments: boolean;
-
 }
 interface figureData {
   labels: string[] | null;
@@ -78,6 +76,21 @@ const SELECTORS = {
   CFD_CHART: "cfdChart",
   TAG_CHART: "tagChart",
 };
+/**
+ * ProjectUI
+ *
+ * Controls the project dashboard user interface:
+ * - Initializes DOM references on construction.
+ * - Wires up event listeners for navigation, modal, and chart toggles.
+ * - Fetches Kanban data and transforms it into datasets for Burnup, CFD, and TAG charts.
+ * - Uses Chart.js for visualization, with graceful fallbacks if elements are missing.
+ *
+ * Assumptions:
+ * - Project ID is encoded in the current URL.
+ * - Server endpoint `/project/kanban/:id/data` provides data in expected format.
+ * - Chart.js + plugins (datalabels, colorschemes) are available globally.
+ */
+
 class ProjectUI {
   // public dataSet: ChartDataset<"line" | "bar", number[]>[];
 
@@ -660,8 +673,21 @@ class ProjectUI {
 //label project as a ProjectUI class, type annotation I realized the the project wasn't global.
 let project: ProjectUI;
 /**
- * Class responsible for transforming Kanban lifecycle data into Chart.js-ready datasets for CFD visualization.
+ * CFD_ChartElement
+ *
+ * Generates dataset(s) for a Cumulative Flow Diagram (CFD) from raw Kanban data.
+ *
+ * Responsibilities:
+ * - Flattens all documents across columns.
+ * - Extracts each document’s column lifetime history.
+ * - Builds a per-column map of entry/exit events over time.
+ * - Transforms lifecycle deltas into cumulative flow datasets consumable by Chart.js.
+ *
+ * Assumptions:
+ * - Input KanbanData has `columns` with `documents` that include `columnLifeTime`.
+ * - Timestamps are ordered and can be used directly for cumulative tracking.
  */
+
 class CFD_ChartElement {
   /** Optional display label for the chart */
   public label?: string;
@@ -804,6 +830,23 @@ class CFD_ChartElement {
     return datasets;
   }
 }
+/**
+ * Burnup_ChartElement
+ *
+ * Generates Chart.js datasets for a burnup chart based on Kanban board data.
+ *
+ * Responsibilities:
+ * - Collects all documents across columns to establish creation times.
+ * - Extracts completion times from the last column only (done state).
+ * - Builds two datasets:
+ *    • "Total Documents" = cumulative count of created documents over time.
+ *    • "Completed Documents" = cumulative count of completed items over time.
+ * - Normalizes data with trailing points to align completed vs total.
+ *
+ * Assumptions:
+ * - Document IDs encode creation time as `doc-<timestamp>`.
+ * - The last column in `columnArray` represents completion.
+ */
 
 class Burnup_ChartElement {
   /** Optional display label for the chart */
@@ -972,11 +1015,22 @@ class Burnup_ChartElement {
   }
 }
 /**
- * TAG_ChartElement transforms Kanban board data into visual insights using Chart.js.
- * It’s designed to reveal document flow, aging trends, and lifecycle patterns — not just to display data,
- * but to help teams understand bottlenecks and optimize throughput.
+ * TAG_ChartElement
+ *
+ * Produces datasets for a Task Aging (TAG) chart using Kanban board data.
+ *
+ * Responsibilities:
+ * - Flattens documents and extracts per-column lifetimes.
+ * - Computes task ages (in days) for each column.
+ * - Calculates per-column percentiles (50/70/85/95/100) for cycle time analysis.
+ * - Identifies the “oldest” task to provide scaling and baseline comparisons.
+ * - Builds Chart.js datasets with jittered points for readability.
+ *
+ * Assumptions:
+ * - columnLifeTime arrays alternate [entry, exit, entry, exit...].
+ * - The last column in `columnArray` represents completed work.
+ * - Aging calculations use `Date.now()` for "current age."
  */
-
 class TAG_ChartElement {
   /** Label shown on the chart — useful for identifying the dataset when multiple charts are rendered. */
   public label?: string;

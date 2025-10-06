@@ -1,6 +1,30 @@
+/**
+ * Add User Modal Handler
+ *
+ * Context:
+ *   Triggered when a user submits the "Add User" modal in the project dashboard.
+ *   Enables project owners to invite collaborators and assign roles.
+ *
+ * Purpose:
+ *   Handles form submission, extracts input data, and sends a notification request to the backend.
+ *
+ * Workflow:
+ *   - Reads user email and role (user/admin) from form inputs.
+ *   - Pulls current project context from chat.js state.
+ *   - Constructs payload including project and sender metadata.
+ *   - Issues PUT request to /profile/notifyUser/:email to create a new notification.
+ *   - Expects response with newNotification._id (noteID) for potential socket emission.
+ *   - Logs response data for debugging; socket.emit is scaffolded but currently disabled.
+ *   - Closes the modal after submission (success or failure).
+ *
+ * Notes:
+ *   - Inline project snapshot retained for debugging clarity.
+ *   - socket.emit pending integration with live notification events.
+ *   - Error logs include file and line context for easier tracing.
+ */
+
 import { currentProject } from "/js/chat.js";
 console.log("createColumnModal.js is loaded");
-//const socket = io(window.location.origin);
 const addUserWindow = document.querySelector("#addUserForm");
 console.log("addUserModal.js,line 5", currentProject);
 if (addUserWindow) {
@@ -9,12 +33,11 @@ if (addUserWindow) {
 
     let requestedUserEmail = document.getElementById("userEmail").value;
     let userType = document.getElementById("UserORAdmin").value;
-    // let currentProject = JSON.parse("<%- project %>");
     let sender = currentProject.adminId[0];
     let senderName = currentProject.userId;
     let projectId = currentProject._id;
     let projectName = currentProject.name;
-    console.log(
+    /*console.log(
       "requestedUserName",
       requestedUserEmail,
       "userType",
@@ -27,7 +50,7 @@ if (addUserWindow) {
       projectId,
       "projectName",
       projectName
-    );
+    );*/
     /* {"_id":"67f572c6ef1aa80c4fac9e3c",------------------
    "name":"test multiple admin",------------------------
    "description":"k",
@@ -58,14 +81,14 @@ if (addUserWindow) {
         }
       );
       const responseData = await requestedUserId.json(); //noteID: newNotification._id  is included
-      console.log("requestedUserId._id", requestedUserId._id);
-      // socket.emit(`${requestedUserId._id}`,{
-      //   noteID: responseData.noteID,
-      //   requestedUserId : requestedUserId._id,
-      //   displayName: requestedUserId.displayName
-      // })
+      /* console.log("requestedUserId._id", requestedUserId._id);
+      socket.emit(`${requestedUserId._id}`,{
+        noteID: responseData.noteID,
+        requestedUserId : requestedUserId._id,
+        displayName: requestedUserId.displayName
+      })
       console.log("responseData", responseData);
-      // displayMessage(responseData.message);
+      */
     } catch (error) {
       console.error(error, "requestedUserId not found,profile.ejs line 78");
     }

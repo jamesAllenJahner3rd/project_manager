@@ -62,6 +62,19 @@ chatForm.addEventListener("submit", (e) => {
   messageInput.value = "";
 });
 
+/**
+ * displayMessage(message):
+ * Renders a new chat message with the current user's display name.
+ *
+ * Responsibilities:
+ * - Fetches display name from /profile/getDisplayName.
+ * - Creates a <div> element with the format: "displayName: message".
+ * - Appends the message to #message-container.
+ * - Scrolls to the bottom using scroll(0, scrollHeight) to ensure visibility.
+ *
+ * Notes:
+ * - chatContainer.scrollTop = chatContainer.scrollHeight; this didn't show me the scroll bar.
+ */
 async function displayMessage(message) {
   const response = await fetch("/profile/getDisplayName");
   const displayName = await response.json();
@@ -70,6 +83,5 @@ async function displayMessage(message) {
   const chatContainer = document.getElementById("message-container");
   chatContainer.append(newMessage);
   chatContainer.scroll(0, chatContainer.scrollHeight);
-  //chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 export { currentProject };

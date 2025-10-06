@@ -21,7 +21,6 @@ const postRoutes = require("./routes/postRoutes");
 const projectRoutes = require("./routes/projectRoutes");
 const signupRoutes = require("./routes/signupRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
-// const { getId } = require("./controllers/profileController");
 
 const morgan = require("morgan");
 const connectDB = require("./config/database");
@@ -64,8 +63,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("join-room", async (roomName, profileId) => {
-    // const userId = profileId;
-    socket.userID =  profileId;
+    socket.userID = profileId;
     console.log(`join-room Room: ${roomName} and userProfile:${socket.userID}`);
     if (!socket.joinedRooms) socket.joinedRooms = new Set();
 
@@ -112,10 +110,10 @@ io.on("connection", async (socket) => {
       io.to(room).emit("board-updated", foundKanban);
       console.log("Board updated and broadcasted to room:", room);
       const clients = io.sockets.adapter.rooms;
-    if (clients) {
-      console.log(`this should list the rooms and ids.`);
-      console.dir(clients); // Array of socket IDs
-    }
+      if (clients) {
+        console.log(`this should list the rooms and ids.`);
+        console.dir(clients); // Array of socket IDs
+      }
     } catch (error) {
       console.error("Error handling board update:", error);
       success = false;
@@ -162,7 +160,7 @@ app.use((req, res, next) => {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 //Express-session middleware
 app.use(
   session({

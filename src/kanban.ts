@@ -1,8 +1,16 @@
+import { io, Socket } from "socket.io-client";
+import { ServerToClientEvents, ClientToServerEvents } from "./socketTypes";
+
+// Replace 'any' with proper types
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+  window.location.origin
+);
+
 // type DocumentDrake={
 //   any
 // }
 // import dragula from "dragula";
-export {};
+
 declare global {
   interface Window {
     dragula: any;
@@ -80,8 +88,7 @@ const isAdmin = await (async () => {
     );
   }
 })();
-declare const io: any;
-const socket = io(window.location.origin);
+
 async function room() {
   try {
     let res = await fetch(`/profile/project/${projectId}/data`);
@@ -395,11 +402,11 @@ function saveToLocalStorage() {
           el.dataset.analytics ?? "{Error Analytics was not found}";
         console.log(el.dataset.blockTimeStamp);
         ///string to array
-        let blockTimeStamp = el.dataset.blockTimeStamp ?? "";
-        let blockTimeStampArray: any[] = blockTimeStamp.split(",");
-        blockTimeStampArray = blockTimeStampArray.flatMap((aString) =>
-          aString ? Number(aString) : []
-        );
+        const blockTimeStamp: string = el.dataset.blockTimeStamp ?? "";
+
+        const blockTimeStampArray: number[] = blockTimeStamp
+          .split(",")
+          .flatMap((aString) => (aString ? Number(aString) : []));
         return {
           id: el.id,
           title: el.querySelector("h2")?.textContent,
@@ -1115,7 +1122,7 @@ function init(emittedBoard: KanbanBoard | null = null, emitted = false) {
       (document.getElementById("maxDocuments") as HTMLInputElement).value ||
       "∞";
     if (maxDocuments === "0") maxDocuments = "∞";
-      
+
     const column: Column = {
       id: `column-${Date.now()}`,
       title: columnContent,
@@ -1338,7 +1345,7 @@ socket.on("disconnect", () => {
     socket.connect(); // Attempt reconnect
   }, 5000);
 });
-async function setDocumentFilter(event: any) {
+async function setDocumentFilter(event: SubmitEvent) {
   event.preventDefault();
 
   document

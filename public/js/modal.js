@@ -3,11 +3,7 @@ console.log("Modal.js loaded");
 // const modal = document.querySelectorAll("div:has(>.modal-content)");
 // const spanList =document.querySelectorAll(".close")
 
-// let openedModal = null;
 function openModal(event) {
-  // let target = event.target;
-  // let currenttarget = event.currentTarget;
-
   const openedModal = event.target;
   let toggledElement = openedModal.nextElementSibling;
   const span = toggledElement.querySelector(".close");
@@ -15,7 +11,7 @@ function openModal(event) {
   // locate the form element inside the modal (guarded)
   const theForm = toggledElement?.querySelector("form") || null;
   toggledElement.addEventListener("click", function (event) {
-    // console.log("click modal.js line 11");
+    // console.log("click modal.js line 15");
     if (!theForm.contains(event.target)) {
       toggledElement.style.display = "none";
     }

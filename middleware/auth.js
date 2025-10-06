@@ -1,18 +1,19 @@
+// Authentication middleware for route protection
 module.exports = {
-  //corrected indention
+  // Allow only logged-in users
   ensureAuth: function (req, res, next) {
     if (req.isAuthenticated()) {
-      return next()
+      return next();
     } else {
-      res.redirect('/')
+      res.redirect("/");
     }
   },
-  //I needed to keep the logged in user from returning to the login page.
+  // Prevent logged-in users from visiting guest routes (like login/signup)
   ensureGuest: function (req, res, next) {
-    if (req.isAuthenticated()){
-      res.redirect("/profile")
-    }else {
-      return next()
+    if (req.isAuthenticated()) {
+      res.redirect("/profile");
+    } else {
+      return next();
     }
-  }
-}
+  },
+};
