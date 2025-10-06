@@ -249,19 +249,16 @@ const noteList = document
     }
   });
 
-// const decisionButton = document.querySelectorAll(".notificationChoice");
-// decisionButton.forEach((button) => {
-//   button.addEventListener("click", saveNotification);
-// });
+/**
+ * Handles user interaction with a notification button.
+ * - If the button is affirmative, attempts to add the user to the project via /project/addUser.
+ * - Marks the notification as aged via /project/ageNotification.
+ * - Updates the notification count and UI by removing the processed item.
+ * - If no notifications remain, displays a fallback message.
+ */
 async function saveNotification(button) {
   const notificationId = button.dataset.id;
-  // console.log(
-  //   "notificationId profile.js save Notification line 195",
-  //   notificationId
-  // );
-  // console.log("button saveNotification profile.js line 247", button);
-  // console.log(`${notificationId} notificationId profile.js line 192`);
-  // console.log(`${notificationId} notificationId profile.js line 192`);
+
   try {
     if (button.classList.contains("affirmativeButton")) {
       console.log("trying to save the user to the project");
@@ -269,22 +266,16 @@ async function saveNotification(button) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          // body{ event.target}
         },
         body: JSON.stringify({ notificationId }),
       }); // Handle server response
       const responseData = await newUser.json();
-      // console.log(responseData);
       if (newUser.ok) {
         console.log("User added successfully:", responseData);
       } else {
         console.error("Error adding user:", responseData);
       }
     }
-    //console.log(
-    // "notificationId profile.js save Notification line 219",
-    //   notificationId
-    // );
     let ageNotification = await fetch(`/project/ageNotification`, {
       method: "PUT",
       headers: {
@@ -294,19 +285,13 @@ async function saveNotification(button) {
     });
 
     let responseData = await ageNotification.json();
-    //console.log(responseData.length, responseData[0], responseData[625]);
-
     let notificationList = JSON.parse(responseData);
-
     let notiButton = document.getElementById("openNotiModalButton");
 
     notiButton.textContent = `${notificationList.length} Notifications`;
-    //console.log("test1", JSON.parse(responseData));
     button.closest("li").remove();
     let noteList = document.getElementById("noteList");
-    // console.log(noteList.childNodes, "before hasChildNodes");
     if (noteList.children.length === 0) {
-      // console.log(!noteList.hasChildNodes(), "after hasChildNodes");
       const emptyList = document.createElement("li");
       emptyList.id = "emptyList";
       emptyList.innerText = "No notifications found";

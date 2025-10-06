@@ -1,3 +1,11 @@
+<!--
+  Notification Modal:
+  Renders a list of project invitations for the logged-in user.
+  - Displays count on the trigger button.
+  - If notifications exist, loops through each and renders accept/decline buttons.
+  - If no notifications, shows fallback message.
+  - Buttons carry notification._id for client-side fetch targeting.
+-->
 <button type="button" class="btn btn-primary" id="openNotiModalButton">
   <%= notificationList.length %> Notifications
 </button>

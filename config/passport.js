@@ -1,3 +1,23 @@
+/**
+ * Passport configuration
+ * -----------------------
+ * This module defines authentication strategies for both Google OAuth 2.0 and local login.
+ *
+ * Responsibilities:
+ * - Configure Passport strategies and attach them to the provided `passport` instance.
+ * - Handle login/signup for Google users with conflict and duplicate prevention.
+ * - Handle secure username/email login for local users with bcrypt password validation.
+ * - Define Passport serialization and deserialization logic for session persistence.
+ *
+ * Export:
+ *   module.exports = function (passport)
+ *
+ * Dependencies:
+ *   - Google OAuth strategy (passport-google-oauth20)
+ *   - Local username/email strategy (passport-local)
+ *   - MongoDB User model (via Mongoose)
+ */
+
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const LocalStrategy = require("passport-local").Strategy;
 const mongoose = require("mongoose");
@@ -6,15 +26,24 @@ const User = require("../models/Profile.js");
 
 module.exports = function (passport) {
   // this was passed in from the app.js
+
+  // Google OAuth Strategy:
+  // Handles login/signup via Google.
+  // - Extracts profile and email from Google response.
+  // - If user with googleId exists and provider is 'google', logs them in.
+  // - If googleId exists but provider is not 'google', blocks login with conflict warning.
+  // - If no googleId match, checks for local email conflict.
+  // - Ensures unique username, creates new user, and logs them in.
+  // - Handles duplicate key errors and race conditions gracefully.
   passport.use(
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-       callbackURL:
-        process.env.NODE_ENV === "production"
-          ? "https://project-manager-a0mx.onrender.com/auth/google/callback"
-          : "http://localhost:8000/auth/google/callback",
+        callbackURL:
+          process.env.NODE_ENV === "production"
+            ? "https://project-manager-a0mx.onrender.com/auth/google/callback"
+            : "http://localhost:8000/auth/google/callback",
       },
       async (accessToken, RefreshToken, profile, done) => {
         console.log("--- Google Profile Received ---");
@@ -148,7 +177,13 @@ module.exports = function (passport) {
     )
   );
 
-  // Local Strategy (ensure email is used if usernameField is email)
+  // Local Strategy:
+  // Handles login via username or email.
+  // - Determines query type based on presence of '@'.
+  // - Finds user with provider 'local'.
+  // - Verifies password using bcrypt.
+  // - Blocks login if user not found, password missing, or mismatch.
+  // - Keeps error messages generic for security.
   passport.use(
     new LocalStrategy(
       { usernameField: "username" /* or 'email' if logging in with email */ },
@@ -195,11 +230,20 @@ module.exports = function (passport) {
     )
   );
 
+  // Passport serializeUser:
+  // Stores user ID in session after successful login.
+  // - Called once after authentication.
+  // - Enables session-based persistence across requests.
   passport.serializeUser((user, done) => {
     console.log(`--- Serializing User --- ID: ${user.id}`);
     done(null, user.id);
   });
 
+  // Passport deserializeUser:
+  // Retrieves full user object from session-stored ID.
+  // - Called on every request after login.
+  // - Ensures user still exists before proceeding.
+  // - Handles missing or errored lookups gracefully.
   passport.deserializeUser(async (id, done) => {
     console.log(`--- Deserializing User --- ID: ${id}`);
     try {

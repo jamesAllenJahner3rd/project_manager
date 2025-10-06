@@ -230,10 +230,6 @@ h2 {
   color: var(--dark-green);
 }
 
-#createDocumentForm .form-group {
-  /* margin-bottom: 20px; */
-}
-
 #createDocumentForm label {
   display: block;
   margin-bottom: 8px;
